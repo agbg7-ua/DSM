@@ -1,0 +1,118 @@
+@startuml
+' Dirección del diagrama
+left to right direction
+
+' === ENUM DE ESTADOS DE PEDIDO ===
+enum EstadoPedido {
+    PENDIENTE
+    EN_PROCESO
+    ENVIADO
+    ENTREGADO
+    CANCELADO
+}
+
+' === GRUPO USUARIO Y RELACIONES PRINCIPALES ===
+class Usuario {
+    +int idUsuario
+    +String nombre
+    +String correo
+    +String contrasena
+    +String direccion
+    +registrarse()
+    +iniciarSesion()
+    +cerrarSesion()
+    +eliminarCuenta()
+}
+
+class Rol {
+    +int idRol
+    +String nombre
+    +String descripcion
+    +asociaciones: (Comprador, Vendedor, Ambos)
+}
+
+class DireccionEnvio {
+    +int idDireccion
+    +String calle
+    +String ciudad
+    +String codigoPostal
+    +String pais
+    +guardar()
+    +editar()
+    +eliminar()
+}
+
+class MetodoPago {
+    +int idMetodo
+    +String tipo
+    +String numero
+    +Date fechaExpiracion
+    +guardar()
+    +editar()
+    +eliminar()
+}
+
+Usuario "0..*" --> "1..1" Rol : ser
+Usuario "1..1" -->"0..*" Pedido : posee
+Usuario "1..1" --> "0..*" Valoracion : valora
+Usuario "1..1"--> "0..*" Favorito : agrega
+Usuario "1..1" --> "0..*" Producto : publica
+Usuario "1..1" --> "0..*" Producto : busca
+Usuario "1..1" --> "0..*" DireccionEnvio : guarda
+Usuario "1..1"--> "0..*" MetodoPago : guarda
+
+' === GRUPO PRODUCTO Y FAVORITOS ===
+class Producto {
+    +int idProducto
+    +String nombre
+    +String descripcion
+    +float precio
+    +String categoria
+    +List<String> imagenes
+    +int stock
+    +publicar()
+    +editar()
+    +eliminar()
+}
+
+class Favorito {
+    +int idFavorito
+    +marcarFavorito()
+    +desmarcarFavorito()
+}
+
+class Valoracion {
+    +int idValoracion
+    +int puntuacion
+    +String comentario
+    +guardar()
+    +borrar()
+}
+
+Producto "1..1"--> "0..*" Valoracion : recibe
+Producto "1..1" --> "0..*" PedidoItem : incluido en
+Favorito "0..*" --> "1..1" Producto : selecciona
+
+' === GRUPO PEDIDOS ===
+class Pedido {
+    +int idPedido
+    +Date fecha
+    +EstadoPedido estado
+    +float precioTotal
+    +realizarPedido()
+    +verPedido()
+}
+
+class PedidoItem {
+    +int idItem
+    +int cantidad
+    +float precioUnitario
+    +calcularSubtotal():float
+}
+
+Pedido *-- PedidoItem : contiene
+Pedido "0..*" -->  "1..1" DireccionEnvio : seleccionar
+Pedido "0..*" --> "1..1" MetodoPago : seleccionar
+Pedido --> EstadoPedido
+
+@enduml
