@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<hibernate-configuration xmlns="urn:nhibernate-configuration-2.2">
+  <session-factory>
+    <!-- Ajusta la connection string según tu entorno. Aquí usamos LocalDB adjuntando un MDF en InitializeDb/Data -->
+    <property name="connection.provider">NHibernate.Connection.DriverConnectionProvider</property>
+    <property name="connection.driver_class">NHibernate.Driver.SqlClientDriver</property>
+    <property name="dialect">NHibernate.Dialect.MsSql2012Dialect</property>
+    <property name="connection.connection_string">Data Source=(localdb)\\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\\ProjectDatabase.mdf;Integrated Security=True;MultipleActiveResultSets=True;Encrypt=False;</property>
+
+    <property name="show_sql">true</property>
+    <property name="format_sql">true</property>
+
+    <!-- Mapping resource entries (relative paths) -->
+    <mapping file="Infrastructure/NHibernate/Mappings/Usuario.hbm.xml" />
+    <mapping file="Infrastructure/NHibernate/Mappings/Rol.hbm.xml" />
+    <mapping file="Infrastructure/NHibernate/Mappings/DireccionEnvio.hbm.xml" />
+    <mapping file="Infrastructure/NHibernate/Mappings/MetodoPago.hbm.xml" />
+    <mapping file="Infrastructure/NHibernate/Mappings/Producto.hbm.xml" />
+    <mapping file="Infrastructure/NHibernate/Mappings/Favorito.hbm.xml" />
+    <mapping file="Infrastructure/NHibernate/Mappings/Valoracion.hbm.xml" />
+    <mapping file="Infrastructure/NHibernate/Mappings/Pedido.hbm.xml" />
+    <mapping file="Infrastructure/NHibernate/Mappings/PedidoItem.hbm.xml" />
+  </session-factory>
+</hibernate-configuration>

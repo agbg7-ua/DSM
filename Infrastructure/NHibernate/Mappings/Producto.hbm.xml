@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2" assembly="ApplicationCore" namespace="ApplicationCore.Domain.EN">
+  <class name="Producto" table="Producto">
+    <id name="IdProducto" column="IdProducto" type="long">
+      <generator class="hilo">
+        <param name="table">NHibernateUniqueKey</param>
+        <param name="column">NextHigh</param>
+        <param name="max_lo">100</param>
+      </generator>
+    </id>
+
+    <property name="Nombre" />
+    <property name="Descripcion" />
+    <property name="Precio" />
+    <property name="Categoria" />
+    <property name="Stock" />
+
+    <many-to-one name="Vendedor" class="Usuario" column="IdUsuario" not-null="false" />
+
+    <set name="Valoraciones" inverse="true" cascade="all">
+      <key column="IdProducto" />
+      <one-to-many class="Valoracion" />
+    </set>
+
+    <set name="PedidoItems" inverse="true" cascade="all">
+      <key column="IdProducto" />
+      <one-to-many class="PedidoItem" />
+    </set>
+  </class>
+</hibernate-mapping>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2" assembly="ApplicationCore" namespace="ApplicationCore.Domain.EN">
+  <class name="Favorito" table="Favorito">
+    <id name="IdFavorito" column="IdFavorito" type="long">
+      <generator class="hilo">
+        <param name="table">NHibernateUniqueKey</param>
+        <param name="column">NextHigh</param>
+        <param name="max_lo">100</param>
+      </generator>
+    </id>
+
+    <many-to-one name="Usuario" class="Usuario" column="IdUsuario" />
+    <many-to-one name="Producto" class="Producto" column="IdProducto" />
+  </class>
+</hibernate-mapping>

@@ -1,0 +1,137 @@
+{
+  "info": {
+    "name": "DSM Domain Model",
+    "source": "modelo_dominio.puml",
+    "generatedAt": "2025-10-23T00:00:00Z",
+    "notes": "Tipos: ids usan long; fechas date-time; decimal para precios; listas como array<string>. Relaciones reflejan multiplicidades del PlantUML."
+  },
+  "enums": {
+    "EstadoPedido": [
+      "PENDIENTE",
+      "EN_PROCESO",
+      "ENVIADO",
+      "ENTREGADO",
+      "CANCELADO"
+    ]
+  },
+  "entities": {
+    "Usuario": {
+      "properties": [
+        { "name": "idUsuario", "type": "long", "nullable": false },
+        { "name": "nombre", "type": "string", "nullable": false },
+        { "name": "correo", "type": "string", "nullable": false },
+        { "name": "contrasena", "type": "string", "nullable": false },
+        { "name": "direccion", "type": "string", "nullable": true }
+      ],
+      "relations": [
+        { "target": "Rol", "type": "many-to-one", "thisMultiplicity": "1..1", "targetMultiplicity": "1..1", "fk": "idRol" },
+        { "target": "Pedido", "type": "one-to-many", "thisMultiplicity": "1..1", "targetMultiplicity": "0..*", "navigation": "pedidos" },
+        { "target": "Valoracion", "type": "one-to-many", "navigation": "valoraciones" },
+        { "target": "Favorito", "type": "one-to-many", "navigation": "favoritos" },
+        { "target": "Producto", "type": "one-to-many", "navigation": "productosPublicados", "note": "publica / busca" },
+        { "target": "DireccionEnvio", "type": "one-to-many", "navigation": "direccionesEnvio" },
+        { "target": "MetodoPago", "type": "one-to-many", "navigation": "metodosPago" }
+      ]
+    },
+    "Rol": {
+      "properties": [
+        { "name": "idRol", "type": "long", "nullable": false },
+        { "name": "nombre", "type": "string", "nullable": false },
+        { "name": "descripcion", "type": "string", "nullable": true },
+        { "name": "asociaciones", "type": "string", "nullable": true, "notes": "valores esperados: Comprador, Vendedor, Ambos" }
+      ],
+      "relations": [
+        { "target": "Usuario", "type": "one-to-many", "navigation": "usuarios", "note": "Un rol puede aplicarse a 0..* usuarios" }
+      ]
+    },
+    "DireccionEnvio": {
+      "properties": [
+        { "name": "idDireccion", "type": "long", "nullable": false },
+        { "name": "calle", "type": "string", "nullable": false },
+        { "name": "ciudad", "type": "string", "nullable": false },
+        { "name": "codigoPostal", "type": "string", "nullable": false },
+        { "name": "pais", "type": "string", "nullable": false }
+      ],
+      "relations": [
+        { "target": "Usuario", "type": "many-to-one", "navigation": "usuario", "fk": "idUsuario" },
+        { "target": "Pedido", "type": "one-to-many", "navigation": "pedidos", "note": "Pedido selecciona una DireccionEnvio (many pedidos pueden usar la misma direccion)" }
+      ]
+    },
+    "MetodoPago": {
+      "properties": [
+        { "name": "idMetodo", "type": "long", "nullable": false },
+        { "name": "tipo", "type": "string", "nullable": false },
+        { "name": "numero", "type": "string", "nullable": false },
+        { "name": "fechaExpiracion", "type": "date-time", "nullable": false }
+      ],
+      "relations": [
+        { "target": "Usuario", "type": "many-to-one", "navigation": "usuario", "fk": "idUsuario" },
+        { "target": "Pedido", "type": "one-to-many", "navigation": "pedidos", "note": "Pedido selecciona un MetodoPago" }
+      ]
+    },
+    "Producto": {
+      "properties": [
+        { "name": "idProducto", "type": "long", "nullable": false },
+        { "name": "nombre", "type": "string", "nullable": false },
+        { "name": "descripcion", "type": "string", "nullable": true },
+        { "name": "precio", "type": "decimal", "nullable": false },
+        { "name": "categoria", "type": "string", "nullable": true },
+        { "name": "imagenes", "type": "array<string>", "nullable": true },
+        { "name": "stock", "type": "int", "nullable": false }
+      ],
+      "relations": [
+        { "target": "Usuario", "type": "many-to-one", "navigation": "vendedor", "fk": "idUsuario", "note": "Usuario publica productos" },
+        { "target": "Valoracion", "type": "one-to-many", "navigation": "valoraciones" },
+        { "target": "PedidoItem", "type": "one-to-many", "navigation": "pedidoItems" }
+      ]
+    },
+    "Favorito": {
+      "properties": [
+        { "name": "idFavorito", "type": "long", "nullable": false }
+      ],
+      "relations": [
+        { "target": "Usuario", "type": "many-to-one", "navigation": "usuario", "fk": "idUsuario" },
+        { "target": "Producto", "type": "many-to-one", "navigation": "producto", "fk": "idProducto" }
+      ]
+    },
+    "Valoracion": {
+      "properties": [
+        { "name": "idValoracion", "type": "long", "nullable": false },
+        { "name": "puntuacion", "type": "int", "nullable": false },
+        { "name": "comentario", "type": "string", "nullable": true }
+      ],
+      "relations": [
+        { "target": "Usuario", "type": "many-to-one", "navigation": "usuario", "fk": "idUsuario" },
+        { "target": "Producto", "type": "many-to-one", "navigation": "producto", "fk": "idProducto" }
+      ]
+    },
+    "Pedido": {
+      "properties": [
+        { "name": "idPedido", "type": "long", "nullable": false },
+        { "name": "fecha", "type": "date-time", "nullable": false },
+        { "name": "estado", "type": "EstadoPedido", "nullable": false },
+        { "name": "precioTotal", "type": "decimal", "nullable": false }
+      ],
+      "relations": [
+        { "target": "Usuario", "type": "many-to-one", "navigation": "cliente", "fk": "idUsuario" },
+        { "target": "PedidoItem", "type": "one-to-many", "navigation": "items" },
+        { "target": "DireccionEnvio", "type": "many-to-one", "navigation": "direccionEnvio", "fk": "idDireccion" },
+        { "target": "MetodoPago", "type": "many-to-one", "navigation": "metodoPago", "fk": "idMetodo" }
+      ]
+    },
+    "PedidoItem": {
+      "properties": [
+        { "name": "idItem", "type": "long", "nullable": false },
+        { "name": "cantidad", "type": "int", "nullable": false },
+        { "name": "precioUnitario", "type": "decimal", "nullable": false }
+      ],
+      "relations": [
+        { "target": "Pedido", "type": "many-to-one", "navigation": "pedido", "fk": "idPedido" },
+        { "target": "Producto", "type": "many-to-one", "navigation": "producto", "fk": "idProducto" }
+      ],
+      "operations": [
+        { "name": "calcularSubtotal", "returns": "decimal", "description": "cantidad * precioUnitario" }
+      ]
+    }
+  }
+}

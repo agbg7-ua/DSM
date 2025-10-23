@@ -1,0 +1,1 @@
+Notas: ids se nombran como en el PUML original (IdUsuario, IdProducto...). Para NHibernate recomendamos cambiarlos a `Id` para uniformidad; adaptar mapeos si se desea.
