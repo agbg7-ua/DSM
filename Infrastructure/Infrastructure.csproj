@@ -6,7 +6,8 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\ApplicationCore\ApplicationCore.csproj" />
-    <PackageReference Include="NHibernate" Version="6.1.1" />
+    <PackageReference Include="NHibernate" Version="5.6.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NHibernate\nhibernate.cfg.xml" CopyToOutputDirectory="PreserveNewest" />
