@@ -11,7 +11,9 @@ namespace Infrastructure.Repositories
 
         public IEnumerable<Producto> BuscarPorNombre(string nombre)
         {
-            return _session.QueryOver<Producto>().Where(p => p.Nombre.IsLike(nombre)).List();
+            return _session.QueryOver<Producto>()
+                .Where(p => p.Nombre.Contains(nombre))
+                .List();
         }
     }
 }

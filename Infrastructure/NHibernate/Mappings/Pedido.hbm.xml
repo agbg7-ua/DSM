@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <hibernate-mapping xmlns="urn:nhibernate-mapping-2.2" assembly="ApplicationCore" namespace="ApplicationCore.Domain.EN">
   <class name="Pedido" table="Pedido">
-    <id name="IdPedido" column="IdPedido" type="long">
-      <generator class="hilo">
-        <param name="table">NHibernateUniqueKey</param>
-        <param name="column">NextHigh</param>
-        <param name="max_lo">100</param>
-      </generator>
+    <id name="Id" column="IdPedido" type="long">
+      <generator class="identity" />
     </id>
 
     <property name="Fecha" type="DateTime" />
-    <property name="Estado" type="ApplicationCore.Domain.Enums.EstadoPedido" />
+    <property name="Estado">
+      <type name="NHibernate.Type.EnumStringType`1[[ApplicationCore.Domain.Enums.EstadoPedido, ApplicationCore]]">
+      </type>
+    </property>
     <property name="PrecioTotal" />
 
     <many-to-one name="Cliente" class="Usuario" column="IdUsuario" />

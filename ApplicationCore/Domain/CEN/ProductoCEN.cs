@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using ApplicationCore.Domain.EN;
 using ApplicationCore.Domain.Repositories;
 
@@ -6,28 +8,36 @@ namespace ApplicationCore.Domain.CEN
     public class ProductoCEN
     {
         private readonly IProductoRepository _productoRepo;
+        private readonly IUsuarioRepository _usuarioRepo;
         private readonly IUnitOfWork _uow;
 
-        public ProductoCEN(IProductoRepository productoRepo, IUnitOfWork uow)
+        public ProductoCEN(IProductoRepository productoRepo, IUsuarioRepository usuarioRepo, IUnitOfWork uow)
         {
             _productoRepo = productoRepo;
+            _usuarioRepo = usuarioRepo;
             _uow = uow;
         }
 
-        public void Crear(string nombre, decimal precio, int stock, string? descripcion = null, string? categoria = null)
+        public Producto CrearProducto(string nombre, string descripcion, decimal precio, string categoria, ICollection<string> imagenes, int stock, int vendedorId)
         {
-            var p = new Producto
+            var vendedor = _usuarioRepo.GetById(vendedorId);
+            if (vendedor == null)
+                throw new Exception($"Usuario con ID {vendedorId} no encontrado");
+
+            var producto = new Producto
             {
                 Nombre = nombre,
-                Precio = precio,
-                Stock = stock,
                 Descripcion = descripcion,
+                Precio = precio,
                 Categoria = categoria,
-                Imagenes = new List<string>()
+                Imagenes = imagenes,
+                Stock = stock,
+                Vendedor = vendedor
             };
 
-            _productoRepo.New(p);
+            _productoRepo.New(producto);
             _uow.SaveChanges();
+            return producto;
         }
 
         public Producto GetById(long id)

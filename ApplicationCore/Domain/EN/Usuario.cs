@@ -4,11 +4,11 @@ namespace ApplicationCore.Domain.EN
 {
     public class Usuario
     {
-        public long IdUsuario { get; set; }
-        public string Nombre { get; set; }
-        public string Correo { get; set; }
-        public string Contrasena { get; set; }
-        public string Direccion { get; set; }
+        public virtual long Id { get; set; }
+        public virtual string Nombre { get; set; }
+        public virtual string Correo { get; set; }
+        public virtual string Contrasena { get; set; }
+        public virtual string Direccion { get; set; }
 
         // Navigation properties
         public virtual Rol Rol { get; set; }

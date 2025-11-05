@@ -6,7 +6,7 @@ namespace Infrastructure.Repositories
     public class NHibernateUnitOfWork : IUnitOfWork
     {
         private readonly ISession _session;
-        private ITransaction _transaction;
+        private ITransaction? _transaction;
 
         public NHibernateUnitOfWork(ISession session)
         {
@@ -30,7 +30,7 @@ namespace Infrastructure.Repositories
             {
                 // Auto-begin transaction if none exists
                 BeginTransaction();
-                _transaction.Commit();
+                _transaction?.Commit();
                 _transaction = null;
             }
         }

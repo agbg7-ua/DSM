@@ -4,13 +4,13 @@ namespace ApplicationCore.Domain.EN
 {
     public class Producto
     {
-        public long IdProducto { get; set; }
-        public string Nombre { get; set; }
-        public string Descripcion { get; set; }
-        public decimal Precio { get; set; }
-        public string Categoria { get; set; }
-        public ICollection<string> Imagenes { get; set; } = new List<string>();
-        public int Stock { get; set; }
+        public virtual long Id { get; set; }
+        public virtual string Nombre { get; set; }
+        public virtual string Descripcion { get; set; }
+        public virtual decimal Precio { get; set; }
+        public virtual string Categoria { get; set; }
+        public virtual ICollection<string> Imagenes { get; set; } = new List<string>();
+        public virtual int Stock { get; set; }
 
         public virtual Usuario Vendedor { get; set; }
         public virtual ICollection<Valoracion> Valoraciones { get; set; } = new List<Valoracion>();

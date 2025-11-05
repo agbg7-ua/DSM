@@ -8,6 +8,11 @@
   <ItemGroup>
     <ProjectReference Include="..\ApplicationCore\ApplicationCore.csproj" />
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\Infrastructure\NHibernate\nhibernate.cfg.xml" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\Infrastructure\NHibernate\Mappings\*.hbm.xml" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

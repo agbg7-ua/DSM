@@ -1,24 +1,28 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <hibernate-configuration xmlns="urn:nhibernate-configuration-2.2">
   <session-factory>
-    <!-- Ajusta la connection string según tu entorno. Aquí usamos LocalDB adjuntando un MDF en InitializeDb/Data -->
+  <!-- Ajusta la connection string según tu entorno. Preferimos SQL Server Express (.\\SQLEXPRESS) si está disponible. -->
     <property name="connection.provider">NHibernate.Connection.DriverConnectionProvider</property>
     <property name="connection.driver_class">NHibernate.Driver.SqlClientDriver</property>
     <property name="dialect">NHibernate.Dialect.MsSql2012Dialect</property>
-    <property name="connection.connection_string">Data Source=(localdb)\\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\\ProjectDatabase.mdf;Integrated Security=True;MultipleActiveResultSets=True;Encrypt=False;</property>
-
+  <!-- Default: SQL Express instance. If you prefer LocalDB put the AttachDbFilename connection string here. -->
+  <property name="connection.connection_string">Server=.\\SQLEXPRESS;Database=DSM_EShop;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=True</property>
+  <!-- Use NHibernateHelper to apply schema updates; set hbm2ddl.auto to none to avoid destructive behavior. -->
+  <property name="hbm2ddl.auto">none</property>
     <property name="show_sql">true</property>
     <property name="format_sql">true</property>
+    <property name="generate_statistics">true</property>
+    <property name="format_sql">true</property>
 
-    <!-- Mapping resource entries (relative paths) -->
-    <mapping file="Infrastructure/NHibernate/Mappings/Usuario.hbm.xml" />
-    <mapping file="Infrastructure/NHibernate/Mappings/Rol.hbm.xml" />
-    <mapping file="Infrastructure/NHibernate/Mappings/DireccionEnvio.hbm.xml" />
-    <mapping file="Infrastructure/NHibernate/Mappings/MetodoPago.hbm.xml" />
-    <mapping file="Infrastructure/NHibernate/Mappings/Producto.hbm.xml" />
-    <mapping file="Infrastructure/NHibernate/Mappings/Favorito.hbm.xml" />
-    <mapping file="Infrastructure/NHibernate/Mappings/Valoracion.hbm.xml" />
-    <mapping file="Infrastructure/NHibernate/Mappings/Pedido.hbm.xml" />
-    <mapping file="Infrastructure/NHibernate/Mappings/PedidoItem.hbm.xml" />
+    <!-- Mapping resource entries -->
+    <mapping file="Mappings/Usuario.hbm.xml" />
+    <mapping file="Mappings/Rol.hbm.xml" />
+    <mapping file="Mappings/DireccionEnvio.hbm.xml" />
+    <mapping file="Mappings/MetodoPago.hbm.xml" />
+    <mapping file="Mappings/Producto.hbm.xml" />
+    <mapping file="Mappings/Favorito.hbm.xml" />
+    <mapping file="Mappings/Valoracion.hbm.xml" />
+    <mapping file="Mappings/Pedido.hbm.xml" />
+    <mapping file="Mappings/PedidoItem.hbm.xml" />
   </session-factory>
 </hibernate-configuration>

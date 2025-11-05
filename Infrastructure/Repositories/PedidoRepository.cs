@@ -11,7 +11,7 @@ namespace Infrastructure.Repositories
 
         public IEnumerable<Pedido> GetByCliente(long clienteId)
         {
-            return _session.QueryOver<Pedido>().Where(p => p.Cliente.IdUsuario == clienteId).List();
+            return _session.QueryOver<Pedido>().Where(p => p.Cliente.Id == clienteId).List();
         }
     }
 }

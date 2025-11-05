@@ -8,9 +8,15 @@
     <ProjectReference Include="..\ApplicationCore\ApplicationCore.csproj" />
     <PackageReference Include="NHibernate" Version="5.6.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
+      <PackageReference Include="System.ServiceProcess.ServiceController" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="NHibernate\nhibernate.cfg.xml" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="NHibernate\Mappings\*.hbm.xml" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="NHibernate\nhibernate.cfg.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="NHibernate\Mappings\*.hbm.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

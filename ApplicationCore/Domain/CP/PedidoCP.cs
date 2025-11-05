@@ -25,7 +25,7 @@ namespace ApplicationCore.Domain.CP
                 DireccionEnvio = direccion,
                 MetodoPago = metodo,
                 Fecha = DateTime.UtcNow,
-                Estado = Enums.EstadoPedido.PENDIENTE
+                Estado = Enums.EstadoPedido.Pendiente
             };
 
             decimal total = 0;
