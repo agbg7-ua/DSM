@@ -67,6 +67,17 @@ namespace ApplicationCore.Domain.CEN
             return _pedidoRepo.GetByCliente(clienteId);
         }
 
+        public IEnumerable<Pedido> RadFilterPedidosByEstado(EstadoPedido estado)
+        {
+            return _pedidoRepo.GetByEstado(estado);
+        }
+
+        public IEnumerable<Pedido> ReadFilterPedidosByUsuario(int usuarioId)
+        {
+            // Aprovechamos el método existente GetByCliente en el repositorio
+            return _pedidoRepo.GetByCliente(usuarioId);
+        }
+
         public void ActualizarEstado(int pedidoId, EstadoPedido nuevoEstado)
         {
             var pedido = _pedidoRepo.GetById(pedidoId);
@@ -75,6 +86,28 @@ namespace ApplicationCore.Domain.CEN
 
             pedido.Estado = nuevoEstado;
             _uow.SaveChanges();
+        }
+
+        public decimal CalcularTotalPedidosUsuario(long usuarioId)
+        {
+            var usuario = _usuarioRepo.GetById(usuarioId);
+            if (usuario == null)
+                throw new Exception($"Usuario con ID {usuarioId} no encontrado");
+
+            var pedidosUsuario = _pedidoRepo.GetByCliente(usuarioId);
+            return pedidosUsuario
+                .Where(p => p.Estado != EstadoPedido.Cancelado)
+                .Sum(p => p.PrecioTotal);
+        }
+
+        public int ContarPedidosPendientes(long usuarioId)
+        {
+            var usuario = _usuarioRepo.GetById(usuarioId);
+            if (usuario == null)
+                throw new Exception($"Usuario con ID {usuarioId} no encontrado");
+
+            var pedidosUsuario = _pedidoRepo.GetByCliente(usuarioId);
+            return pedidosUsuario.Count(p => p.Estado == EstadoPedido.Pendiente);
         }
     }
 }

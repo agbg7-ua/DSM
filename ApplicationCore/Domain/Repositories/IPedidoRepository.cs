@@ -6,5 +6,6 @@ namespace ApplicationCore.Domain.Repositories
     public interface IPedidoRepository : IRepository<Pedido, long>
     {
         IEnumerable<Pedido> GetByCliente(long clienteId);
+        IEnumerable<Pedido> GetByEstado(ApplicationCore.Domain.Enums.EstadoPedido estado);
     }
 }
