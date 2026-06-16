@@ -1,0 +1,45 @@
+using ApplicationCore.Domain.CEN;
+using ApplicationCore.Domain.Repositories;
+using Infrastructure.NHibernate;
+using Infrastructure.NHibernate.Repositories;
+using Microsoft.AspNetCore.Mvc;
+using NHibernate;
+
+
+var builder = WebApplication.CreateBuilder(args);
+
+const string connectionString = "Server=.\\SQLEXPRESS;Database=GestionMakerspace;Trusted_Connection=True;TrustServerCertificate=True;";
+
+// NHibernate
+var sessionFactory = NHibernateHelper.BuildSessionFactory(connectionString);
+builder.Services.AddSingleton<ISessionFactory>(sessionFactory);
+builder.Services.AddScoped<NHibernate.ISession>(provider =>
+    provider.GetRequiredService<ISessionFactory>().OpenSession());
+
+// Repositorios
+builder.Services.AddScoped<IMaterialRepository, MaterialRepository>();
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+
+// CENs
+builder.Services.AddScoped<MaterialCEN>();
+
+// MVC
+builder.Services.AddControllersWithViews();
+
+var app = builder.Build();
+
+if (!app.Environment.IsDevelopment()) {
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
+}
+
+app.UseHttpsRedirection();
+app.UseRouting();
+app.UseAuthorization();
+app.UseStaticFiles();
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.Run();

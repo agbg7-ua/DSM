@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -10,15 +10,19 @@
     <Compile Remove="ApplicationCore\**" />
     <Compile Remove="Infrastructure\**" />
     <Compile Remove="InitializeDb\**" />
+    <Compile Remove="WebMarkerSpace\**" />
     <Content Remove="ApplicationCore\**" />
     <Content Remove="Infrastructure\**" />
     <Content Remove="InitializeDb\**" />
+    <Content Remove="WebMarkerSpace\**" />
     <EmbeddedResource Remove="ApplicationCore\**" />
     <EmbeddedResource Remove="Infrastructure\**" />
     <EmbeddedResource Remove="InitializeDb\**" />
+    <EmbeddedResource Remove="WebMarkerSpace\**" />
     <None Remove="ApplicationCore\**" />
     <None Remove="Infrastructure\**" />
     <None Remove="InitializeDb\**" />
+    <None Remove="WebMarkerSpace\**" />
   </ItemGroup>
 
 </Project>

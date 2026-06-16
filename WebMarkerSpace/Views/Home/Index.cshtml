@@ -1,0 +1,45 @@
+@model IEnumerable<ApplicationCore.Domain.EN.Material>
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <td>
+                    @Html.DisplayNameFor(model => model.Nombre)
+                </td>
+                <td>
+                    @Html.DisplayNameFor(model => model.Descripcion)
+                </td>
+                <td>
+                    @Html.DisplayNameFor(model => model.Estado)
+                </td>
+                <td>
+                    @Html.DisplayNameFor(model => model.EstaDisponible)
+                </td>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Nombre)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Descripcion)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Estado)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.EstaDisponible)
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

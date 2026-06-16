@@ -11,7 +11,7 @@ using NHibernate;
 
 const string DatabaseName = "GestionMakerspace";
 const string SqlExpressConnectionString =
-    $"Server=localhost\\SQLEXPRESS;Database={DatabaseName};Trusted_Connection=True;TrustServerCertificate=True;";
+    $"Server=.\\SQLEXPRESS;Database={DatabaseName};Trusted_Connection=True;TrustServerCertificate=True;";
 
 var dataDir = Path.Combine(AppContext.BaseDirectory, "Data");
 Directory.CreateDirectory(dataDir);
@@ -26,12 +26,12 @@ var logger = loggerFactory.CreateLogger("InitializeDb");
 try {
     var config = NHibernateHelper.LoadConfiguration(SqlExpressConnectionString);
 
-    // Captura dinámicamente qué cadena funcionó en el script
     string connectionStringUtilizada = ExportSchemaWithFallback(config, SqlExpressConnectionString, localDbConnectionString, logger);
 
-    // Inyecta la cadena correcta al contenedor de dependencias
     var services = BuildServiceProvider(connectionStringUtilizada);
-    logger.LogInformation("Contenedor DI registrado. Seed no ejecutado (hook disponible en Program.cs).");
+    logger.LogInformation("Contenedor DI registrado. Ejecutando seed...");
+
+    InsertarDatosPrueba(services, logger);
 
     logger.LogInformation("InitializeDb completado.");
 }
@@ -40,7 +40,6 @@ catch (Exception ex) {
     Environment.ExitCode = 1;
 }
 
-// CORRECCIÓN: Ahora cambia de 'void' a 'string' y devuelve la conexión exitosa
 static string ExportSchemaWithFallback(
     NHibernate.Cfg.Configuration config,
     string primaryConnectionString,
@@ -48,6 +47,7 @@ static string ExportSchemaWithFallback(
     ILogger logger) {
     try {
         config.SetProperty(NHibernate.Cfg.Environment.ConnectionString, primaryConnectionString);
+        EnsureDatabaseExists(primaryConnectionString, logger);
         TestConnection(primaryConnectionString);
         logger.LogInformation("Usando conexión SQL Express: {Connection}", primaryConnectionString);
         NHibernateHelper.ExportSchema(config);
@@ -63,6 +63,22 @@ static string ExportSchemaWithFallback(
 
         return fallbackConnectionString;
     }
+}
+
+static void EnsureDatabaseExists(string connectionString, ILogger logger) {
+    var builder = new SqlConnectionStringBuilder(connectionString);
+    var databaseName = builder.InitialCatalog;
+    var masterConnStr = new SqlConnectionStringBuilder(connectionString) {
+        InitialCatalog = "master"
+    }.ConnectionString;
+
+    using var connection = new SqlConnection(masterConnStr);
+    connection.Open();
+
+    using var cmd = connection.CreateCommand();
+    cmd.CommandText = $"IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N'{databaseName}') CREATE DATABASE [{databaseName}]";
+    cmd.ExecuteNonQuery();
+    logger.LogInformation("Base de datos {Database} verificada/creada.", databaseName);
 }
 
 static void TestConnection(string connectionString) {
@@ -104,7 +120,6 @@ static void RecreateLocalDbIfNeeded(string connectionString, ILogger logger) {
         if (!string.IsNullOrEmpty(mdfPath) && File.Exists(mdfPath)) {
             try {
                 File.Delete(mdfPath);
-
                 var ldfPath = mdfPath.Replace(".mdf", "_log.ldf", StringComparison.OrdinalIgnoreCase);
                 if (File.Exists(ldfPath))
                     File.Delete(ldfPath);
@@ -115,6 +130,32 @@ static void RecreateLocalDbIfNeeded(string connectionString, ILogger logger) {
         }
 
         logger.LogInformation("Base de datos LocalDB {Database} y sus archivos físicos recreados.", databaseName);
+    }
+}
+
+static void InsertarDatosPrueba(ServiceProvider services, ILogger logger) {
+    using var scope = services.CreateScope();
+    var materialCEN = scope.ServiceProvider.GetRequiredService<MaterialCEN>();
+    var usuarioCEN = scope.ServiceProvider.GetRequiredService<UsuarioCEN>();
+    var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+
+    try {
+        // Usuarios
+        usuarioCEN.Crear("Juan García", "juan@makerspace.com", "1234", ApplicationCore.Domain.Enums.RolUsuario.Administrador);
+        usuarioCEN.Crear("María López", "maria@makerspace.com", "1234", ApplicationCore.Domain.Enums.RolUsuario.Usuario);
+
+        // Materiales
+        materialCEN.Crear("Taladro eléctrico", "Taladro percutor 800W", ApplicationCore.Domain.Enums.EstadoMaterial.Disponible, true);
+        materialCEN.Crear("Sierra circular", "Sierra circular 1200W con guía", ApplicationCore.Domain.Enums.EstadoMaterial.Disponible, true);
+        materialCEN.Crear("Impresora 3D", "Impresora FDM con cama caliente", ApplicationCore.Domain.Enums.EstadoMaterial.Disponible, true);
+        materialCEN.Crear("Soldador", "Soldador de estaño 60W", ApplicationCore.Domain.Enums.EstadoMaterial.EnMantenimiento, false);
+
+        unitOfWork.SaveChanges();
+        logger.LogInformation("Datos de prueba insertados correctamente.");
+    }
+    catch (Exception ex) {
+        logger.LogError(ex, "Error insertando datos de prueba.");
+        throw;
     }
 }
 

@@ -4,7 +4,7 @@
     <property name="connection.provider">NHibernate.Connection.DriverConnectionProvider</property>
     <property name="dialect">NHibernate.Dialect.MsSql2012Dialect</property>
     <property name="connection.driver_class">NHibernate.Driver.MicrosoftDataSqlClientDriver</property>
-    <property name="connection.connection_string"> Server=localhost\SQLEXPRESS;Database=GestionMakerspace;Trusted_Connection=True;TrustServerCertificate=True;</property>
+    <property name="connection.connection_string"> Server=.\SQLEXPRESS;Database=GestionMakerspace;Trusted_Connection=True;TrustServerCertificate=True;</property>
     <property name="show_sql">true</property>
     <property name="format_sql">true</property>
     <property name="hbm2ddl.keywords">auto-quote</property>
