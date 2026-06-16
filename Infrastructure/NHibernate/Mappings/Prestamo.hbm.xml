@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
+                   assembly="ApplicationCore"
+                   namespace="ApplicationCore.Domain.EN">
+  <class name="Prestamo" table="Prestamos">
+    <id name="Id" column="Id" type="long">
+      <generator class="hilo">
+        <param name="table">NHibernateUniqueKey</param>
+        <param name="column">NextHigh</param>
+        <param name="max_lo">100</param>
+      </generator>
+    </id>
+    <property name="FechaCreacion" column="FechaCreacion" type="DateTime" not-null="true" />
+    <property name="Estado" column="Estado" type="ApplicationCore.Domain.Enums.EstadoPrestamo, ApplicationCore" not-null="true" />
+    <property name="TotalDias" column="TotalDias" type="int" not-null="true" />
+    <many-to-one name="Usuario" class="Usuario" column="UsuarioId" not-null="true" />
+    <bag name="LineasPrestamo" inverse="true" cascade="all-delete-orphan">
+      <key column="PrestamoId" />
+      <one-to-many class="LineaPrestamo" />
+    </bag>
+  </class>
+</hibernate-mapping>

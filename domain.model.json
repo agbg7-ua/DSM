@@ -1,0 +1,151 @@
+{
+  "projectName": "GestionMakerspace",
+  "enums": [
+    {
+      "name": "RolUsuario",
+      "values": ["Administrador", "Usuario"]
+    },
+    {
+      "name": "EstadoMaterial",
+      "values": ["Disponible", "EnMantenimiento", "Roto"]
+    },
+    {
+      "name": "EstadoPrestamo",
+      "values": ["Pendiente", "Activo", "Devuelto", "Retrasado"]
+    }
+  ],
+  "entities": [
+    {
+      "name": "Usuario",
+      "attributes": [
+        { "name": "Id", "type": "long", "nullable": false },
+        { "name": "Nombre", "type": "string", "nullable": false },
+        { "name": "Email", "type": "string", "nullable": false },
+        { "name": "Contrasenia", "type": "string", "nullable": false },
+        { "name": "Rol", "type": "RolUsuario", "nullable": false }
+      ],
+      "relations": [
+        {
+          "name": "Prestamos",
+          "target": "Prestamo",
+          "cardinality": "one-to-many",
+          "inverseNavigation": "Usuario"
+        }
+      ],
+      "repositoryMethods": [],
+      "cenMethods": [
+        { "name": "Login", "parameters": [{ "name": "email", "type": "string" }, { "name": "contrasenia", "type": "string" }], "returnType": "bool" }
+      ]
+    },
+    {
+      "name": "Material",
+      "attributes": [
+        { "name": "Id", "type": "long", "nullable": false },
+        { "name": "Nombre", "type": "string", "nullable": false },
+        { "name": "Descripcion", "type": "string", "nullable": false },
+        { "name": "Estado", "type": "EstadoMaterial", "nullable": false },
+        { "name": "EstaDisponible", "type": "boolean", "nullable": false },
+        { "name": "UsuarioId", "type": "long", "nullable": true }
+      ],
+      "relations": [
+        {
+          "name": "UsuarioAsignado",
+          "target": "Usuario",
+          "cardinality": "many-to-one",
+          "foreignKey": "UsuarioId",
+          "optional": true
+        },
+        {
+          "name": "LineasPrestamo",
+          "target": "LineaPrestamo",
+          "cardinality": "one-to-many",
+          "inverseNavigation": "Material"
+        }
+      ],
+      "repositoryMethods": [
+        { "name": "DameFilterDisponibles", "returnType": "Material[]" },
+        { "name": "DameFilterPorEstado", "parameters": [{ "name": "estado", "type": "EstadoMaterial" }], "returnType": "Material[]" }
+      ],
+      "cenMethods": [
+        { "name": "MarcarComoRoto", "parameters": [{ "name": "id", "type": "long" }], "returnType": "void" },
+        { "name": "MarcarComoMantenimiento", "parameters": [{ "name": "id", "type": "long" }], "returnType": "void" }
+      ]
+    },
+    {
+      "name": "Prestamo",
+      "attributes": [
+        { "name": "Id", "type": "long", "nullable": false },
+        { "name": "UsuarioId", "type": "long", "nullable": false },
+        { "name": "FechaCreacion", "type": "date-time", "nullable": false },
+        { "name": "Estado", "type": "EstadoPrestamo", "nullable": false },
+        { "name": "TotalDias", "type": "integer", "nullable": false }
+      ],
+      "relations": [
+        {
+          "name": "Usuario",
+          "target": "Usuario",
+          "cardinality": "many-to-one",
+          "foreignKey": "UsuarioId"
+        },
+        {
+          "name": "LineasPrestamo",
+          "target": "LineaPrestamo",
+          "cardinality": "one-to-many",
+          "inverseNavigation": "Prestamo"
+        }
+      ],
+      "repositoryMethods": [
+        { "name": "DameFilterActivosPorUsuario", "parameters": [{ "name": "usuarioId", "type": "long" }], "returnType": "Prestamo[]" },
+        { "name": "DameFilterRetrasados", "returnType": "Prestamo[]" }
+      ],
+      "cenMethods": []
+    },
+    {
+      "name": "LineaPrestamo",
+      "attributes": [
+        { "name": "Id", "type": "long", "nullable": false },
+        { "name": "PrestamoId", "type": "long", "nullable": false },
+        { "name": "MaterialId", "type": "long", "nullable": false },
+        { "name": "DiasEstimados", "type": "integer", "nullable": false }
+      ],
+      "relations": [
+        {
+          "name": "Prestamo",
+          "target": "Prestamo",
+          "cardinality": "many-to-one",
+          "foreignKey": "PrestamoId"
+        },
+        {
+          "name": "Material",
+          "target": "Material",
+          "cardinality": "many-to-one",
+          "foreignKey": "MaterialId"
+        }
+      ],
+      "repositoryMethods": [],
+      "cenMethods": [
+        { "name": "ActualizarDiasEstimados", "parameters": [{ "name": "id", "type": "long" }, { "name": "dias", "type": "integer" }], "returnType": "void" }
+      ]
+    }
+  ],
+  "processComponents": [
+    {
+      "name": "CasosProceso",
+      "methods": [
+        {
+          "name": "SolicitarPrestamo",
+          "parameters": [
+            { "name": "usuarioId", "type": "long" },
+            { "name": "materialIds", "type": "long[]" }
+          ],
+          "returnType": "long"
+        },
+        {
+          "name": "DevolverMaterial",
+          "parameters": [{ "name": "prestamoId", "type": "long" }],
+          "returnType": "void"
+        }
+      ]
+    }
+  ]
+}

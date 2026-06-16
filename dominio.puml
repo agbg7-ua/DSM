@@ -1,0 +1,95 @@
+@startuml GestionMakerspace
+skinparam packageStyle rectangle
+title GestionMakerspace Domain
+
+package "GestionMakerspace" {
+
+  enum RolUsuario {
+    Administrador
+    Usuario
+  }
+
+  enum EstadoMaterial {
+    Disponible
+    EnMantenimiento
+    Roto
+  }
+
+  enum EstadoPrestamo {
+    Pendiente
+    Activo
+    Devuelto
+    Retrasado
+  }
+
+  class Usuario {
+    +id: long
+    +nombre: string
+    +email: string
+    +contrasenia: string
+    +rol: RolUsuario
+    +new(): long
+    +modify(): void
+    +destroy(): void
+    +readOID(id: long): Usuario
+    +readAll(): Usuario[*]
+    +login(email: string, contrasenia: string): bool
+  }
+
+  class Material {
+    +id: long
+    +nombre: string
+    +descripcion: string
+    +estado: EstadoMaterial
+    +estaDisponible: bool
+    +usuarioId: long
+    +new(): long
+    +modify(): void
+    +destroy(): void
+    +readOID(id: long): Material
+    +readAll(): Material[*]
+    +readFilterDisponibles(): Material[*]
+    +readFilterPorEstado(estado: EstadoMaterial): Material[*]
+    +marcarComoRoto(): void
+    +marcarComoMantenimiento(): void
+  }
+
+  class Prestamo {
+    +id: long
+    +usuarioId: long
+    +fechaCreacion: DateTime
+    +estado: EstadoPrestamo
+    +totalDias: int
+    +new(): long
+    +modify(): void
+    +destroy(): void
+    +readOID(id: long): Prestamo
+    +readAll(): Prestamo[*]
+    +readFilterActivosPorUsuario(usuarioId: long): Prestamo[*]
+    +readFilterRetrasados(): Prestamo[*]
+  }
+
+  class LineaPrestamo {
+    +id: long
+    +prestamoId: long
+    +materialId: long
+    +diasEstimados: int
+    +new(): long
+    +modify(): void
+    +destroy(): void
+    +readOID(id: long): LineaPrestamo
+    +readAll(): LineaPrestamo[*]
+    +actualizarDiasEstimados(dias: int): void
+  }
+
+  class CasosProceso {
+    +solicitarPrestamo(usuarioId: long, materialIds: long[]): long
+    +devolverMaterial(prestamoId: long): void
+  }
+
+  Usuario "1" <-- "0..*" Prestamo : prestamos
+  Prestamo "1" *--> "1..*" LineaPrestamo : lineasPrestamo
+  LineaPrestamo "0..*" --> "1" Material : material
+  Material "0..*" --> "0..1" Usuario : usuarioAsignado
+}
+@enduml

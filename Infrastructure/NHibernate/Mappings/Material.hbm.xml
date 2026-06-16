@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
+                   assembly="ApplicationCore"
+                   namespace="ApplicationCore.Domain.EN">
+  <class name="Material" table="Materiales">
+    <id name="Id" column="Id" type="long">
+      <generator class="hilo">
+        <param name="table">NHibernateUniqueKey</param>
+        <param name="column">NextHigh</param>
+        <param name="max_lo">100</param>
+      </generator>
+    </id>
+    <property name="Nombre" column="Nombre" type="string" not-null="true" />
+    <property name="Descripcion" column="Descripcion" type="string" not-null="true" />
+    <property name="Estado" column="Estado" type="ApplicationCore.Domain.Enums.EstadoMaterial, ApplicationCore" not-null="true" />
+    <property name="EstaDisponible" column="EstaDisponible" type="bool" not-null="true" />
+    <many-to-one name="UsuarioAsignado" class="Usuario" column="UsuarioId" not-null="false" />
+    <bag name="LineasPrestamo" inverse="true" cascade="all-delete-orphan">
+      <key column="MaterialId" />
+      <one-to-many class="LineaPrestamo" />
+    </bag>
+  </class>
+</hibernate-mapping>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
+                   assembly="ApplicationCore"
+                   namespace="ApplicationCore.Domain.EN">
+  <class name="LineaPrestamo" table="LineasPrestamo">
+    <id name="Id" column="Id" type="long">
+      <generator class="hilo">
+        <param name="table">NHibernateUniqueKey</param>
+        <param name="column">NextHigh</param>
+        <param name="max_lo">100</param>
+      </generator>
+    </id>
+    <property name="DiasEstimados" column="DiasEstimados" type="int" not-null="true" />
+    <many-to-one name="Prestamo" class="Prestamo" column="PrestamoId" not-null="true" />
+    <many-to-one name="Material" class="Material" column="MaterialId" not-null="true" />
+  </class>
+</hibernate-mapping>

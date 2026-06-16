@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
+                   assembly="ApplicationCore"
+                   namespace="ApplicationCore.Domain.EN">
+  <class name="Usuario" table="Usuarios">
+    <id name="Id" column="Id" type="long">
+      <generator class="hilo">
+        <param name="table">NHibernateUniqueKey</param>
+        <param name="column">NextHigh</param>
+        <param name="max_lo">100</param>
+      </generator>
+    </id>
+    <property name="Nombre" column="Nombre" type="string" not-null="true" />
+    <property name="Email" column="Email" type="string" not-null="true" />
+    <property name="Contrasenia" column="Contrasenia" type="string" not-null="true" />
+    <property name="Rol" column="Rol" type="ApplicationCore.Domain.Enums.RolUsuario, ApplicationCore" not-null="true" />
+    <bag name="Prestamos" inverse="true" cascade="all-delete-orphan">
+      <key column="UsuarioId" />
+      <one-to-many class="Prestamo" />
+    </bag>
+  </class>
+</hibernate-mapping>
