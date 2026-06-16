@@ -1,4 +1,4 @@
-﻿using ApplicationCore.Domain.CEN;
+using ApplicationCore.Domain.CEN;
 using ApplicationCore.Domain.CP;
 using ApplicationCore.Domain.Repositories;
 using Infrastructure.NHibernate;
@@ -106,14 +106,16 @@ static void RecreateLocalDbIfNeeded(string connectionString, ILogger logger)
     }
 }
 
-static ServiceProvider BuildServiceProvider(string connectionString)
-{
+static ServiceProvider BuildServiceProvider(string connectionString) {
     var services = new ServiceCollection();
 
     var sessionFactory = NHibernateHelper.BuildSessionFactory(connectionString);
 
+    // El Factory sí es Singleton (uno solo para toda la app)
     services.AddSingleton(sessionFactory);
-    services.AddSingleton<ISession>(_ => sessionFactory.OpenSession());
+
+    // CORRECCIÓN: La sesión DEBE ser Scoped para que se abra y cierre en cada petición
+    services.AddScoped<ISession>(provider => provider.GetRequiredService<ISessionFactory>().OpenSession());
 
     services.AddScoped<IUsuarioRepository, UsuarioRepository>();
     services.AddScoped<IMaterialRepository, MaterialRepository>();
