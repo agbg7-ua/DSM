@@ -23,47 +23,49 @@ var localDbConnectionString =
 using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
 var logger = loggerFactory.CreateLogger("InitializeDb");
 
-try
-{
+try {
     var config = NHibernateHelper.LoadConfiguration(SqlExpressConnectionString);
-    ExportSchemaWithFallback(config, SqlExpressConnectionString, localDbConnectionString, logger);
 
-    var services = BuildServiceProvider(localDbConnectionString);
+    // Captura dinámicamente qué cadena funcionó en el script
+    string connectionStringUtilizada = ExportSchemaWithFallback(config, SqlExpressConnectionString, localDbConnectionString, logger);
+
+    // Inyecta la cadena correcta al contenedor de dependencias
+    var services = BuildServiceProvider(connectionStringUtilizada);
     logger.LogInformation("Contenedor DI registrado. Seed no ejecutado (hook disponible en Program.cs).");
 
     logger.LogInformation("InitializeDb completado.");
 }
-catch (Exception ex)
-{
+catch (Exception ex) {
     logger.LogError(ex, "Error durante InitializeDb.");
     Environment.ExitCode = 1;
 }
 
-static void ExportSchemaWithFallback(
+// CORRECCIÓN: Ahora cambia de 'void' a 'string' y devuelve la conexión exitosa
+static string ExportSchemaWithFallback(
     NHibernate.Cfg.Configuration config,
     string primaryConnectionString,
     string fallbackConnectionString,
-    ILogger logger)
-{
-    try
-    {
+    ILogger logger) {
+    try {
         config.SetProperty(NHibernate.Cfg.Environment.ConnectionString, primaryConnectionString);
         TestConnection(primaryConnectionString);
         logger.LogInformation("Usando conexión SQL Express: {Connection}", primaryConnectionString);
         NHibernateHelper.ExportSchema(config);
+
+        return primaryConnectionString;
     }
-    catch (Exception ex) when (IsConnectionFailure(ex))
-    {
+    catch (Exception ex) when (IsConnectionFailure(ex)) {
         logger.LogWarning(ex, "Fallo conexión SQL Express. Reintentando con LocalDB...");
         config.SetProperty(NHibernate.Cfg.Environment.ConnectionString, fallbackConnectionString);
         RecreateLocalDbIfNeeded(fallbackConnectionString, logger);
         NHibernateHelper.ExportSchema(config);
         logger.LogInformation("Esquema creado en LocalDB: {Connection}", fallbackConnectionString);
+
+        return fallbackConnectionString;
     }
 }
 
-static void TestConnection(string connectionString)
-{
+static void TestConnection(string connectionString) {
     using var connection = new SqlConnection(connectionString);
     connection.Open();
 }
@@ -71,18 +73,16 @@ static void TestConnection(string connectionString)
 static bool IsConnectionFailure(Exception ex) =>
     ex is SqlException or NHibernate.Exceptions.GenericADOException or InvalidOperationException;
 
-static void RecreateLocalDbIfNeeded(string connectionString, ILogger logger)
-{
-    try
-    {
+static void RecreateLocalDbIfNeeded(string connectionString, ILogger logger) {
+    try {
         TestConnection(connectionString);
     }
-    catch
-    {
+    catch {
         var builder = new SqlConnectionStringBuilder(connectionString);
         var databaseName = builder.InitialCatalog;
-        var masterConnection = new SqlConnectionStringBuilder(connectionString)
-        {
+        var mdfPath = builder.AttachDBFilename;
+
+        var masterConnection = new SqlConnectionStringBuilder(connectionString) {
             InitialCatalog = "master",
             AttachDBFilename = string.Empty
         }.ConnectionString;
@@ -90,8 +90,7 @@ static void RecreateLocalDbIfNeeded(string connectionString, ILogger logger)
         using var connection = new SqlConnection(masterConnection);
         connection.Open();
 
-        using (var cmd = connection.CreateCommand())
-        {
+        using (var cmd = connection.CreateCommand()) {
             cmd.CommandText = $"""
                 IF DB_ID(N'{databaseName}') IS NOT NULL
                 BEGIN
@@ -102,7 +101,20 @@ static void RecreateLocalDbIfNeeded(string connectionString, ILogger logger)
             cmd.ExecuteNonQuery();
         }
 
-        logger.LogInformation("Base de datos LocalDB {Database} recreada.", databaseName);
+        if (!string.IsNullOrEmpty(mdfPath) && File.Exists(mdfPath)) {
+            try {
+                File.Delete(mdfPath);
+
+                var ldfPath = mdfPath.Replace(".mdf", "_log.ldf", StringComparison.OrdinalIgnoreCase);
+                if (File.Exists(ldfPath))
+                    File.Delete(ldfPath);
+            }
+            catch (Exception ex) {
+                logger.LogWarning("No se pudieron eliminar los archivos físicos .mdf/.ldf: {Message}", ex.Message);
+            }
+        }
+
+        logger.LogInformation("Base de datos LocalDB {Database} y sus archivos físicos recreados.", databaseName);
     }
 }
 
@@ -111,10 +123,7 @@ static ServiceProvider BuildServiceProvider(string connectionString) {
 
     var sessionFactory = NHibernateHelper.BuildSessionFactory(connectionString);
 
-    // El Factory sí es Singleton (uno solo para toda la app)
     services.AddSingleton(sessionFactory);
-
-    // CORRECCIÓN: La sesión DEBE ser Scoped para que se abra y cierre en cada petición
     services.AddScoped<ISession>(provider => provider.GetRequiredService<ISessionFactory>().OpenSession());
 
     services.AddScoped<IUsuarioRepository, UsuarioRepository>();
@@ -131,14 +140,3 @@ static ServiceProvider BuildServiceProvider(string connectionString) {
 
     return services.BuildServiceProvider();
 }
-
-// Hook para seed futuro (idempotente):
-// var provider = BuildServiceProvider(localDbConnectionString);
-// using var scope = provider.CreateScope();
-// var usuarioCEN = scope.ServiceProvider.GetRequiredService<UsuarioCEN>();
-// var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-// if (!usuarioCEN.ObtenerTodos().Any())
-// {
-//     usuarioCEN.Crear("Admin", "admin@makerspace.local", "admin123", RolUsuario.Administrador);
-//     unitOfWork.SaveChanges();
-// }
