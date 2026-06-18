@@ -19,9 +19,14 @@ builder.Services.AddScoped<NHibernate.ISession>(provider =>
 // Repositorios
 builder.Services.AddScoped<IMaterialRepository, MaterialRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<IPrestamoRepository, PrestamoRepository>();
+builder.Services.AddScoped<ILineaPrestamoRepository, LineaPrestamoRepository>();
 
 // CENs
 builder.Services.AddScoped<MaterialCEN>();
+builder.Services.AddScoped<UsuarioCEN>();
+builder.Services.AddScoped<PrestamoCEN>();
+builder.Services.AddScoped<LineaPrestamoCEN>();
 
 // MVC
 builder.Services.AddControllersWithViews();

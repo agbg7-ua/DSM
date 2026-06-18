@@ -1,5 +1,6 @@
 using ApplicationCore.Domain.CEN;
 using ApplicationCore.Domain.CP;
+using ApplicationCore.Domain.EN;
 using ApplicationCore.Domain.Repositories;
 using Infrastructure.NHibernate;
 using Infrastructure.NHibernate.Repositories;
@@ -137,18 +138,31 @@ static void InsertarDatosPrueba(ServiceProvider services, ILogger logger) {
     using var scope = services.CreateScope();
     var materialCEN = scope.ServiceProvider.GetRequiredService<MaterialCEN>();
     var usuarioCEN = scope.ServiceProvider.GetRequiredService<UsuarioCEN>();
+    var prestamoCEN = scope.ServiceProvider.GetRequiredService<PrestamoCEN>();
+    var lineaPrestamoCEN = scope.ServiceProvider.GetRequiredService<LineaPrestamoCEN>();
     var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
     try {
-        // Usuarios
-        usuarioCEN.Crear("Juan García", "juan@makerspace.com", "1234", ApplicationCore.Domain.Enums.RolUsuario.Administrador);
-        usuarioCEN.Crear("María López", "maria@makerspace.com", "1234", ApplicationCore.Domain.Enums.RolUsuario.Usuario);
+        //Usuarios
+        long adminId = usuarioCEN.Crear("Juan García", "juan@makerspace.com", "1234", ApplicationCore.Domain.Enums.RolUsuario.Administrador);
+        long usuarioId = usuarioCEN.Crear("María López", "maria@makerspace.com", "1234", ApplicationCore.Domain.Enums.RolUsuario.Usuario);
 
-        // Materiales
-        materialCEN.Crear("Taladro eléctrico", "Taladro percutor 800W", ApplicationCore.Domain.Enums.EstadoMaterial.Disponible, true);
-        materialCEN.Crear("Sierra circular", "Sierra circular 1200W con guía", ApplicationCore.Domain.Enums.EstadoMaterial.Disponible, true);
-        materialCEN.Crear("Impresora 3D", "Impresora FDM con cama caliente", ApplicationCore.Domain.Enums.EstadoMaterial.Disponible, true);
-        materialCEN.Crear("Soldador", "Soldador de estaño 60W", ApplicationCore.Domain.Enums.EstadoMaterial.EnMantenimiento, false);
+        //Materiales
+        long taladroId = materialCEN.Crear("Taladro eléctrico", "Taladro percutor 800W", ApplicationCore.Domain.Enums.EstadoMaterial.Disponible, true);
+        long sierraId = materialCEN.Crear("Sierra circular", "Sierra circular 1200W con guía", ApplicationCore.Domain.Enums.EstadoMaterial.Disponible, true);
+        long impresoraId = materialCEN.Crear("Impresora 3D", "Impresora FDM con cama caliente", ApplicationCore.Domain.Enums.EstadoMaterial.Disponible, true);
+        long soldadorId = materialCEN.Crear("Soldador", "Soldador de estaño 60W", ApplicationCore.Domain.Enums.EstadoMaterial.EnMantenimiento, false);
+
+        //Préstamos
+        long prestamo1Id = prestamoCEN.Crear(usuarioId, DateTime.Now.AddDays(-5), ApplicationCore.Domain.Enums.EstadoPrestamo.Activo, 7);
+        lineaPrestamoCEN.Crear(prestamo1Id, taladroId,3);
+        lineaPrestamoCEN.Crear(prestamo1Id, impresoraId,5);
+
+        long prestamo2Id = prestamoCEN.Crear(adminId, DateTime.Now.AddDays(-20), ApplicationCore.Domain.Enums.EstadoPrestamo.Devuelto, 3);
+        lineaPrestamoCEN.Crear(prestamo2Id, sierraId,2);
+
+        long prestamo3Id = prestamoCEN.Crear(usuarioId, DateTime.Now, ApplicationCore.Domain.Enums.EstadoPrestamo.Pendiente, 5);
+        lineaPrestamoCEN.Crear(prestamo3Id, taladroId,7);
 
         unitOfWork.SaveChanges();
         logger.LogInformation("Datos de prueba insertados correctamente.");

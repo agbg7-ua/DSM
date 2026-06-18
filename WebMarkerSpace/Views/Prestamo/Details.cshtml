@@ -1,0 +1,87 @@
+@model WebMarkerSpace.Models.PrestamoViewModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Detalles</h1>
+
+<div>
+    <h4>Prestamo</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Id)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Id)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.UsuarioId)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.UsuarioId)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.NombreUsuario)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.NombreUsuario)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.FechaCreacion)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.FechaCreacion)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Estado)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Estado)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.TotalDias)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.TotalDias)
+        </dd>
+    </dl>
+</div>
+<h3>Materiales en este préstamo</h3>
+<p>
+    <a asp-controller="LineaPrestamo" asp-action="Create" asp-route-prestamoId="@Model.Id" class="btn btn-primary">Añadir Material</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Material</th>
+            <th>Descripción</th>
+            <th>Días Estimados</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var linea in Model.Lineas)
+        {
+            <tr>
+                <td>@linea.NombreMaterial</td>
+                <td>@linea.DescripcionMaterial</td>
+                <td>@linea.DiasEstimados</td>
+                <td>
+                <td>
+                    <form asp-controller="LineaPrestamo" asp-action="Delete" method="post" style="display:inline;">
+                        <input type="hidden" name="id" value="@linea.Id" />
+                        <input type="hidden" name="prestamoId" value="@Model.Id" />
+                        <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<div>
+    @Html.ActionLink("Editar", "Edit", new { id = Model.Id }) |
+    <a asp-action="Index">Volver a la lista</a>
+</div>

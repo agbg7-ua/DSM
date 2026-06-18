@@ -1,0 +1,63 @@
+@model IEnumerable<WebMarkerSpace.Models.PrestamoViewModel>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Préstamos</h1>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UsuarioId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NombreUsuario)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FechaCreacion)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Estado)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TotalDias)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UsuarioId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NombreUsuario)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FechaCreacion)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Estado)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TotalDias)
+            </td>
+            <td>
+                @Html.ActionLink("Editar", "Edit", new { id=item.Id }) |
+                    @Html.ActionLink("Detalles", "Details", new { id = item.Id }) |
+                    @Html.ActionLink("Borrar", "Delete", new { id = item.Id })
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
