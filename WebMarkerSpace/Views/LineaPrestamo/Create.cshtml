@@ -1,0 +1,55 @@
+@model WebMarkerSpace.Models.LineaPrestamoViewModel
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Crear</h1>
+
+<h4>LineaPrestamoViewModel</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Id" class="control-label"></label>
+                <input asp-for="Id" class="form-control" />
+                <span asp-validation-for="Id" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PrestamoId" class="control-label"></label>
+                <input asp-for="PrestamoId" class="form-control" />
+                <span asp-validation-for="PrestamoId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MaterialId" class="control-label"></label>
+                <input asp-for="MaterialId" class="form-control" />
+                <span asp-validation-for="MaterialId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DiasEstimados" class="control-label"></label>
+                <input asp-for="DiasEstimados" class="form-control" />
+                <span asp-validation-for="DiasEstimados" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NombreMaterial" class="control-label"></label>
+                <input asp-for="NombreMaterial" class="form-control" />
+                <span asp-validation-for="NombreMaterial" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DescripcionMaterial" class="control-label"></label>
+                <input asp-for="DescripcionMaterial" class="form-control" />
+                <span asp-validation-for="DescripcionMaterial" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
