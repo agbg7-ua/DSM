@@ -7,7 +7,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using WebMarkerSpace.Assemblers;
+using WebMarkerSpace.Extensions;
 using WebMarkerSpace.Models;
 
 namespace WebMarkerSpace.Controllers {
@@ -16,6 +18,33 @@ namespace WebMarkerSpace.Controllers {
 
         public UsuarioController(UsuarioCEN usuarioCEN) {
             _usuarioCEN = usuarioCEN;
+        }
+
+        // GET: UsuarioController/Login
+        public ActionResult Login()
+        {
+            return View();
+        }
+
+        // POST: UsuarioController/Login
+        [HttpPost]
+        public ActionResult Login(LoginUsuarioViewModel login)
+        {
+            SessionInitialize();
+            bool loginOk = _usuarioCEN.Login(login.Email, login.Contrasenia);
+
+            if (!loginOk)
+            {
+                SessionClose();
+                ModelState.AddModelError("", "Email o contraseña incorrectos.");
+                return View();
+            }
+
+            var usuEN = _usuarioCEN.ObtenerTodos().FirstOrDefault(u => u.Email == login.Email);
+            var usuVM = new UsuarioAssembler().ConvertirENToViewModel(usuEN);
+            HttpContext.Session.Set<UsuarioViewModel>("usuario", usuVM);
+            SessionClose();
+            return RedirectToAction("Index", "Home");
         }
 
         // GET: UsuarioController

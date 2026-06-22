@@ -27,4 +27,15 @@ namespace WebMarkerSpace.Models {
         [Required(ErrorMessage = "El rol es obligatorio.")]
         public RolUsuario Rol { get; set; }
     }
+    public class LoginUsuarioViewModel {
+        [Display(Name = "Correo Electrónico")]
+        [Required(ErrorMessage = "El correo es obligatorio.")]
+        [EmailAddress(ErrorMessage = "Correo inválido.")]
+        public string Email { get; set; }
+
+        [Display(Name = "Contraseña")]
+        [Required(ErrorMessage = "La contraseña es obligatoria.")]
+        [DataType(DataType.Password)]
+        public string Contrasenia { get; set; }
+    }
 }
