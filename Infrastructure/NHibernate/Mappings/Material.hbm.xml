@@ -14,6 +14,7 @@
     <property name="Descripcion" column="Descripcion" type="string" not-null="true" />
     <property name="Estado" column="Estado" type="ApplicationCore.Domain.Enums.EstadoMaterial, ApplicationCore" not-null="true" />
     <property name="EstaDisponible" column="EstaDisponible" type="bool" not-null="true" />
+    <property name="Imagen" column="Imagen" type="string" not-null="true" />
     <many-to-one name="UsuarioAsignado" class="Usuario" column="UsuarioId" not-null="false" />
     <bag name="LineasPrestamo" inverse="true" cascade="all-delete-orphan">
       <key column="MaterialId" />

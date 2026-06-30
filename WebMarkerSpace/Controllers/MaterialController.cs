@@ -15,10 +15,12 @@ using WebMarkerSpace.Models;
 namespace WebMarkerSpace.Controllers {
     public class MaterialController : BasicController {
         private readonly MaterialCEN _materialCEN;
+        private readonly IWebHostEnvironment _webHost;
 
         // 2. El constructor recibe automáticamente las dependencias desde Program.cs
-        public MaterialController(MaterialCEN materialCEN) {
+        public MaterialController(MaterialCEN materialCEN, IWebHostEnvironment webHost) {
             _materialCEN = materialCEN;
+            _webHost = webHost;
         }
         // GET: MaterialController
         public ActionResult Index() {
@@ -55,8 +57,22 @@ namespace WebMarkerSpace.Controllers {
         // POST: MaterialController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(MaterialViewModel mat) {
+        public async Task<ActionResult> Create(MaterialViewModel mat) {
             NHibernate.ITransaction tx = null;
+            string fileName = "";
+            // 1. Lógica de guardado de imagen
+            if (mat.Fichero != null && mat.Fichero.Length > 0) {
+                fileName = Path.GetFileName(mat.Fichero.FileName).Trim();
+                string directory = _webHost.WebRootPath + "/Images";
+                string path = Path.Combine(directory, fileName);
+
+                if (!Directory.Exists(directory))
+                    Directory.CreateDirectory(directory);
+                using (var stream = System.IO.File.Create(path)) {
+                    await mat.Fichero.CopyToAsync(stream);
+                }
+                mat.Imagen = "/Images/" + fileName; // Guardamos la ruta relativa para la BD
+            }
             try {
                 SessionInitialize();
                 var campoSesion = typeof(BasicController).GetField("sessionInside", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -69,7 +85,7 @@ namespace WebMarkerSpace.Controllers {
 
                 bool disponibleAutomatico = (mat.Estado == ApplicationCore.Domain.Enums.EstadoMaterial.Disponible);
 
-                cenTemporal.Crear(mat.Nombre, mat.Descripcion, mat.Estado, disponibleAutomatico, null);
+                cenTemporal.Crear(mat.Nombre, mat.Descripcion, mat.Estado, disponibleAutomatico, mat.Imagen, null);
 
                 tx.Commit();
 

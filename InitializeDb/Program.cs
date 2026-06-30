@@ -122,8 +122,9 @@ static void RecreateLocalDbIfNeeded(string connectionString, ILogger logger) {
             try {
                 File.Delete(mdfPath);
                 var ldfPath = mdfPath.Replace(".mdf", "_log.ldf", StringComparison.OrdinalIgnoreCase);
-                if (File.Exists(ldfPath))
+                if (File.Exists(ldfPath)) {
                     File.Delete(ldfPath);
+                }  
             }
             catch (Exception ex) {
                 logger.LogWarning("No se pudieron eliminar los archivos físicos .mdf/.ldf: {Message}", ex.Message);
@@ -148,10 +149,10 @@ static void InsertarDatosPrueba(ServiceProvider services, ILogger logger) {
         long usuarioId = usuarioCEN.Crear("María López", "maria@makerspace.com", "1234", ApplicationCore.Domain.Enums.RolUsuario.Usuario);
 
         //Materiales
-        long taladroId = materialCEN.Crear("Taladro eléctrico", "Taladro percutor 800W", ApplicationCore.Domain.Enums.EstadoMaterial.Disponible, true);
-        long sierraId = materialCEN.Crear("Sierra circular", "Sierra circular 1200W con guía", ApplicationCore.Domain.Enums.EstadoMaterial.Disponible, true);
-        long impresoraId = materialCEN.Crear("Impresora 3D", "Impresora FDM con cama caliente", ApplicationCore.Domain.Enums.EstadoMaterial.Disponible, true);
-        long soldadorId = materialCEN.Crear("Soldador", "Soldador de estaño 60W", ApplicationCore.Domain.Enums.EstadoMaterial.EnMantenimiento, false);
+        long taladroId = materialCEN.Crear("Taladro eléctrico", "Taladro percutor 800W", ApplicationCore.Domain.Enums.EstadoMaterial.Disponible, true, "/Images/taladro.jpg");
+        long sierraId = materialCEN.Crear("Sierra circular", "Sierra circular 1200W con guía", ApplicationCore.Domain.Enums.EstadoMaterial.Disponible, true, "/Images/sierra.jpg");
+        long impresoraId = materialCEN.Crear("Impresora 3D", "Impresora FDM con cama caliente", ApplicationCore.Domain.Enums.EstadoMaterial.Disponible, true, "/Images/impresora.jpg");
+        long soldadorId = materialCEN.Crear("Soldador", "Soldador de estaño 60W", ApplicationCore.Domain.Enums.EstadoMaterial.EnMantenimiento, false, "/Images/soldador.jpg");
 
         //Préstamos
         long prestamo1Id = prestamoCEN.Crear(usuarioId, DateTime.Now.AddDays(-5), ApplicationCore.Domain.Enums.EstadoPrestamo.Activo, 7);

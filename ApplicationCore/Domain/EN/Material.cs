@@ -9,6 +9,7 @@ public class Material
     public virtual string Descripcion { get; set; } = string.Empty;
     public virtual EstadoMaterial Estado { get; set; }
     public virtual bool EstaDisponible { get; set; }
+    public virtual string? Imagen { get; set; }
     public virtual long? UsuarioId { get; set; }
     public virtual Usuario? UsuarioAsignado { get; set; }
     public virtual ICollection<LineaPrestamo> LineasPrestamo { get; set; } = new List<LineaPrestamo>();

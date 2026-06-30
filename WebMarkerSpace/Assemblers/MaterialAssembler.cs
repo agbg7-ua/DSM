@@ -19,6 +19,7 @@ namespace WebMarkerSpace.Assemblers {
             mat.Descripcion = en.Descripcion;
             mat.Estado = en.Estado;
             mat.EstaDisponible = en.EstaDisponible;
+            mat.Imagen = en.Imagen;
 
             return mat;
         }

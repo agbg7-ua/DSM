@@ -34,6 +34,16 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.EstaDisponible)
         </dd>
+        <dd class="col-sm-11">
+            @if (!string.IsNullOrEmpty(Model.Imagen))
+            {
+                <img src="@Model.Imagen" height="150" width="150" alt="Imagen del material" />
+            }
+            else
+            {
+                <p>No hay imagen disponible para este material (Valor en BD: '@Model.Imagen')</p>
+            }
+        </dd>
     </dl>
 </div>
 <div>

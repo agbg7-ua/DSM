@@ -26,5 +26,8 @@ namespace WebMarkerSpace.Models {
 
         [Display(Name = "¿Está Disponible?")]
         public bool EstaDisponible { get; set; }
+
+        public string Imagen { get; set; }
+        public IFormFile Fichero { get; set; }
     }
 }

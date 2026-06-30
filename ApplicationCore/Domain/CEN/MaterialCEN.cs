@@ -15,7 +15,7 @@ public class MaterialCEN
         _usuarioRepository = usuarioRepository;
     }
 
-    public long Crear(string nombre, string descripcion, EstadoMaterial estado, bool estaDisponible, long? usuarioId = null)
+    public long Crear(string nombre, string descripcion, EstadoMaterial estado, bool estaDisponible, string Imagen, long? usuarioId = null)
     {
         var material = new Material
         {
@@ -23,6 +23,7 @@ public class MaterialCEN
             Descripcion = descripcion,
             Estado = estado,
             EstaDisponible = estaDisponible,
+            Imagen = Imagen,
             UsuarioAsignado = usuarioId.HasValue
                 ? _usuarioRepository.DamePorOID(usuarioId.Value)
                 : null
