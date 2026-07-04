@@ -6,9 +6,12 @@
 
 <h1>Materiales</h1>
 
-<p>
-    <a asp-action="Create">Crear Nuevo</a>
-</p>
+@if (User.IsInRole("Administrador"))
+{
+    <p>
+        <a asp-action="Create">Crear Nuevo</a>
+    </p>
+}
 <table class="table">
     <thead>
         <tr>
@@ -43,9 +46,14 @@
                 @Html.DisplayFor(modelItem => item.EstaDisponible)
             </td>
             <td>
-                @Html.ActionLink("Editar", "Edit", new { id = item.Id}) |
-                    @Html.ActionLink("Detalles", "Details", new { id = item.Id }) |
+                @Html.ActionLink("Detalles", "Details", new { id = item.Id })
+                @if (User.IsInRole("Administrador"))
+                {
+                    <text> | </text>
+                    @Html.ActionLink("Editar", "Edit", new { id = item.Id })
+                    <text> | </text>
                     @Html.ActionLink("Borrar", "Delete", new { id = item.Id })
+                }
             </td>
         </tr>
 }

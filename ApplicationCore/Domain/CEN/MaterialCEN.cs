@@ -31,7 +31,7 @@ public class MaterialCEN
         return _repository.New(material);
     }
 
-    public void Modificar(long id, string nombre, string descripcion, EstadoMaterial estado, bool estaDisponible, long? usuarioId = null)
+    public void Modificar(long id, string nombre, string descripcion, EstadoMaterial estado, bool estaDisponible, string Imagen, long? usuarioId = null)
     {
         var material = _repository.DamePorOID(id)
             ?? throw new InvalidOperationException($"Material con id {id} no encontrado.");
@@ -40,6 +40,7 @@ public class MaterialCEN
         material.Descripcion = descripcion;
         material.Estado = estado;
         material.EstaDisponible = estaDisponible;
+        material.Imagen = Imagen;
         material.UsuarioAsignado = usuarioId.HasValue
             ? _usuarioRepository.DamePorOID(usuarioId.Value)
                 ?? throw new InvalidOperationException($"Usuario con id {usuarioId.Value} no encontrado.")

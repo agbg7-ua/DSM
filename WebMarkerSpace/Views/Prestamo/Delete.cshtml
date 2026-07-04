@@ -1,0 +1,38 @@
+@model WebMarkerSpace.Models.PrestamoViewModel
+
+@{
+    ViewData["Title"] = "Eliminar préstamo";
+}
+
+<h1>Eliminar</h1>
+
+<h3>¿Estás seguro de que quieres borrar este préstamo?</h3>
+<div>
+    <h4>Préstamo #@Model.Id</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.NombreUsuario)</dt>
+        <dd class="col-sm-10">@Html.DisplayFor(model => model.NombreUsuario)</dd>
+
+        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.FechaCreacion)</dt>
+        <dd class="col-sm-10">@Html.DisplayFor(model => model.FechaCreacion)</dd>
+
+        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Estado)</dt>
+        <dd class="col-sm-10">@Html.DisplayFor(model => model.Estado)</dd>
+
+        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.TotalDias)</dt>
+        <dd class="col-sm-10">@Html.DisplayFor(model => model.TotalDias)</dd>
+    </dl>
+
+    @if (Model.Lineas.Count > 0)
+    {
+        <p class="text-danger">
+            Este préstamo tiene @Model.Lineas.Count material(es) asociado(s). Al borrarlo se perderá también ese registro.
+        </p>
+    }
+
+    <form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+        <input type="submit" value="Eliminar" class="btn btn-danger" /> |
+        <a asp-action="Index">Cancelar</a>
+    </form>
+</div>

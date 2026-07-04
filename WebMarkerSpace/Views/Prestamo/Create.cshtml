@@ -1,0 +1,67 @@
+@model WebMarkerSpace.Models.PrestamoViewModel
+
+@{
+    ViewData["Title"] = "Nuevo préstamo";
+    bool esAdmin = ViewBag.EsAdmin ?? false;
+    long? materialId = ViewBag.MaterialId as long?;
+}
+
+<h1>Solicitar préstamo</h1>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create" asp-route-materialId="@materialId" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            @if (esAdmin)
+            {
+                <div class="form-group mb-3">
+                    <label asp-for="UsuarioId" class="control-label"></label>
+                    <select asp-for="UsuarioId" class="form-control" asp-items="ViewBag.UsuarioId"></select>
+                    <span asp-validation-for="UsuarioId" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="Estado" class="control-label"></label>
+                    <select asp-for="Estado" class="form-control"
+                            asp-items="Html.GetEnumSelectList<ApplicationCore.Domain.Enums.EstadoPrestamo>()">
+                    </select>
+                    <span asp-validation-for="Estado" class="text-danger"></span>
+                </div>
+            }
+            else
+            {
+                <input type="hidden" asp-for="UsuarioId" />
+                <input type="hidden" asp-for="Estado" />
+                <p class="text-muted">El préstamo se creará a tu nombre, con estado "Pendiente".</p>
+            }
+
+            <div class="form-group mb-3">
+                <label asp-for="FechaCreacion" class="control-label"></label>
+                <input asp-for="FechaCreacion" class="form-control" />
+                <span asp-validation-for="FechaCreacion" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="TotalDias" class="control-label"></label>
+                <input asp-for="TotalDias" class="form-control" />
+                <span asp-validation-for="TotalDias" class="text-danger"></span>
+            </div>
+
+            @if (materialId.HasValue)
+            {
+                <p class="text-muted">Se añadirá automáticamente el material seleccionado a este préstamo.</p>
+            }
+
+            <div class="form-group">
+                <input type="submit" value="Crear préstamo" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Volver a la lista</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

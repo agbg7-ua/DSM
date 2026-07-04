@@ -2,155 +2,174 @@
 
 using ApplicationCore.Domain.CEN;
 using ApplicationCore.Domain.EN;
-using Infrastructure.NHibernate.Repositories;
-using Microsoft.AspNetCore.Mvc;
+using ApplicationCore.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Security.Claims;
 using WebMarkerSpace.Assemblers;
 using WebMarkerSpace.Models;
 
 namespace WebMarkerSpace.Controllers {
+    // Cualquier usuario logueado (Administrador o Usuario) puede ver y pedir
+    // préstamos. Editar/eliminar préstamos ya existentes queda restringido a
+    // Administrador (ver atributos concretos más abajo).
     [Authorize]
-    public class PrestamoController : BasicController {
+    public class PrestamoController : Controller {
         private readonly PrestamoCEN _prestamoCEN;
         private readonly UsuarioCEN _usuarioCEN; // Lo necesitamos para los desplegables de usuarios
+        private readonly LineaPrestamoCEN _lineaPrestamoCEN;
+        private readonly NHibernate.ISession _session;
 
-        public PrestamoController(PrestamoCEN prestamoCEN, UsuarioCEN usuarioCEN) {
+        public PrestamoController(PrestamoCEN prestamoCEN, UsuarioCEN usuarioCEN, LineaPrestamoCEN lineaPrestamoCEN, NHibernate.ISession session) {
             _prestamoCEN = prestamoCEN;
             _usuarioCEN = usuarioCEN;
+            _lineaPrestamoCEN = lineaPrestamoCEN;
+            _session = session;
+        }
+
+        private long ObtenerIdUsuarioActual() {
+            var claim = User.FindFirst(ClaimTypes.NameIdentifier);
+            return claim != null ? long.Parse(claim.Value) : 0;
         }
 
         // GET: Prestamo
         public ActionResult Index() {
-            SessionInitialize();
             IList<Prestamo> prestamos = _prestamoCEN.ObtenerTodos();
             IEnumerable<PrestamoViewModel> modelList = new PrestamoAssembler().ConvertirListaENToViewModel(prestamos);
-            SessionClose();
             return View(modelList);
         }
 
         // GET: PrestamoController/Details/5
         public ActionResult Details(int id) {
-            SessionInitialize();
             Prestamo prestamoEN = _prestamoCEN.ObtenerPorId(id);
             if (prestamoEN == null) {
-                SessionClose();
                 return NotFound();
             }
             PrestamoViewModel model = new PrestamoAssembler().ConvertirENToViewModel(prestamoEN);
-            SessionClose();
             return View(model);
         }
 
+        // GET: PrestamoController/Create
+        // materialId es opcional: si venimos del botón "Solicitar préstamo" de un
+        // material concreto, lo añadimos automáticamente como primera línea del préstamo.
+        public ActionResult Create(long? materialId) {
+            bool esAdmin = User.IsInRole("Administrador");
+
+            var model = new PrestamoViewModel {
+                FechaCreacion = DateTime.Now,
+                Estado = EstadoPrestamo.Pendiente,
+                TotalDias = 7
+            };
+
+            if (esAdmin) {
+                ViewBag.UsuarioId = new SelectList(_usuarioCEN.ObtenerTodos(), "Id", "Nombre");
+            } else {
+                // Un usuario normal solo puede pedir préstamos para sí mismo.
+                model.UsuarioId = ObtenerIdUsuarioActual();
+            }
+
+            ViewBag.EsAdmin = esAdmin;
+            ViewBag.MaterialId = materialId;
+            return View(model);
+        }
 
         // POST: PrestamoController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(PrestamoViewModel model) {
-            NHibernate.ITransaction tx = null;
+        public ActionResult Create(PrestamoViewModel model, long? materialId) {
+            bool esAdmin = User.IsInRole("Administrador");
+            if (!esAdmin) {
+                // No nos fiamos de lo que llegue del formulario: un usuario normal
+                // siempre pide el préstamo para sí mismo y siempre empieza Pendiente.
+                model.UsuarioId = ObtenerIdUsuarioActual();
+                model.Estado = EstadoPrestamo.Pendiente;
+            }
+
+            using var tx = _session.BeginTransaction();
             try {
-                SessionInitialize();
+                long nuevoPrestamoId = _prestamoCEN.Crear(model.UsuarioId, model.FechaCreacion, model.Estado, model.TotalDias);
 
-                var campoSesion = typeof(BasicController).GetField("sessionInside", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                var nHibernateSession = (NHibernate.ISession)campoSesion.GetValue(this);
-
-                tx = nHibernateSession.BeginTransaction();
-
-                var prestamoRepository = new PrestamoRepository(nHibernateSession);
-                var usuarioRepository = new UsuarioRepository(nHibernateSession);
-                var cenTemporal = new PrestamoCEN(prestamoRepository, usuarioRepository);
-
-                // IMPORTANTE: Ajusta el orden según los parámetros exactos de tu PrestamoCEN.Crear(...)
-                cenTemporal.Crear(model.UsuarioId, model.FechaCreacion, model.Estado, model.TotalDias);
+                if (materialId.HasValue) {
+                    _lineaPrestamoCEN.Crear(nuevoPrestamoId, materialId.Value, model.TotalDias);
+                }
 
                 tx.Commit();
-                SessionClose();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Details), new { id = nuevoPrestamoId });
             }
             catch (Exception ex) {
-                if (tx != null && tx.IsActive)
-                    tx.Rollback();
-                SessionClose();
+                tx.Rollback();
 
-                SessionInitialize();
-                ViewBag.UsuarioId = new SelectList(_usuarioCEN.ObtenerTodos(), "Id", "Nombre", model.UsuarioId);
-                SessionClose();
+                if (esAdmin) {
+                    ViewBag.UsuarioId = new SelectList(_usuarioCEN.ObtenerTodos(), "Id", "Nombre", model.UsuarioId);
+                }
+                ViewBag.EsAdmin = esAdmin;
+                ViewBag.MaterialId = materialId;
 
                 ModelState.AddModelError("", "Error al crear el préstamo: " + ex.Message);
                 return View(model);
             }
         }
 
+        // GET: PrestamoController/Edit/5
+        // Editar el estado/datos de un préstamo ya existente es una tarea de
+        // administración (marcar como Activo/Devuelto/Retrasado, corregir días, etc.).
+        [Authorize(Roles = "Administrador")]
+        public ActionResult Edit(int id) {
+            var prestamoEN = _prestamoCEN.ObtenerPorId(id);
+            if (prestamoEN == null) {
+                return NotFound();
+            }
+            var model = new PrestamoAssembler().ConvertirENToViewModel(prestamoEN);
+            ViewBag.UsuarioId = new SelectList(_usuarioCEN.ObtenerTodos(), "Id", "Nombre", model.UsuarioId);
+            return View(model);
+        }
 
         // POST: PrestamoController/Edit/5
         [HttpPost]
+        [Authorize(Roles = "Administrador")]
         [ValidateAntiForgeryToken]
         public ActionResult Edit(int id, PrestamoViewModel model) {
-            NHibernate.ITransaction tx = null;
+            using var tx = _session.BeginTransaction();
             try {
-                SessionInitialize();
-
-                var campoSesion = typeof(BasicController).GetField("sessionInside", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                var nHibernateSession = (NHibernate.ISession)campoSesion.GetValue(this);
-
-                tx = nHibernateSession.BeginTransaction();
-
-                var prestamoRepository = new PrestamoRepository(nHibernateSession);
-                var usuarioRepository = new UsuarioRepository(nHibernateSession);
-                var cenTemporal = new PrestamoCEN(prestamoRepository, usuarioRepository);
-
-                // Ajusta el orden según tu PrestamoCEN.Modificar(...)
-                cenTemporal.Modificar(model.Id, model.UsuarioId, model.FechaCreacion, model.Estado, model.TotalDias);
-
+                _prestamoCEN.Modificar(model.Id, model.UsuarioId, model.FechaCreacion, model.Estado, model.TotalDias);
                 tx.Commit();
-                SessionClose();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Details), new { id = model.Id });
             }
             catch (Exception ex) {
-                if (tx != null && tx.IsActive)
-                    tx.Rollback();
-                SessionClose();
-
-                SessionInitialize();
+                tx.Rollback();
                 ViewBag.UsuarioId = new SelectList(_usuarioCEN.ObtenerTodos(), "Id", "Nombre", model.UsuarioId);
-                SessionClose();
-
                 ModelState.AddModelError("", "Error al modificar: " + ex.Message);
                 return View(model);
             }
         }
 
+        // GET: PrestamoController/Delete/5
+        [Authorize(Roles = "Administrador")]
+        public ActionResult Delete(int id) {
+            var prestamoEN = _prestamoCEN.ObtenerPorId(id);
+            if (prestamoEN == null) {
+                return NotFound();
+            }
+            var model = new PrestamoAssembler().ConvertirENToViewModel(prestamoEN);
+            return View(model);
+        }
 
         // POST: PrestamoController/Delete/5
         [HttpPost]
+        [Authorize(Roles = "Administrador")]
         [ValidateAntiForgeryToken]
         public ActionResult Delete(int id, PrestamoViewModel model) {
-            NHibernate.ITransaction tx = null;
+            using var tx = _session.BeginTransaction();
             try {
-                SessionInitialize();
-
-                var campoSesion = typeof(BasicController).GetField("sessionInside", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                var nHibernateSession = (NHibernate.ISession)campoSesion.GetValue(this);
-
-                tx = nHibernateSession.BeginTransaction();
-
-                var prestamoRepository = new PrestamoRepository(nHibernateSession);
-                var usuarioRepository = new UsuarioRepository(nHibernateSession);
-                var cenTemporal = new PrestamoCEN(prestamoRepository, usuarioRepository);
-
-                cenTemporal.Eliminar(id);
-
+                _prestamoCEN.Eliminar(id);
                 tx.Commit();
-                SessionClose();
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex) {
-                if (tx != null && tx.IsActive)
-                    tx.Rollback();
-                SessionClose();
+                tx.Rollback();
                 ModelState.AddModelError("", "Error al eliminar: " + ex.Message);
                 return View(model);
             }

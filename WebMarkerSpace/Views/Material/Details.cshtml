@@ -47,6 +47,18 @@
     </dl>
 </div>
 <div>
-    @Html.ActionLink("Editar", "Edit", new { id = Model.Id }) |
-    <a asp-action="Index">Volver a la lista</a>
+    @if (User.Identity != null && User.Identity.IsAuthenticated && Model.EstaDisponible)
+    {
+        <a asp-controller="Prestamo" asp-action="Create" asp-route-materialId="@Model.Id" class="btn btn-primary">Solicitar préstamo</a>
+    }
+    else if (User.Identity == null || !User.Identity.IsAuthenticated)
+    {
+        <a asp-controller="Usuario" asp-action="Login" class="btn btn-outline-primary">Inicia sesión para solicitar este material</a>
+    }
+    @if (User.IsInRole("Administrador"))
+    {
+        <text> </text>
+        @Html.ActionLink("Editar", "Edit", new { id = Model.Id }, new { @class = "btn btn-outline-secondary" })
+    }
+    <a asp-action="Index" class="btn btn-link">Volver a la lista</a>
 </div>

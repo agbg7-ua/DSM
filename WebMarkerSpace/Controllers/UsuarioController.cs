@@ -2,7 +2,7 @@
 
 using ApplicationCore.Domain.CEN;
 using ApplicationCore.Domain.EN;
-using Infrastructure.NHibernate.Repositories;
+using ApplicationCore.Domain.Enums;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -13,50 +13,25 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using WebMarkerSpace.Assemblers;
-using WebMarkerSpace.Extensions;
 using WebMarkerSpace.Models;
 
 namespace WebMarkerSpace.Controllers {
-    public class UsuarioController : BasicController {
+    public class UsuarioController : Controller {
         private readonly UsuarioCEN _usuarioCEN;
+        private readonly NHibernate.ISession _session;
 
-        public UsuarioController(UsuarioCEN usuarioCEN) {
+        public UsuarioController(UsuarioCEN usuarioCEN, NHibernate.ISession session) {
             _usuarioCEN = usuarioCEN;
+            _session = session;
         }
 
-        // GET: UsuarioController/Login
-        [AllowAnonymous]
-        public ActionResult Login()
-        {
-            return View();
-        }
-
-        // POST: UsuarioController/Login
-        [HttpPost]
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Login(LoginUsuarioViewModel login)
-        {
-            if (!ModelState.IsValid)
-                return View(login);
-
-            SessionInitialize();
-            bool loginOk = _usuarioCEN.Login(login.Email, login.Contrasenia);
-            var usuEN = loginOk ? _usuarioCEN.ObtenerTodos().FirstOrDefault(u => u.Email == login.Email) : null;
-            SessionClose();
-
-            if (!loginOk || usuEN == null)
-            {
-                ModelState.AddModelError("", "Email o contraseña incorrectos.");
-                return View(login);
-            }
-
+        private async Task IniciarSesionComo(long id, string nombre, string email, RolUsuario rol) {
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, usuEN.Id.ToString()),
-                new Claim(ClaimTypes.Name, usuEN.Nombre),
-                new Claim(ClaimTypes.Email, usuEN.Email),
-                new Claim(ClaimTypes.Role, usuEN.Rol.ToString())
+                new Claim(ClaimTypes.NameIdentifier, id.ToString()),
+                new Claim(ClaimTypes.Name, nombre),
+                new Claim(ClaimTypes.Email, email),
+                new Claim(ClaimTypes.Role, rol.ToString())
             };
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var principal = new ClaimsPrincipal(identity);
@@ -65,7 +40,31 @@ namespace WebMarkerSpace.Controllers {
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 principal,
                 new AuthenticationProperties { IsPersistent = false });
+        }
 
+        // GET: UsuarioController/Login
+        [AllowAnonymous]
+        public ActionResult Login() {
+            return View();
+        }
+
+        // POST: UsuarioController/Login
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> Login(LoginUsuarioViewModel login) {
+            if (!ModelState.IsValid)
+                return View(login);
+
+            bool loginOk = _usuarioCEN.Login(login.Email, login.Contrasenia);
+            var usuEN = loginOk ? _usuarioCEN.ObtenerTodos().FirstOrDefault(u => u.Email == login.Email) : null;
+
+            if (!loginOk || usuEN == null) {
+                ModelState.AddModelError("", "Email o contraseña incorrectos.");
+                return View(login);
+            }
+
+            await IniciarSesionComo(usuEN.Id, usuEN.Nombre, usuEN.Email, usuEN.Rol);
             return RedirectToAction("Index", "Home");
         }
 
@@ -73,83 +72,77 @@ namespace WebMarkerSpace.Controllers {
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Logout()
-        {
+        public async Task<ActionResult> Logout() {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Login");
+        }
+
+        // GET: UsuarioController/Register
+        // Formulario de registro público (cualquier persona puede darse de alta).
+        [AllowAnonymous]
+        public ActionResult Register() {
+            return View();
+        }
+
+        // POST: UsuarioController/Register
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> Register(RegistroUsuarioViewModel model) {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            bool emailEnUso = _usuarioCEN.ObtenerTodos().Any(u => u.Email == model.Email);
+            if (emailEnUso) {
+                ModelState.AddModelError(nameof(model.Email), "Ya existe una cuenta con ese correo.");
+                return View(model);
+            }
+
+            using var tx = _session.BeginTransaction();
+            long nuevoId;
+            try {
+                // El rol siempre se fija a "Usuario": un registro público nunca
+                // puede crear una cuenta de Administrador.
+                nuevoId = _usuarioCEN.Crear(model.Nombre, model.Email, model.Contrasenia, RolUsuario.Usuario);
+                tx.Commit();
+            }
+            catch (Exception ex) {
+                tx.Rollback();
+                ModelState.AddModelError("", "Error al registrar: " + ex.Message);
+                return View(model);
+            }
+
+            await IniciarSesionComo(nuevoId, model.Nombre, model.Email, RolUsuario.Usuario);
+            return RedirectToAction("Index", "Home");
         }
 
         // GET: UsuarioController
         [Authorize(Roles = "Administrador")]
         public ActionResult Index() {
-            SessionInitialize();
             IList<Usuario> usuarios = _usuarioCEN.ObtenerTodos();
             IEnumerable<UsuarioViewModel> listUsers = new UsuarioAssembler().ConvertirListaENToViewModel(usuarios);
-            SessionClose();
             return View(listUsers);
         }
+
         // GET: UsuarioController/Details/5
         [Authorize(Roles = "Administrador")]
         public ActionResult Details(int id) {
-            SessionInitialize();
             var usuarioEN = _usuarioCEN.ObtenerPorId(id);
             if (usuarioEN == null) {
-                SessionClose();
                 return NotFound();
             }
             var model = new UsuarioAssembler().ConvertirENToViewModel(usuarioEN);
-            SessionClose();
             return View(model);
-        }
-
-        // GET: UsuarioController/Create
-        [Authorize(Roles = "Administrador")]
-        public ActionResult Create() {
-            return View();
-        }
-
-        // POST: UsuarioController/Create
-        [HttpPost]
-        [Authorize(Roles = "Administrador")]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(UsuarioViewModel user) {
-            NHibernate.ITransaction tx = null;
-            try {
-                SessionInitialize();
-
-                var campoSesion = typeof(BasicController).GetField("sessionInside", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                var nHibernateSession = (NHibernate.ISession)campoSesion.GetValue(this);
-
-                tx = nHibernateSession.BeginTransaction();
-
-                var usuarioRepository = new UsuarioRepository(nHibernateSession);
-                var cenTemporal = new UsuarioCEN(usuarioRepository);
-                cenTemporal.Crear(user.Nombre, user.Email, user.Contrasenia, user.Rol);
-
-                tx.Commit();
-                SessionClose();
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex) {
-                if (tx != null && tx.IsActive)
-                    tx.Rollback();
-                SessionClose();
-                ModelState.AddModelError("", "Error al crear: " + ex.Message);
-                return View(user);
-            }
         }
 
         // GET: UsuarioController/Edit/5
         [Authorize(Roles = "Administrador")]
         public ActionResult Edit(int id) {
-            SessionInitialize();
             var usuarioEN = _usuarioCEN.ObtenerPorId(id);
             if (usuarioEN == null) {
-                SessionClose();
                 return NotFound();
             }
             var model = new UsuarioAssembler().ConvertirENToViewModel(usuarioEN);
-            SessionClose();
             return View(model);
         }
 
@@ -158,27 +151,14 @@ namespace WebMarkerSpace.Controllers {
         [Authorize(Roles = "Administrador")]
         [ValidateAntiForgeryToken]
         public ActionResult Edit(int id, UsuarioViewModel user) {
-            NHibernate.ITransaction tx = null;
+            using var tx = _session.BeginTransaction();
             try {
-                SessionInitialize();
-
-                var campoSesion = typeof(BasicController).GetField("sessionInside", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                var nHibernateSession = (NHibernate.ISession)campoSesion.GetValue(this);
-
-                tx = nHibernateSession.BeginTransaction();
-
-                var usuarioRepository = new UsuarioRepository(nHibernateSession);
-                var cenTemporal = new UsuarioCEN(usuarioRepository);
-                cenTemporal.Modificar(user.Id, user.Nombre, user.Email, user.Contrasenia, user.Rol);
-
+                _usuarioCEN.Modificar(user.Id, user.Nombre, user.Email, user.Contrasenia, user.Rol);
                 tx.Commit();
-                SessionClose();
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex) {
-                if (tx != null && tx.IsActive)
-                    tx.Rollback();
-                SessionClose();
+                tx.Rollback();
                 ModelState.AddModelError("", "Error al editar: " + ex.Message);
                 return View(user);
             }
@@ -187,14 +167,11 @@ namespace WebMarkerSpace.Controllers {
         // GET: UsuarioController/Delete/5
         [Authorize(Roles = "Administrador")]
         public ActionResult Delete(int id) {
-            SessionInitialize();
             var usuarioEN = _usuarioCEN.ObtenerPorId(id);
             if (usuarioEN == null) {
-                SessionClose();
                 return NotFound();
             }
             var model = new UsuarioAssembler().ConvertirENToViewModel(usuarioEN);
-            SessionClose();
             return View(model);
         }
 
@@ -203,28 +180,14 @@ namespace WebMarkerSpace.Controllers {
         [Authorize(Roles = "Administrador")]
         [ValidateAntiForgeryToken]
         public ActionResult Delete(int id, UsuarioViewModel user) {
-            NHibernate.ITransaction tx = null;
+            using var tx = _session.BeginTransaction();
             try {
-                SessionInitialize();
-
-                var campoSesion = typeof(BasicController).GetField("sessionInside", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                var nHibernateSession = (NHibernate.ISession)campoSesion.GetValue(this);
-
-                tx = nHibernateSession.BeginTransaction();
-
-                var usuarioRepository = new UsuarioRepository(nHibernateSession);
-                var cenTemporal = new UsuarioCEN(usuarioRepository);
-
-                cenTemporal.Eliminar(id);
-
+                _usuarioCEN.Eliminar(id);
                 tx.Commit();
-                SessionClose();
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex) {
-                if (tx != null && tx.IsActive)
-                    tx.Rollback();
-                SessionClose();
+                tx.Rollback();
                 ModelState.AddModelError("", "Error al eliminar: " + ex.Message);
                 return View(user);
             }
