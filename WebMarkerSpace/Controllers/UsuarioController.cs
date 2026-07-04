@@ -116,11 +116,87 @@ namespace WebMarkerSpace.Controllers {
             return RedirectToAction("Index", "Home");
         }
 
+        // GET: UsuarioController/Perfil
+        // Cualquier usuario logueado puede ver y editar SUS PROPIOS datos (no los de nadie más).
+        [Authorize]
+        public ActionResult Perfil() {
+            long miId = long.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var usuarioEN = _usuarioCEN.ObtenerPorId(miId);
+            if (usuarioEN == null) {
+                return NotFound();
+            }
+
+            var model = new PerfilViewModel {
+                Id = usuarioEN.Id,
+                Nombre = usuarioEN.Nombre,
+                Email = usuarioEN.Email,
+                Rol = usuarioEN.Rol
+            };
+            return View(model);
+        }
+
+        // POST: UsuarioController/Perfil
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> Perfil(PerfilViewModel model) {
+            long miId = long.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            // Nunca nos fiamos del Id que venga del formulario: siempre editamos
+            // al usuario autenticado, nunca a otro.
+            model.Id = miId;
+
+            if (!ModelState.IsValid) {
+                return View(model);
+            }
+
+            var usuarioActual = _usuarioCEN.ObtenerPorId(miId);
+            if (usuarioActual == null) {
+                return NotFound();
+            }
+
+            // Si el usuario no ha escrito una contraseña nueva, mantenemos la actual.
+            string contraseniaFinal = string.IsNullOrWhiteSpace(model.NuevaContrasenia)
+                ? usuarioActual.Contrasenia
+                : model.NuevaContrasenia;
+
+            using var tx = _session.BeginTransaction();
+            try {
+                // El rol nunca se toca aquí: se conserva el que ya tenía.
+                _usuarioCEN.Modificar(miId, model.Nombre, model.Email, contraseniaFinal, usuarioActual.Rol);
+                tx.Commit();
+            }
+            catch (Exception ex) {
+                tx.Rollback();
+                ModelState.AddModelError("", "Error al actualizar el perfil: " + ex.Message);
+                return View(model);
+            }
+
+            // Refrescamos la cookie por si ha cambiado el nombre (aparece en la barra de navegación).
+            await IniciarSesionComo(miId, model.Nombre, model.Email, usuarioActual.Rol);
+
+            TempData["MensajeExito"] = "Tus datos se han actualizado correctamente.";
+            return RedirectToAction(nameof(Perfil));
+        }
+
         // GET: UsuarioController
         [Authorize(Roles = "Administrador")]
-        public ActionResult Index() {
-            IList<Usuario> usuarios = _usuarioCEN.ObtenerTodos();
-            IEnumerable<UsuarioViewModel> listUsers = new UsuarioAssembler().ConvertirListaENToViewModel(usuarios);
+        public ActionResult Index(string? texto, RolUsuario? rol) {
+            IEnumerable<Usuario> usuarios = _usuarioCEN.ObtenerTodos();
+
+            if (!string.IsNullOrWhiteSpace(texto)) {
+                usuarios = usuarios.Where(u =>
+                    u.Nombre.Contains(texto, StringComparison.OrdinalIgnoreCase) ||
+                    u.Email.Contains(texto, StringComparison.OrdinalIgnoreCase));
+            }
+            if (rol.HasValue) {
+                usuarios = usuarios.Where(u => u.Rol == rol.Value);
+            }
+
+            IEnumerable<UsuarioViewModel> listUsers = new UsuarioAssembler().ConvertirListaENToViewModel(usuarios.ToList());
+
+            ViewBag.FiltroTexto = texto;
+            ViewBag.FiltroRol = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(Enum.GetValues(typeof(RolUsuario)), rol);
             return View(listUsers);
         }
 

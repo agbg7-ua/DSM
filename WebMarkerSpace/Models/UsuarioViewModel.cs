@@ -64,4 +64,33 @@ namespace WebMarkerSpace.Models {
         [Compare(nameof(Contrasenia), ErrorMessage = "Las contraseñas no coinciden.")]
         public string ConfirmarContrasenia { get; set; }
     }
+
+    // Modelo del formulario de "Mi perfil": el propio usuario edita su nombre,
+    // email y (opcionalmente) su contraseña. Deliberadamente NO tiene "Rol":
+    // nadie puede ascenderse a sí mismo a Administrador desde aquí.
+    public class PerfilViewModel {
+        [Display(Name = "Identificador")]
+        public long Id { get; set; }
+
+        [Display(Name = "Nombre de Usuario")]
+        [Required(ErrorMessage = "El nombre de usuario es obligatorio.")]
+        public string Nombre { get; set; }
+
+        [Display(Name = "Correo Electrónico")]
+        [Required(ErrorMessage = "El correo electrónico es obligatorio.")]
+        [EmailAddress(ErrorMessage = "Correo inválido.")]
+        public string Email { get; set; }
+
+        [Display(Name = "Rol")]
+        public RolUsuario Rol { get; set; }
+
+        [Display(Name = "Nueva contraseña")]
+        [DataType(DataType.Password)]
+        public string? NuevaContrasenia { get; set; }
+
+        [Display(Name = "Confirmar nueva contraseña")]
+        [DataType(DataType.Password)]
+        [Compare(nameof(NuevaContrasenia), ErrorMessage = "Las contraseñas no coinciden.")]
+        public string? ConfirmarNuevaContrasenia { get; set; }
+    }
 }

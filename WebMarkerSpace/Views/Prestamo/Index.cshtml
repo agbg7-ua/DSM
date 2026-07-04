@@ -2,13 +2,36 @@
 
 @{
     ViewData["Title"] = "Préstamos";
+    bool esAdmin = (bool)(ViewBag.EsAdmin ?? false);
 }
 
-<h1>Préstamos</h1>
+<h1>@(esAdmin ? "Préstamos" : "Mis préstamos")</h1>
 
 <p>
     <a asp-action="Create" class="btn btn-primary">Nuevo préstamo</a>
 </p>
+
+<form asp-action="Index" method="get" class="row g-2 align-items-end mb-3">
+    <div class="col-auto">
+        <label class="form-label">Estado</label>
+        <select name="estado" class="form-control" asp-items="ViewBag.FiltroEstado">
+            <option value="">-- Todos --</option>
+        </select>
+    </div>
+    @if (esAdmin)
+    {
+        <div class="col-auto">
+            <label class="form-label">Usuario</label>
+            <select name="usuarioId" class="form-control" asp-items="ViewBag.FiltroUsuarioId">
+                <option value="">-- Todos --</option>
+            </select>
+        </div>
+    }
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-secondary">Filtrar</button>
+        <a asp-action="Index" class="btn btn-link">Limpiar</a>
+    </div>
+</form>
 
 <table class="table">
     <thead>
@@ -16,9 +39,12 @@
             <th>
                 @Html.DisplayNameFor(model => model.Id)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NombreUsuario)
-            </th>
+            @if (esAdmin)
+            {
+                <th>
+                    @Html.DisplayNameFor(model => model.NombreUsuario)
+                </th>
+            }
             <th>
                 @Html.DisplayNameFor(model => model.FechaCreacion)
             </th>
@@ -37,9 +63,12 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Id)
             </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NombreUsuario)
-            </td>
+            @if (esAdmin)
+            {
+                <td>
+                    @Html.DisplayFor(modelItem => item.NombreUsuario)
+                </td>
+            }
             <td>
                 @Html.DisplayFor(modelItem => item.FechaCreacion)
             </td>
@@ -51,7 +80,7 @@
             </td>
             <td>
                 @Html.ActionLink("Detalles", "Details", new { id = item.Id })
-                @if (User.IsInRole("Administrador"))
+                @if (esAdmin)
                 {
                     <text> | </text>
                     @Html.ActionLink("Editar", "Edit", new { id = item.Id })
@@ -63,3 +92,8 @@
 }
     </tbody>
 </table>
+
+@if (!Model.Any())
+{
+    <p class="text-muted">No hay préstamos que coincidan con el filtro.</p>
+}

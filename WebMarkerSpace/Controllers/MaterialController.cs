@@ -2,12 +2,15 @@
 
 using ApplicationCore.Domain.CEN;
 using ApplicationCore.Domain.EN;
+using ApplicationCore.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using WebMarkerSpace.Assemblers;
 using WebMarkerSpace.Models;
@@ -28,10 +31,22 @@ namespace WebMarkerSpace.Controllers {
         }
 
         // GET: MaterialController
+        // Búsqueda con filtro por nombre (texto contenido) y por estado.
         [AllowAnonymous]
-        public ActionResult Index() {
-            IList<Material> materiales = _materialCEN.ObtenerTodos();
-            IEnumerable<MaterialViewModel> listMats = new MaterialAssembler().ConvertirListaENToViewModel(materiales);
+        public ActionResult Index(string? nombre, EstadoMaterial? estado) {
+            IEnumerable<Material> materiales = _materialCEN.ObtenerTodos();
+
+            if (!string.IsNullOrWhiteSpace(nombre)) {
+                materiales = materiales.Where(m => m.Nombre.Contains(nombre, StringComparison.OrdinalIgnoreCase));
+            }
+            if (estado.HasValue) {
+                materiales = materiales.Where(m => m.Estado == estado.Value);
+            }
+
+            IEnumerable<MaterialViewModel> listMats = new MaterialAssembler().ConvertirListaENToViewModel(materiales.ToList());
+
+            ViewBag.FiltroNombre = nombre;
+            ViewBag.FiltroEstado = new SelectList(Enum.GetValues(typeof(EstadoMaterial)), estado);
             return View(listMats);
         }
 

@@ -1,45 +1,44 @@
 @model IEnumerable<ApplicationCore.Domain.EN.Material>
 @{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Inicio";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <td>
-                    @Html.DisplayNameFor(model => model.Nombre)
-                </td>
-                <td>
-                    @Html.DisplayNameFor(model => model.Descripcion)
-                </td>
-                <td>
-                    @Html.DisplayNameFor(model => model.Estado)
-                </td>
-                <td>
-                    @Html.DisplayNameFor(model => model.EstaDisponible)
-                </td>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Nombre)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Descripcion)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Estado)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.EstaDisponible)
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+<div class="text-center py-4">
+    <h1 class="display-4">MakerSpace</h1>
+    <p class="lead">Pide prestado el material del makerspace: herramientas, equipos y componentes listos para tu próximo proyecto.</p>
+
+    <div class="mb-4">
+        <a asp-controller="Material" asp-action="Index" class="btn btn-primary btn-lg">Ver catálogo completo</a>
+        @if (User.Identity == null || !User.Identity.IsAuthenticated)
+        {
+            <a asp-controller="Usuario" asp-action="Register" class="btn btn-outline-primary btn-lg">Crear una cuenta</a>
+        }
+        else
+        {
+            <a asp-controller="Prestamo" asp-action="Index" class="btn btn-outline-primary btn-lg">Ver mis préstamos</a>
+        }
+    </div>
 </div>
+
+@if (Model.Any())
+{
+    <h2>Últimos materiales añadidos</h2>
+    <div class="row row-cols-1 row-cols-md-3 g-3 mb-4">
+        @foreach (var item in Model)
+        {
+            <div class="col">
+                <div class="card h-100">
+                    @if (!string.IsNullOrEmpty(item.Imagen))
+                    {
+                        <img src="@item.Imagen" class="card-img-top" style="max-height:180px;object-fit:cover;" alt="@item.Nombre" />
+                    }
+                    <div class="card-body">
+                        <h5 class="card-title">@item.Nombre</h5>
+                        <p class="card-text">@item.Estado</p>
+                        <a asp-controller="Material" asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">Ver detalles</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

@@ -1,0 +1,65 @@
+@model WebMarkerSpace.Models.PerfilViewModel
+
+@{
+    ViewData["Title"] = "Mi perfil";
+}
+
+<h1>Mi perfil</h1>
+<hr />
+
+@if (TempData["MensajeExito"] != null)
+{
+    <div class="alert alert-success">@TempData["MensajeExito"]</div>
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Perfil" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="Rol" />
+
+            <div class="form-group mb-3">
+                <label asp-for="Nombre" class="control-label"></label>
+                <input asp-for="Nombre" class="form-control" />
+                <span asp-validation-for="Nombre" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="Email" class="control-label"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label class="control-label">Rol</label>
+                <input class="form-control" value="@Model.Rol" disabled />
+                <div class="form-text">Solo un administrador puede cambiar tu rol.</div>
+            </div>
+
+            <hr />
+            <p class="text-muted">Deja los siguientes campos en blanco si no quieres cambiar tu contraseña.</p>
+
+            <div class="form-group mb-3">
+                <label asp-for="NuevaContrasenia" class="control-label"></label>
+                <input asp-for="NuevaContrasenia" class="form-control" />
+                <span asp-validation-for="NuevaContrasenia" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="ConfirmarNuevaContrasenia" class="control-label"></label>
+                <input asp-for="ConfirmarNuevaContrasenia" class="form-control" />
+                <span asp-validation-for="ConfirmarNuevaContrasenia" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Guardar cambios" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="mt-3">
+    <a asp-controller="Prestamo" asp-action="Index">Ver mis préstamos</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

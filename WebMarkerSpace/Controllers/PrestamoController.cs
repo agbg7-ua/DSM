@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using WebMarkerSpace.Assemblers;
 using WebMarkerSpace.Models;
@@ -36,18 +37,46 @@ namespace WebMarkerSpace.Controllers {
         }
 
         // GET: Prestamo
-        public ActionResult Index() {
-            IList<Prestamo> prestamos = _prestamoCEN.ObtenerTodos();
-            IEnumerable<PrestamoViewModel> modelList = new PrestamoAssembler().ConvertirListaENToViewModel(prestamos);
+        // Un usuario normal solo ve SUS préstamos; un Administrador los ve todos
+        // y además puede filtrar por usuario. Ambos pueden filtrar por estado.
+        public ActionResult Index(EstadoPrestamo? estado, long? usuarioId) {
+            bool esAdmin = User.IsInRole("Administrador");
+            IEnumerable<Prestamo> prestamos = _prestamoCEN.ObtenerTodos();
+
+            if (!esAdmin) {
+                long miId = ObtenerIdUsuarioActual();
+                prestamos = prestamos.Where(p => p.Usuario.Id == miId);
+            } else if (usuarioId.HasValue) {
+                prestamos = prestamos.Where(p => p.Usuario.Id == usuarioId.Value);
+            }
+
+            if (estado.HasValue) {
+                prestamos = prestamos.Where(p => p.Estado == estado.Value);
+            }
+
+            IEnumerable<PrestamoViewModel> modelList = new PrestamoAssembler().ConvertirListaENToViewModel(prestamos.ToList());
+
+            ViewBag.EsAdmin = esAdmin;
+            ViewBag.FiltroEstado = new SelectList(Enum.GetValues(typeof(EstadoPrestamo)), estado);
+            if (esAdmin) {
+                ViewBag.FiltroUsuarioId = new SelectList(_usuarioCEN.ObtenerTodos(), "Id", "Nombre", usuarioId);
+            }
             return View(modelList);
         }
 
         // GET: PrestamoController/Details/5
+        // Un usuario normal solo puede ver el detalle de sus propios préstamos.
         public ActionResult Details(int id) {
             Prestamo prestamoEN = _prestamoCEN.ObtenerPorId(id);
             if (prestamoEN == null) {
                 return NotFound();
             }
+
+            bool esAdmin = User.IsInRole("Administrador");
+            if (!esAdmin && prestamoEN.Usuario.Id != ObtenerIdUsuarioActual()) {
+                return Forbid();
+            }
+
             PrestamoViewModel model = new PrestamoAssembler().ConvertirENToViewModel(prestamoEN);
             return View(model);
         }

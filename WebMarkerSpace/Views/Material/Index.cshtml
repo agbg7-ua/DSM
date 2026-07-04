@@ -1,7 +1,7 @@
 @model IEnumerable<WebMarkerSpace.Models.MaterialViewModel>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Materiales";
 }
 
 <h1>Materiales</h1>
@@ -9,9 +9,27 @@
 @if (User.IsInRole("Administrador"))
 {
     <p>
-        <a asp-action="Create">Crear Nuevo</a>
+        <a asp-action="Create" class="btn btn-primary">Crear Nuevo</a>
     </p>
 }
+
+<form asp-action="Index" method="get" class="row g-2 align-items-end mb-3">
+    <div class="col-auto">
+        <label class="form-label">Nombre</label>
+        <input type="text" name="nombre" value="@ViewBag.FiltroNombre" class="form-control" placeholder="Buscar por nombre..." />
+    </div>
+    <div class="col-auto">
+        <label class="form-label">Estado</label>
+        <select name="estado" class="form-control" asp-items="ViewBag.FiltroEstado">
+            <option value="">-- Todos --</option>
+        </select>
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-secondary">Buscar</button>
+        <a asp-action="Index" class="btn btn-link">Limpiar</a>
+    </div>
+</form>
+
 <table class="table">
     <thead>
         <tr>
@@ -59,3 +77,8 @@
 }
     </tbody>
 </table>
+
+@if (!Model.Any())
+{
+    <p class="text-muted">No hay materiales que coincidan con la búsqueda.</p>
+}

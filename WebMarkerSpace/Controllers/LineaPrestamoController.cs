@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
+using System.Security.Claims;
 using WebMarkerSpace.Models;
 
 namespace WebMarkerSpace.Controllers {
@@ -12,20 +13,35 @@ namespace WebMarkerSpace.Controllers {
     public class LineaPrestamoController : Controller {
         private readonly LineaPrestamoCEN _lineaPrestamoCEN;
         private readonly MaterialCEN _materialCEN;
+        private readonly PrestamoCEN _prestamoCEN;
         private readonly NHibernate.ISession _session;
 
-        public LineaPrestamoController(LineaPrestamoCEN lineaPrestamoCEN, MaterialCEN materialCEN, NHibernate.ISession session) {
+        public LineaPrestamoController(LineaPrestamoCEN lineaPrestamoCEN, MaterialCEN materialCEN, PrestamoCEN prestamoCEN, NHibernate.ISession session) {
             _lineaPrestamoCEN = lineaPrestamoCEN;
             _materialCEN = materialCEN;
+            _prestamoCEN = prestamoCEN;
             _session = session;
+        }
+
+        // Un usuario normal solo puede tocar las líneas de SUS PROPIOS préstamos.
+        private bool PuedeGestionar(long prestamoId) {
+            if (User.IsInRole("Administrador")) return true;
+
+            var prestamo = _prestamoCEN.ObtenerPorId(prestamoId);
+            if (prestamo == null) return false;
+
+            long miId = long.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            return prestamo.Usuario.Id == miId;
         }
 
         // GET: LineaPrestamoController/Create
         public ActionResult Create(long prestamoId) {
-            // Pasamos el ID del préstamo padre mediante el modelo
+            if (!PuedeGestionar(prestamoId)) {
+                return Forbid();
+            }
+
             var model = new LineaPrestamoViewModel { PrestamoId = prestamoId };
 
-            // Desplegable de materiales disponibles
             var materiales = _materialCEN.ObtenerTodos();
             ViewBag.MaterialId = new SelectList(materiales, "Id", "Nombre");
 
@@ -36,6 +52,10 @@ namespace WebMarkerSpace.Controllers {
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(LineaPrestamoViewModel model) {
+            if (!PuedeGestionar(model.PrestamoId)) {
+                return Forbid();
+            }
+
             using var tx = _session.BeginTransaction();
             try {
                 _lineaPrestamoCEN.Crear(model.PrestamoId, model.MaterialId, model.DiasEstimados);
@@ -54,6 +74,10 @@ namespace WebMarkerSpace.Controllers {
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Delete(int id, long prestamoId) {
+            if (!PuedeGestionar(prestamoId)) {
+                return Forbid();
+            }
+
             using var tx = _session.BeginTransaction();
             try {
                 _lineaPrestamoCEN.Eliminar(id);
@@ -63,7 +87,6 @@ namespace WebMarkerSpace.Controllers {
                 tx.Rollback();
             }
 
-            // Volvemos a la pantalla del préstamo padre
             return RedirectToAction("Details", "Prestamo", new { id = prestamoId });
         }
     }
