@@ -5,10 +5,12 @@ using ApplicationCore.Domain.CEN;
 using ApplicationCore.Domain.EN;
 using Infrastructure.NHibernate.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using WebMarkerSpace.Models;
 
 namespace WebMarkerSpace.Controllers {
+    [Authorize]
     public class LineaPrestamoController : BasicController {
         private readonly LineaPrestamoCEN _lineaPrestamoCEN;
         private readonly MaterialCEN _materialCEN;

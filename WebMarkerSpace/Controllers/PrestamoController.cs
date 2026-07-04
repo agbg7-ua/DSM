@@ -4,6 +4,7 @@ using ApplicationCore.Domain.CEN;
 using ApplicationCore.Domain.EN;
 using Infrastructure.NHibernate.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ using WebMarkerSpace.Assemblers;
 using WebMarkerSpace.Models;
 
 namespace WebMarkerSpace.Controllers {
+    [Authorize]
     public class PrestamoController : BasicController {
         private readonly PrestamoCEN _prestamoCEN;
         private readonly UsuarioCEN _usuarioCEN; // Lo necesitamos para los desplegables de usuarios

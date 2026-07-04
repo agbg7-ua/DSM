@@ -3,11 +3,15 @@
 using ApplicationCore.Domain.CEN;
 using ApplicationCore.Domain.EN;
 using Infrastructure.NHibernate.Repositories;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 using WebMarkerSpace.Assemblers;
 using WebMarkerSpace.Extensions;
 using WebMarkerSpace.Models;
@@ -21,6 +25,7 @@ namespace WebMarkerSpace.Controllers {
         }
 
         // GET: UsuarioController/Login
+        [AllowAnonymous]
         public ActionResult Login()
         {
             return View();
@@ -28,26 +33,54 @@ namespace WebMarkerSpace.Controllers {
 
         // POST: UsuarioController/Login
         [HttpPost]
-        public ActionResult Login(LoginUsuarioViewModel login)
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> Login(LoginUsuarioViewModel login)
         {
+            if (!ModelState.IsValid)
+                return View(login);
+
             SessionInitialize();
             bool loginOk = _usuarioCEN.Login(login.Email, login.Contrasenia);
+            var usuEN = loginOk ? _usuarioCEN.ObtenerTodos().FirstOrDefault(u => u.Email == login.Email) : null;
+            SessionClose();
 
-            if (!loginOk)
+            if (!loginOk || usuEN == null)
             {
-                SessionClose();
                 ModelState.AddModelError("", "Email o contraseña incorrectos.");
-                return View();
+                return View(login);
             }
 
-            var usuEN = _usuarioCEN.ObtenerTodos().FirstOrDefault(u => u.Email == login.Email);
-            var usuVM = new UsuarioAssembler().ConvertirENToViewModel(usuEN);
-            HttpContext.Session.Set<UsuarioViewModel>("usuario", usuVM);
-            SessionClose();
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, usuEN.Id.ToString()),
+                new Claim(ClaimTypes.Name, usuEN.Nombre),
+                new Claim(ClaimTypes.Email, usuEN.Email),
+                new Claim(ClaimTypes.Role, usuEN.Rol.ToString())
+            };
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                principal,
+                new AuthenticationProperties { IsPersistent = false });
+
             return RedirectToAction("Index", "Home");
         }
 
+        // POST: UsuarioController/Logout
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction("Login");
+        }
+
         // GET: UsuarioController
+        [Authorize(Roles = "Administrador")]
         public ActionResult Index() {
             SessionInitialize();
             IList<Usuario> usuarios = _usuarioCEN.ObtenerTodos();
@@ -56,6 +89,7 @@ namespace WebMarkerSpace.Controllers {
             return View(listUsers);
         }
         // GET: UsuarioController/Details/5
+        [Authorize(Roles = "Administrador")]
         public ActionResult Details(int id) {
             SessionInitialize();
             var usuarioEN = _usuarioCEN.ObtenerPorId(id);
@@ -69,12 +103,14 @@ namespace WebMarkerSpace.Controllers {
         }
 
         // GET: UsuarioController/Create
+        [Authorize(Roles = "Administrador")]
         public ActionResult Create() {
             return View();
         }
 
         // POST: UsuarioController/Create
         [HttpPost]
+        [Authorize(Roles = "Administrador")]
         [ValidateAntiForgeryToken]
         public ActionResult Create(UsuarioViewModel user) {
             NHibernate.ITransaction tx = null;
@@ -104,6 +140,7 @@ namespace WebMarkerSpace.Controllers {
         }
 
         // GET: UsuarioController/Edit/5
+        [Authorize(Roles = "Administrador")]
         public ActionResult Edit(int id) {
             SessionInitialize();
             var usuarioEN = _usuarioCEN.ObtenerPorId(id);
@@ -118,6 +155,7 @@ namespace WebMarkerSpace.Controllers {
 
         // POST: UsuarioController/Edit/5
         [HttpPost]
+        [Authorize(Roles = "Administrador")]
         [ValidateAntiForgeryToken]
         public ActionResult Edit(int id, UsuarioViewModel user) {
             NHibernate.ITransaction tx = null;
@@ -147,6 +185,7 @@ namespace WebMarkerSpace.Controllers {
         }
 
         // GET: UsuarioController/Delete/5
+        [Authorize(Roles = "Administrador")]
         public ActionResult Delete(int id) {
             SessionInitialize();
             var usuarioEN = _usuarioCEN.ObtenerPorId(id);
@@ -161,6 +200,7 @@ namespace WebMarkerSpace.Controllers {
 
         // POST: UsuarioController/Delete/5
         [HttpPost]
+        [Authorize(Roles = "Administrador")]
         [ValidateAntiForgeryToken]
         public ActionResult Delete(int id, UsuarioViewModel user) {
             NHibernate.ITransaction tx = null;

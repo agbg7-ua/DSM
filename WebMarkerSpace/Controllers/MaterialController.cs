@@ -5,12 +5,15 @@ using ApplicationCore.Domain.EN;
 using Infrastructure.NHibernate.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Authorization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WebMarkerSpace.Assemblers;
 using WebMarkerSpace.Models;
+using System.IO;
 
 namespace WebMarkerSpace.Controllers {
     public class MaterialController : BasicController {
@@ -23,6 +26,7 @@ namespace WebMarkerSpace.Controllers {
             _webHost = webHost;
         }
         // GET: MaterialController
+        [AllowAnonymous]
         public ActionResult Index() {
             SessionInitialize();
 
@@ -33,6 +37,7 @@ namespace WebMarkerSpace.Controllers {
         }
 
         // GET: MaterialController/Details/5
+        [AllowAnonymous]
         public ActionResult Details(int id) {
             SessionInitialize();
 
@@ -50,12 +55,14 @@ namespace WebMarkerSpace.Controllers {
         }
 
         // GET: MaterialController/Create
+        [Authorize(Roles = "Administrador")]
         public ActionResult Create() {
             return View();
         }
 
         // POST: MaterialController/Create
         [HttpPost]
+        [Authorize(Roles = "Administrador")]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Create(MaterialViewModel mat) {
             NHibernate.ITransaction tx = null;
@@ -85,7 +92,8 @@ namespace WebMarkerSpace.Controllers {
 
                 bool disponibleAutomatico = (mat.Estado == ApplicationCore.Domain.Enums.EstadoMaterial.Disponible);
 
-                cenTemporal.Crear(mat.Nombre, mat.Descripcion, mat.Estado, disponibleAutomatico, mat.Imagen, null);
+                // Asegurar que se pasa siempre una cadena no nula para el parámetro Imagen
+                cenTemporal.Crear(mat.Nombre, mat.Descripcion, mat.Estado, disponibleAutomatico, mat.Imagen ?? string.Empty, null);
 
                 tx.Commit();
 
@@ -99,6 +107,7 @@ namespace WebMarkerSpace.Controllers {
         }
 
         // GET: MaterialController/Edit/5
+        [Authorize(Roles = "Administrador")]
         public ActionResult Edit(int id) {
             SessionInitialize();
             var materialEN = _materialCEN.ObtenerPorId(id);
@@ -116,10 +125,26 @@ namespace WebMarkerSpace.Controllers {
 
         // POST: MaterialController/Edit/5
         [HttpPost]
+        [Authorize(Roles = "Administrador")]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, MaterialViewModel mat) {
+        public async Task<ActionResult> Edit(int id, MaterialViewModel mat) {
             NHibernate.ITransaction tx = null;
+            string fileName = "";
             try {
+                // Procesar posible nueva imagen subida
+                if (mat.Fichero != null && mat.Fichero.Length > 0) {
+                    fileName = Path.GetFileName(mat.Fichero.FileName).Trim();
+                    string directory = _webHost.WebRootPath + "/Images";
+                    string path = Path.Combine(directory, fileName);
+
+                    if (!Directory.Exists(directory))
+                        Directory.CreateDirectory(directory);
+                    using (var stream = System.IO.File.Create(path)) {
+                        await mat.Fichero.CopyToAsync(stream);
+                    }
+                    mat.Imagen = "/Images/" + fileName; // Actualizamos la ruta para la BD
+                }
+
                 SessionInitialize();
 
                 var campoSesion = typeof(BasicController).GetField("sessionInside", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -134,7 +159,9 @@ namespace WebMarkerSpace.Controllers {
 
                 bool disponibleAutomatico = (mat.Estado == ApplicationCore.Domain.Enums.EstadoMaterial.Disponible);
 
+                // Pasar siempre una cadena no nula para Imagen
                 cenTemporal.Modificar(mat.Id, mat.Nombre, mat.Descripcion, mat.Estado, disponibleAutomatico);
+                
 
                 tx.Commit();
 
@@ -148,6 +175,7 @@ namespace WebMarkerSpace.Controllers {
         }
 
         // GET: MaterialController/Delete/5
+        [Authorize(Roles = "Administrador")]
         public ActionResult Delete(int id) {
             SessionInitialize();
 
@@ -166,6 +194,7 @@ namespace WebMarkerSpace.Controllers {
 
         // POST: MaterialController/Delete/5
         [HttpPost]
+        [Authorize(Roles = "Administrador")]
         [ValidateAntiForgeryToken]
         public ActionResult Delete(int id, MaterialViewModel mat) {
             NHibernate.ITransaction tx = null;

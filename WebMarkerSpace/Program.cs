@@ -2,9 +2,8 @@ using ApplicationCore.Domain.CEN;
 using ApplicationCore.Domain.Repositories;
 using Infrastructure.NHibernate;
 using Infrastructure.NHibernate.Repositories;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using NHibernate;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,45 +27,39 @@ builder.Services.AddScoped<UsuarioCEN>();
 builder.Services.AddScoped<PrestamoCEN>();
 builder.Services.AddScoped<LineaPrestamoCEN>();
 
-// Sesión
-builder.Services.AddDistributedMemoryCache();
-builder.Services.AddSession(options =>
-{
-    options.IdleTimeout = TimeSpan.FromMinutes(30);
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
-});
+// Autenticación por cookies + autorización basada en roles (Administrador / Usuario)
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Usuario/Login";
+        options.AccessDeniedPath = "/Home/AccessDenied";
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+        options.SlidingExpiration = true;
+        options.Cookie.HttpOnly = true;
+    });
+builder.Services.AddAuthorization();
 
 // MVC
 builder.Services.AddControllersWithViews();
-builder.Services.AddSession(options => {
-
-    options.IdleTimeout = TimeSpan.FromSeconds(1000);
-
-    options.Cookie.HttpOnly = true;
-
-    options.Cookie.IsEssential = true;
-
-});
 
 var app = builder.Build();
 
-if (!app.Environment.IsDevelopment()) {
+if (!app.Environment.IsDevelopment())
+{
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
-app.UseRouting();
-app.UseSession();
-app.UseAuthorization();
 app.UseStaticFiles();
 
-builder.Services.AddDistributedMemoryCache();
+app.UseRouting();
 
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Usuario}/{action=Login}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
