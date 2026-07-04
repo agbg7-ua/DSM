@@ -17,17 +17,16 @@ public class MaterialCEN
 
     public long Crear(string nombre, string descripcion, EstadoMaterial estado, bool estaDisponible, string Imagen, long? usuarioId = null)
     {
-        var material = new Material
-        {
-            Nombre = nombre,
-            Descripcion = descripcion,
-            Estado = estado,
-            EstaDisponible = estaDisponible,
-            Imagen = Imagen,
-            UsuarioAsignado = usuarioId.HasValue
-                ? _usuarioRepository.DamePorOID(usuarioId.Value)
-                : null
-        };
+        var material = new Material();
+            ActualizarMaterial(
+                material,
+                nombre,
+                descripcion,
+                estado,
+                estaDisponible,
+                Imagen,
+                usuarioId);
+
         return _repository.New(material);
     }
 
@@ -36,15 +35,14 @@ public class MaterialCEN
         var material = _repository.DamePorOID(id)
             ?? throw new InvalidOperationException($"Material con id {id} no encontrado.");
 
-        material.Nombre = nombre;
-        material.Descripcion = descripcion;
-        material.Estado = estado;
-        material.EstaDisponible = estaDisponible;
-        material.Imagen = Imagen;
-        material.UsuarioAsignado = usuarioId.HasValue
-            ? _usuarioRepository.DamePorOID(usuarioId.Value)
-                ?? throw new InvalidOperationException($"Usuario con id {usuarioId.Value} no encontrado.")
-            : null;
+        ActualizarMaterial(
+            material,
+            nombre,
+            descripcion,
+            estado,
+            estaDisponible,
+            Imagen,
+            usuarioId);
         _repository.Modify(material);
     }
 
@@ -81,5 +79,27 @@ public class MaterialCEN
         material.Estado = EstadoMaterial.EnMantenimiento;
         material.EstaDisponible = false;
         _repository.Modify(material);
+    }
+
+
+    private void ActualizarMaterial(
+    Material material,
+    string nombre,
+    string descripcion,
+    EstadoMaterial estado,
+    bool estaDisponible,
+    string imagen,
+    long? usuarioId) {
+        material.Nombre = nombre;
+        material.Descripcion = descripcion;
+        material.Estado = estado;
+        material.EstaDisponible = estaDisponible;
+        material.Imagen = imagen;
+
+        material.UsuarioAsignado = usuarioId.HasValue
+            ? _usuarioRepository.DamePorOID(usuarioId.Value)
+                ?? throw new InvalidOperationException(
+                    $"Usuario con id {usuarioId.Value} no encontrado.")
+            : null;
     }
 }

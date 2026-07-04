@@ -63,6 +63,7 @@ public class CasosProceso
                 material.Descripcion,
                 EstadoMaterial.Disponible,
                 false,
+                material.Imagen, // <-- Corregido: se pasa el string Imagen como sexto argumento
                 usuarioId);
         }
 
@@ -89,6 +90,7 @@ public class CasosProceso
                 material.Descripcion,
                 EstadoMaterial.Disponible,
                 true,
+                material.Imagen, // <-- Corregido: se pasa el string Imagen como sexto argumento
                 null);
         }
 
