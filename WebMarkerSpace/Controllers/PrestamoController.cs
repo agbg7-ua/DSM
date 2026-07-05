@@ -1,6 +1,7 @@
 // "Copyright (c) YOUR_COMPANY. All rights reserved."
 
 using ApplicationCore.Domain.CEN;
+using ApplicationCore.Domain.CP;
 using ApplicationCore.Domain.EN;
 using ApplicationCore.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
@@ -22,12 +23,20 @@ namespace WebMarkerSpace.Controllers {
         private readonly PrestamoCEN _prestamoCEN;
         private readonly UsuarioCEN _usuarioCEN; // Lo necesitamos para los desplegables de usuarios
         private readonly LineaPrestamoCEN _lineaPrestamoCEN;
+        private readonly MaterialCEN _materialCEN;
         private readonly NHibernate.ISession _session;
 
-        public PrestamoController(PrestamoCEN prestamoCEN, UsuarioCEN usuarioCEN, LineaPrestamoCEN lineaPrestamoCEN, NHibernate.ISession session) {
+        // OJO: CasosProceso (y su IUnitOfWork) NO se inyectan aquí por
+        // constructor a propósito: IUnitOfWork abre una transacción en cuanto
+        // se construye, y si estuviera en el constructor se abriría en TODAS
+        // las acciones de este controlador, chocando con nuestras propias
+        // transacciones manuales de Create/Edit/Delete. Por eso en Devolver()
+        // se pide como parámetro de acción ([FromServices]), solo cuando hace falta.
+        public PrestamoController(PrestamoCEN prestamoCEN, UsuarioCEN usuarioCEN, LineaPrestamoCEN lineaPrestamoCEN, MaterialCEN materialCEN, NHibernate.ISession session) {
             _prestamoCEN = prestamoCEN;
             _usuarioCEN = usuarioCEN;
             _lineaPrestamoCEN = lineaPrestamoCEN;
+            _materialCEN = materialCEN;
             _session = session;
         }
 
@@ -117,12 +126,33 @@ namespace WebMarkerSpace.Controllers {
                 model.Estado = EstadoPrestamo.Pendiente;
             }
 
+            // Un material solo se puede prestar si está Disponible (no si ya
+            // está Prestado, En Mantenimiento o Roto).
+            Material? material = null;
+            if (materialId.HasValue) {
+                material = _materialCEN.ObtenerPorId(materialId.Value);
+                if (material == null || material.Estado != EstadoMaterial.Disponible) {
+                    ModelState.AddModelError("", "El material seleccionado ya no está disponible.");
+                }
+            }
+
+            if (!ModelState.IsValid) {
+                if (esAdmin) {
+                    ViewBag.UsuarioId = new SelectList(_usuarioCEN.ObtenerTodos(), "Id", "Nombre", model.UsuarioId);
+                }
+                ViewBag.EsAdmin = esAdmin;
+                ViewBag.MaterialId = materialId;
+                return View(model);
+            }
+
             using var tx = _session.BeginTransaction();
             try {
                 long nuevoPrestamoId = _prestamoCEN.Crear(model.UsuarioId, model.FechaCreacion, model.Estado, model.TotalDias);
 
-                if (materialId.HasValue) {
-                    _lineaPrestamoCEN.Crear(nuevoPrestamoId, materialId.Value, model.TotalDias);
+                if (material != null) {
+                    _lineaPrestamoCEN.Crear(nuevoPrestamoId, material.Id, model.TotalDias);
+                    // El material pasa a estar Prestado y queda asignado a quien lo pide.
+                    _materialCEN.Modificar(material.Id, material.Nombre, material.Descripcion, EstadoMaterial.Prestado, material.Categoria, material.Imagen, model.UsuarioId);
                 }
 
                 tx.Commit();
@@ -140,6 +170,33 @@ namespace WebMarkerSpace.Controllers {
                 ModelState.AddModelError("", "Error al crear el préstamo: " + ex.Message);
                 return View(model);
             }
+        }
+
+        // POST: PrestamoController/Devolver/5
+        // Marca el préstamo como Devuelto y libera todos sus materiales (vuelven
+        // a Disponible y se les quita el usuario asignado). Lo puede hacer un
+        // Administrador o el propio dueño del préstamo.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Devolver(long id, [FromServices] CasosProceso casosProceso) {
+            var prestamoEN = _prestamoCEN.ObtenerPorId(id);
+            if (prestamoEN == null) {
+                return NotFound();
+            }
+
+            bool esAdmin = User.IsInRole("Administrador");
+            if (!esAdmin && prestamoEN.Usuario.Id != ObtenerIdUsuarioActual()) {
+                return Forbid();
+            }
+
+            try {
+                casosProceso.DevolverMaterial(id);
+            }
+            catch (Exception) {
+                TempData["Error"] = "No se pudo marcar el préstamo como devuelto.";
+            }
+
+            return RedirectToAction(nameof(Details), new { id });
         }
 
         // GET: PrestamoController/Edit/5

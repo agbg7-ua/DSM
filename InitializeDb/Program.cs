@@ -143,27 +143,111 @@ static void InsertarDatosPrueba(ServiceProvider services, ILogger logger) {
     var lineaPrestamoCEN = scope.ServiceProvider.GetRequiredService<LineaPrestamoCEN>();
     var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
+    var Estado = ApplicationCore.Domain.Enums.EstadoMaterial.Disponible;
+    var EnMantenimiento = ApplicationCore.Domain.Enums.EstadoMaterial.EnMantenimiento;
+    var Roto = ApplicationCore.Domain.Enums.EstadoMaterial.Roto;
+    var Prestado = ApplicationCore.Domain.Enums.EstadoMaterial.Prestado;
+
     try {
         //Usuarios
         long adminId = usuarioCEN.Crear("Juan García", "juan@makerspace.com", "1234", ApplicationCore.Domain.Enums.RolUsuario.Administrador);
-        long usuarioId = usuarioCEN.Crear("María López", "maria@makerspace.com", "1234", ApplicationCore.Domain.Enums.RolUsuario.Usuario);
+        usuarioCEN.Crear("Lucía Fernández", "lucia@makerspace.com", "1234", ApplicationCore.Domain.Enums.RolUsuario.Administrador);
+        long mariaId = usuarioCEN.Crear("María López", "maria@makerspace.com", "1234", ApplicationCore.Domain.Enums.RolUsuario.Usuario);
+        long anaId = usuarioCEN.Crear("Ana Torres", "ana@makerspace.com", "1234", ApplicationCore.Domain.Enums.RolUsuario.Usuario);
+        long carlosId = usuarioCEN.Crear("Carlos Ruiz", "carlos@makerspace.com", "1234", ApplicationCore.Domain.Enums.RolUsuario.Usuario);
+        long pabloId = usuarioCEN.Crear("Pablo Díaz", "pablo@makerspace.com", "1234", ApplicationCore.Domain.Enums.RolUsuario.Usuario);
 
-        //Materiales
-        long taladroId = materialCEN.Crear("Taladro eléctrico", "Taladro percutor 800W", ApplicationCore.Domain.Enums.EstadoMaterial.Disponible, true, "/Images/taladro.jpg");
-        long sierraId = materialCEN.Crear("Sierra circular", "Sierra circular 1200W con guía", ApplicationCore.Domain.Enums.EstadoMaterial.Disponible, true, "/Images/sierra.jpg");
-        long impresoraId = materialCEN.Crear("Impresora 3D", "Impresora FDM con cama caliente", ApplicationCore.Domain.Enums.EstadoMaterial.Disponible, true, "/Images/impresora.jpg");
-        long soldadorId = materialCEN.Crear("Soldador", "Soldador de estaño 60W", ApplicationCore.Domain.Enums.EstadoMaterial.EnMantenimiento, false, "/Images/soldador.jpg");
+        //Materiales: bastantes por cada categoría, para poder probar bien el filtro.
+        var C = ApplicationCore.Domain.Enums.CategoriaMaterial.Herramientas;
+        long taladroId = materialCEN.Crear("Taladro eléctrico", "Taladro percutor 800W, incluye maletín y brocas variadas.", Estado, C, "/Images/taladro.jpg");
+        long sierraId = materialCEN.Crear("Sierra circular", "Sierra circular 1200W con guía de corte y disco de repuesto.", Estado, C, "/Images/sierra.jpg");
+        long atornilladorId = materialCEN.Crear("Atornillador eléctrico", "Atornillador inalámbrico 12V con dos baterías.", Estado, C, "");
+        long lijadoraId = materialCEN.Crear("Lijadora orbital", "Lijadora orbital de mano, incluye lijas de varios grosores.", EnMantenimiento, C, "");
+        long pistolaCalorId = materialCEN.Crear("Pistola de calor", "Pistola de aire caliente regulable, útil para termorretráctil.", Estado, C, "");
 
-        //Préstamos
-        long prestamo1Id = prestamoCEN.Crear(usuarioId, DateTime.Now.AddDays(-5), ApplicationCore.Domain.Enums.EstadoPrestamo.Activo, 7);
-        lineaPrestamoCEN.Crear(prestamo1Id, taladroId,3);
-        lineaPrestamoCEN.Crear(prestamo1Id, impresoraId,5);
+        C = ApplicationCore.Domain.Enums.CategoriaMaterial.Electronica;
+        long multimetroId = materialCEN.Crear("Multímetro digital", "Multímetro de mano con medición de voltaje, corriente y continuidad.", Estado, C, "");
+        long osciloscopioId = materialCEN.Crear("Osciloscopio", "Osciloscopio digital de 2 canales, 100MHz.", Estado, C, "");
+        long estacionSoldaduraId = materialCEN.Crear("Estación de soldadura", "Estación de soldadura con temperatura regulable y soporte.", Estado, C, "");
+        long fuenteAlimentacionId = materialCEN.Crear("Fuente de alimentación", "Fuente de alimentación de laboratorio, 0-30V regulable.", Estado, C, "");
+        long arduinoKitId = materialCEN.Crear("Kit de Arduino", "Kit de iniciación con placa Arduino Uno, cables y sensores básicos.", Estado, C, "");
+
+        C = ApplicationCore.Domain.Enums.CategoriaMaterial.ImpresionYFabricacion;
+        long impresora3dId = materialCEN.Crear("Impresora 3D FDM", "Impresora FDM con cama caliente, admite PLA y PETG.", Estado, C, "/Images/impresora.jpg");
+        long impresoraResinaId = materialCEN.Crear("Impresora 3D de resina", "Impresora de resina para piezas de alto detalle.", Estado, C, "");
+        long cortadoraLaserId = materialCEN.Crear("Cortadora láser", "Cortadora/grabadora láser de sobremesa, área de trabajo A3.", Roto, C, "");
+        long cncId = materialCEN.Crear("CNC de sobremesa", "Fresadora CNC de 3 ejes para madera y plásticos blandos.", Estado, C, "");
+        long escaner3dId = materialCEN.Crear("Escáner 3D", "Escáner 3D de mano para digitalizar objetos pequeños.", Estado, C, "");
+
+        C = ApplicationCore.Domain.Enums.CategoriaMaterial.Costura;
+        long maquinaCoserId = materialCEN.Crear("Máquina de coser", "Máquina de coser doméstica con varios tipos de puntada.", Estado, C, "");
+        long overlockId = materialCEN.Crear("Máquina overlock", "Máquina overlock para rematar y coser telas elásticas.", Estado, C, "");
+        long planchaId = materialCEN.Crear("Plancha industrial", "Plancha de vapor de uso intensivo para taller de costura.", Estado, C, "");
+        long patronajeId = materialCEN.Crear("Kit de patronaje", "Reglas, escuadras y papel de patronaje para confección.", Estado, C, "");
+
+        C = ApplicationCore.Domain.Enums.CategoriaMaterial.Carpinteria;
+        long sierraCalarId = materialCEN.Crear("Sierra de calar", "Sierra de calar eléctrica con hojas de varios tipos.", Estado, C, "");
+        long routerId = materialCEN.Crear("Router de carpintero", "Fresadora de mano para trabajos de carpintería.", Estado, C, "");
+        long cepilloId = materialCEN.Crear("Cepillo eléctrico", "Cepillo eléctrico para desbastar madera.", EnMantenimiento, C, "");
+        long prensaBancoId = materialCEN.Crear("Prensa de banco", "Prensa de banco robusta para sujeción de piezas.", Estado, C, "");
+
+        C = ApplicationCore.Domain.Enums.CategoriaMaterial.Informatica;
+        long portatilId = materialCEN.Crear("Portátil de préstamo", "Portátil configurado con software de diseño y CAD.", Estado, C, "");
+        long tabletGraficaId = materialCEN.Crear("Tablet gráfica", "Tableta gráfica con lápiz para diseño digital.", Estado, C, "");
+        long camaraId = materialCEN.Crear("Cámara réflex", "Cámara réflex digital con objetivo estándar 18-55mm.", Estado, C, "");
+        long tripodeId = materialCEN.Crear("Trípode profesional", "Trípode de aluminio, altura regulable hasta 1.6m.", Estado, C, "");
+        long proyectorId = materialCEN.Crear("Proyector portátil", "Proyector portátil HD con entrada HDMI y USB.", Estado, C, "");
+
+        C = ApplicationCore.Domain.Enums.CategoriaMaterial.Otros;
+        long generadorId = materialCEN.Crear("Generador eléctrico", "Generador eléctrico portátil a gasolina, 2000W.", Estado, C, "");
+        long carpaId = materialCEN.Crear("Carpa plegable", "Carpa plegable 3x3m para eventos y ferias.", Estado, C, "");
+        long altavozId = materialCEN.Crear("Altavoz portátil", "Altavoz Bluetooth portátil con batería de larga duración.", Estado, C, "");
+        long kitManoId = materialCEN.Crear("Kit de herramientas de mano", "Maletín con destornilladores, alicates y llaves variadas.", Estado, C, "");
+
+        //Préstamos: variados en estado y usuario, para poder probar filtros y
+        //la restricción de "solo veo los míos".
+        long prestamo1Id = prestamoCEN.Crear(mariaId, DateTime.Now.AddDays(-5), ApplicationCore.Domain.Enums.EstadoPrestamo.Activo, 7);
+        lineaPrestamoCEN.Crear(prestamo1Id, taladroId, 3);
+        lineaPrestamoCEN.Crear(prestamo1Id, impresora3dId, 5);
+        materialCEN.Modificar(taladroId, "Taladro eléctrico", "Taladro percutor 800W, incluye maletín y brocas variadas.", Prestado, ApplicationCore.Domain.Enums.CategoriaMaterial.Herramientas, "/Images/taladro.jpg", mariaId);
+        materialCEN.Modificar(impresora3dId, "Impresora 3D FDM", "Impresora FDM con cama caliente, admite PLA y PETG.", Prestado, ApplicationCore.Domain.Enums.CategoriaMaterial.ImpresionYFabricacion, "/Images/impresora.jpg", mariaId);
 
         long prestamo2Id = prestamoCEN.Crear(adminId, DateTime.Now.AddDays(-20), ApplicationCore.Domain.Enums.EstadoPrestamo.Devuelto, 3);
-        lineaPrestamoCEN.Crear(prestamo2Id, sierraId,2);
+        lineaPrestamoCEN.Crear(prestamo2Id, sierraId, 2);
 
-        long prestamo3Id = prestamoCEN.Crear(usuarioId, DateTime.Now, ApplicationCore.Domain.Enums.EstadoPrestamo.Pendiente, 5);
-        lineaPrestamoCEN.Crear(prestamo3Id, taladroId,7);
+        long prestamo3Id = prestamoCEN.Crear(mariaId, DateTime.Now, ApplicationCore.Domain.Enums.EstadoPrestamo.Pendiente, 5);
+        lineaPrestamoCEN.Crear(prestamo3Id, arduinoKitId, 7);
+        materialCEN.Modificar(arduinoKitId, "Kit de Arduino", "Kit de iniciación con placa Arduino Uno, cables y sensores básicos.", Prestado, ApplicationCore.Domain.Enums.CategoriaMaterial.Electronica, "", mariaId);
+
+        long prestamo4Id = prestamoCEN.Crear(anaId, DateTime.Now.AddDays(-2), ApplicationCore.Domain.Enums.EstadoPrestamo.Activo, 10);
+        lineaPrestamoCEN.Crear(prestamo4Id, maquinaCoserId, 10);
+        lineaPrestamoCEN.Crear(prestamo4Id, planchaId, 10);
+        materialCEN.Modificar(maquinaCoserId, "Máquina de coser", "Máquina de coser doméstica con varios tipos de puntada.", Prestado, ApplicationCore.Domain.Enums.CategoriaMaterial.Costura, "", anaId);
+        materialCEN.Modificar(planchaId, "Plancha industrial", "Plancha de vapor de uso intensivo para taller de costura.", Prestado, ApplicationCore.Domain.Enums.CategoriaMaterial.Costura, "", anaId);
+
+        long prestamo5Id = prestamoCEN.Crear(carlosId, DateTime.Now.AddDays(-15), ApplicationCore.Domain.Enums.EstadoPrestamo.Retrasado, 5);
+        lineaPrestamoCEN.Crear(prestamo5Id, camaraId, 5);
+        lineaPrestamoCEN.Crear(prestamo5Id, tripodeId, 5);
+        materialCEN.Modificar(camaraId, "Cámara réflex", "Cámara réflex digital con objetivo estándar 18-55mm.", Prestado, ApplicationCore.Domain.Enums.CategoriaMaterial.Informatica, "", carlosId);
+        materialCEN.Modificar(tripodeId, "Trípode profesional", "Trípode de aluminio, altura regulable hasta 1.6m.", Prestado, ApplicationCore.Domain.Enums.CategoriaMaterial.Informatica, "", carlosId);
+
+        long prestamo6Id = prestamoCEN.Crear(pabloId, DateTime.Now.AddDays(-1), ApplicationCore.Domain.Enums.EstadoPrestamo.Pendiente, 3);
+        lineaPrestamoCEN.Crear(prestamo6Id, multimetroId, 3);
+        materialCEN.Modificar(multimetroId, "Multímetro digital", "Multímetro de mano con medición de voltaje, corriente y continuidad.", Prestado, ApplicationCore.Domain.Enums.CategoriaMaterial.Electronica, "", pabloId);
+
+        long prestamo7Id = prestamoCEN.Crear(anaId, DateTime.Now.AddDays(-30), ApplicationCore.Domain.Enums.EstadoPrestamo.Devuelto, 4);
+        lineaPrestamoCEN.Crear(prestamo7Id, generadorId, 4);
+
+        long prestamo8Id = prestamoCEN.Crear(mariaId, DateTime.Now.AddDays(-3), ApplicationCore.Domain.Enums.EstadoPrestamo.Activo, 6);
+        lineaPrestamoCEN.Crear(prestamo8Id, portatilId, 6);
+        materialCEN.Modificar(portatilId, "Portátil de préstamo", "Portátil configurado con software de diseño y CAD.", Prestado, ApplicationCore.Domain.Enums.CategoriaMaterial.Informatica, "", mariaId);
+
+        long prestamo9Id = prestamoCEN.Crear(carlosId, DateTime.Now, ApplicationCore.Domain.Enums.EstadoPrestamo.Pendiente, 2);
+        lineaPrestamoCEN.Crear(prestamo9Id, altavozId, 2);
+        materialCEN.Modificar(altavozId, "Altavoz portátil", "Altavoz Bluetooth portátil con batería de larga duración.", Prestado, ApplicationCore.Domain.Enums.CategoriaMaterial.Otros, "", carlosId);
+
+        long prestamo10Id = prestamoCEN.Crear(pabloId, DateTime.Now.AddDays(-40), ApplicationCore.Domain.Enums.EstadoPrestamo.Devuelto, 5);
+        lineaPrestamoCEN.Crear(prestamo10Id, cepilloId, 5);
 
         unitOfWork.SaveChanges();
         logger.LogInformation("Datos de prueba insertados correctamente.");

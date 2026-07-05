@@ -1,7 +1,9 @@
 using ApplicationCore.Domain.CEN;
+using ApplicationCore.Domain.CP;
 using ApplicationCore.Domain.Repositories;
 using Infrastructure.NHibernate;
 using Infrastructure.NHibernate.Repositories;
+using Infrastructure.NHibernate.UnitOfWork;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using NHibernate;
 
@@ -26,6 +28,11 @@ builder.Services.AddScoped<MaterialCEN>();
 builder.Services.AddScoped<UsuarioCEN>();
 builder.Services.AddScoped<PrestamoCEN>();
 builder.Services.AddScoped<LineaPrestamoCEN>();
+
+// Unidad de trabajo y caso de proceso (usado por PrestamoController.Devolver
+// para marcar un préstamo como devuelto y liberar sus materiales a la vez).
+builder.Services.AddScoped<IUnitOfWork, NHibernateUnitOfWork>();
+builder.Services.AddScoped<CasosProceso>();
 
 // Autenticación por cookies + autorización basada en roles (Administrador / Usuario)
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

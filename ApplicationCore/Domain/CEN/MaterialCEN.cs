@@ -15,7 +15,7 @@ public class MaterialCEN
         _usuarioRepository = usuarioRepository;
     }
 
-    public long Crear(string nombre, string descripcion, EstadoMaterial estado, bool estaDisponible, string Imagen, long? usuarioId = null)
+    public long Crear(string nombre, string descripcion, EstadoMaterial estado, CategoriaMaterial categoria, string Imagen, long? usuarioId = null)
     {
         var material = new Material();
             ActualizarMaterial(
@@ -23,14 +23,14 @@ public class MaterialCEN
                 nombre,
                 descripcion,
                 estado,
-                estaDisponible,
+                categoria,
                 Imagen,
                 usuarioId);
 
         return _repository.New(material);
     }
 
-    public void Modificar(long id, string nombre, string descripcion, EstadoMaterial estado, bool estaDisponible, string Imagen, long? usuarioId = null)
+    public void Modificar(long id, string nombre, string descripcion, EstadoMaterial estado, CategoriaMaterial categoria, string Imagen, long? usuarioId = null)
     {
         var material = _repository.DamePorOID(id)
             ?? throw new InvalidOperationException($"Material con id {id} no encontrado.");
@@ -40,7 +40,7 @@ public class MaterialCEN
             nombre,
             descripcion,
             estado,
-            estaDisponible,
+            categoria,
             Imagen,
             usuarioId);
         _repository.Modify(material);
@@ -57,8 +57,6 @@ public class MaterialCEN
 
     public IList<Material> ObtenerTodos() => _repository.DameTodos();
 
-    public IList<Material> ObtenerDisponibles() => _repository.DameFilterDisponibles();
-
     public IList<Material> ObtenerPorEstado(EstadoMaterial estado) => _repository.DameFilterPorEstado(estado);
 
     public void MarcarComoRoto(long id)
@@ -67,7 +65,6 @@ public class MaterialCEN
             ?? throw new InvalidOperationException($"Material con id {id} no encontrado.");
 
         material.Estado = EstadoMaterial.Roto;
-        material.EstaDisponible = false;
         _repository.Modify(material);
     }
 
@@ -77,7 +74,6 @@ public class MaterialCEN
             ?? throw new InvalidOperationException($"Material con id {id} no encontrado.");
 
         material.Estado = EstadoMaterial.EnMantenimiento;
-        material.EstaDisponible = false;
         _repository.Modify(material);
     }
 
@@ -87,13 +83,13 @@ public class MaterialCEN
     string nombre,
     string descripcion,
     EstadoMaterial estado,
-    bool estaDisponible,
+    CategoriaMaterial categoria,
     string imagen,
     long? usuarioId) {
         material.Nombre = nombre;
         material.Descripcion = descripcion;
         material.Estado = estado;
-        material.EstaDisponible = estaDisponible;
+        material.Categoria = categoria;
         material.Imagen = imagen;
 
         material.UsuarioAsignado = usuarioId.HasValue

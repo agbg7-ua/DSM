@@ -1,10 +1,16 @@
 @model WebMarkerSpace.Models.PrestamoViewModel
+@using ApplicationCore.Domain.Enums
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Detalles del préstamo";
 }
 
 <h1>Detalles</h1>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
 
 <div>
     <h4>Prestamo</h4>
@@ -15,12 +21,6 @@
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Id)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UsuarioId)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UsuarioId)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.NombreUsuario)
@@ -47,11 +47,21 @@
             @Html.DisplayFor(model => model.TotalDias)
         </dd>
     </dl>
+
+    @if (Model.Estado != EstadoPrestamo.Devuelto)
+    {
+        <form asp-action="Devolver" asp-route-id="@Model.Id" method="post" class="mb-3">
+            <button type="submit" class="btn btn-success">Marcar como devuelto</button>
+        </form>
+    }
 </div>
 <h3>Materiales en este préstamo</h3>
-<p>
-    <a asp-controller="LineaPrestamo" asp-action="Create" asp-route-prestamoId="@Model.Id" class="btn btn-primary">Añadir Material</a>
-</p>
+@if (Model.Estado != EstadoPrestamo.Devuelto)
+{
+    <p>
+        <a asp-controller="LineaPrestamo" asp-action="Create" asp-route-prestamoId="@Model.Id" class="btn btn-primary">Añadir Material</a>
+    </p>
+}
 
 <table class="table">
     <thead>
@@ -70,18 +80,24 @@
                 <td>@linea.DescripcionMaterial</td>
                 <td>@linea.DiasEstimados</td>
                 <td>
-                <td>
-                    <form asp-controller="LineaPrestamo" asp-action="Delete" method="post" style="display:inline;">
-                        <input type="hidden" name="id" value="@linea.Id" />
-                        <input type="hidden" name="prestamoId" value="@Model.Id" />
-                        <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
-                    </form>
+                    @if (Model.Estado != EstadoPrestamo.Devuelto)
+                    {
+                        <form asp-controller="LineaPrestamo" asp-action="Delete" method="post" style="display:inline;">
+                            <input type="hidden" name="id" value="@linea.Id" />
+                            <input type="hidden" name="prestamoId" value="@Model.Id" />
+                            <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                        </form>
+                    }
                 </td>
             </tr>
         }
     </tbody>
 </table>
 <div>
-    @Html.ActionLink("Editar", "Edit", new { id = Model.Id }) |
+    @if (User.IsInRole("Administrador"))
+    {
+        @Html.ActionLink("Editar", "Edit", new { id = Model.Id })
+        <text> | </text>
+    }
     <a asp-action="Index">Volver a la lista</a>
 </div>

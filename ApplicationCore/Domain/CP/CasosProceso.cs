@@ -41,7 +41,7 @@ public class CasosProceso
             var material = _materialCEN.ObtenerPorId(materialId)
                 ?? throw new InvalidOperationException($"Material con id {materialId} no encontrado.");
 
-            if (!material.EstaDisponible || material.Estado != EstadoMaterial.Disponible)
+            if (material.Estado != EstadoMaterial.Disponible)
                 throw new InvalidOperationException($"Material con id {materialId} no está disponible.");
 
             materiales.Add((material, 7));
@@ -61,9 +61,9 @@ public class CasosProceso
                 material.Id,
                 material.Nombre,
                 material.Descripcion,
-                EstadoMaterial.Disponible,
-                false,
-                material.Imagen, // <-- Corregido: se pasa el string Imagen como sexto argumento
+                EstadoMaterial.Prestado,
+                material.Categoria,
+                material.Imagen,
                 usuarioId);
         }
 
@@ -89,8 +89,8 @@ public class CasosProceso
                 material.Nombre,
                 material.Descripcion,
                 EstadoMaterial.Disponible,
-                true,
-                material.Imagen, // <-- Corregido: se pasa el string Imagen como sexto argumento
+                material.Categoria,
+                material.Imagen,
                 null);
         }
 

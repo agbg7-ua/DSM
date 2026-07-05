@@ -1,10 +1,12 @@
 // "Copyright (c) YOUR_COMPANY. All rights reserved."
 
 using ApplicationCore.Domain.CEN;
+using ApplicationCore.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
+using System.Linq;
 using System.Security.Claims;
 using WebMarkerSpace.Models;
 
@@ -34,6 +36,12 @@ namespace WebMarkerSpace.Controllers {
             return prestamo.Usuario.Id == miId;
         }
 
+        private SelectList MaterialesDisponibles(long? seleccionado = null) {
+            // Solo se puede añadir a un préstamo un material que esté libre ahora mismo.
+            var disponibles = _materialCEN.ObtenerTodos().Where(m => m.Estado == EstadoMaterial.Disponible);
+            return new SelectList(disponibles, "Id", "Nombre", seleccionado);
+        }
+
         // GET: LineaPrestamoController/Create
         public ActionResult Create(long prestamoId) {
             if (!PuedeGestionar(prestamoId)) {
@@ -41,9 +49,7 @@ namespace WebMarkerSpace.Controllers {
             }
 
             var model = new LineaPrestamoViewModel { PrestamoId = prestamoId };
-
-            var materiales = _materialCEN.ObtenerTodos();
-            ViewBag.MaterialId = new SelectList(materiales, "Id", "Nombre");
+            ViewBag.MaterialId = MaterialesDisponibles();
 
             return View(model);
         }
@@ -56,15 +62,29 @@ namespace WebMarkerSpace.Controllers {
                 return Forbid();
             }
 
+            var prestamo = _prestamoCEN.ObtenerPorId(model.PrestamoId);
+            var material = _materialCEN.ObtenerPorId(model.MaterialId);
+
+            if (prestamo == null || material == null) {
+                return NotFound();
+            }
+            if (material.Estado != EstadoMaterial.Disponible) {
+                ModelState.AddModelError("", "Ese material ya no está disponible.");
+                ViewBag.MaterialId = MaterialesDisponibles(model.MaterialId);
+                return View(model);
+            }
+
             using var tx = _session.BeginTransaction();
             try {
                 _lineaPrestamoCEN.Crear(model.PrestamoId, model.MaterialId, model.DiasEstimados);
+                // El material pasa a Prestado y queda asignado al dueño del préstamo.
+                _materialCEN.Modificar(material.Id, material.Nombre, material.Descripcion, EstadoMaterial.Prestado, material.Categoria, material.Imagen, prestamo.Usuario.Id);
                 tx.Commit();
                 return RedirectToAction("Details", "Prestamo", new { id = model.PrestamoId });
             }
             catch (Exception ex) {
                 tx.Rollback();
-                ViewBag.MaterialId = new SelectList(_materialCEN.ObtenerTodos(), "Id", "Nombre", model.MaterialId);
+                ViewBag.MaterialId = MaterialesDisponibles(model.MaterialId);
                 ModelState.AddModelError("", "Error al añadir el material: " + ex.Message);
                 return View(model);
             }
@@ -78,9 +98,19 @@ namespace WebMarkerSpace.Controllers {
                 return Forbid();
             }
 
+            var linea = _lineaPrestamoCEN.ObtenerPorId(id);
+
             using var tx = _session.BeginTransaction();
             try {
                 _lineaPrestamoCEN.Eliminar(id);
+
+                // Al quitar la línea, el material vuelve a estar libre (salvo que
+                // ya estuviera Roto/En Mantenimiento, que no lo tocamos).
+                if (linea != null && linea.Material.Estado == EstadoMaterial.Prestado) {
+                    var material = linea.Material;
+                    _materialCEN.Modificar(material.Id, material.Nombre, material.Descripcion, EstadoMaterial.Disponible, material.Categoria, material.Imagen, null);
+                }
+
                 tx.Commit();
             }
             catch {

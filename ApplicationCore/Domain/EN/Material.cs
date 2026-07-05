@@ -8,7 +8,7 @@ public class Material
     public virtual string Nombre { get; set; } = string.Empty;
     public virtual string Descripcion { get; set; } = string.Empty;
     public virtual EstadoMaterial Estado { get; set; }
-    public virtual bool EstaDisponible { get; set; }
+    public virtual CategoriaMaterial Categoria { get; set; }
     public virtual string Imagen { get; set; } = string.Empty;
     public virtual long? UsuarioId { get; set; }
     public virtual Usuario? UsuarioAsignado { get; set; }

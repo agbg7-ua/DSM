@@ -21,9 +21,6 @@ namespace WebMarkerSpace.Controllers {
         private readonly IWebHostEnvironment _webHost;
         private readonly NHibernate.ISession _session;
 
-        // Todas las dependencias llegan por DI desde Program.cs: el CEN y la
-        // sesión de NHibernate son las mismas instancias durante toda la
-        // petición (Scoped), así que no hace falta abrir sesiones "a mano".
         public MaterialController(MaterialCEN materialCEN, IWebHostEnvironment webHost, NHibernate.ISession session) {
             _materialCEN = materialCEN;
             _webHost = webHost;
@@ -31,9 +28,9 @@ namespace WebMarkerSpace.Controllers {
         }
 
         // GET: MaterialController
-        // Búsqueda con filtro por nombre (texto contenido) y por estado.
+        // Búsqueda con filtro por nombre, estado y categoría.
         [AllowAnonymous]
-        public ActionResult Index(string? nombre, EstadoMaterial? estado) {
+        public ActionResult Index(string? nombre, EstadoMaterial? estado, CategoriaMaterial? categoria) {
             IEnumerable<Material> materiales = _materialCEN.ObtenerTodos();
 
             if (!string.IsNullOrWhiteSpace(nombre)) {
@@ -42,11 +39,15 @@ namespace WebMarkerSpace.Controllers {
             if (estado.HasValue) {
                 materiales = materiales.Where(m => m.Estado == estado.Value);
             }
+            if (categoria.HasValue) {
+                materiales = materiales.Where(m => m.Categoria == categoria.Value);
+            }
 
             IEnumerable<MaterialViewModel> listMats = new MaterialAssembler().ConvertirListaENToViewModel(materiales.ToList());
 
             ViewBag.FiltroNombre = nombre;
             ViewBag.FiltroEstado = new SelectList(Enum.GetValues(typeof(EstadoMaterial)), estado);
+            ViewBag.FiltroCategoria = new SelectList(Enum.GetValues(typeof(CategoriaMaterial)), categoria);
             return View(listMats);
         }
 
@@ -64,6 +65,7 @@ namespace WebMarkerSpace.Controllers {
         // GET: MaterialController/Create
         [Authorize(Roles = "Administrador")]
         public ActionResult Create() {
+            ViewBag.Categoria = new SelectList(Enum.GetValues(typeof(CategoriaMaterial)));
             return View();
         }
 
@@ -72,7 +74,6 @@ namespace WebMarkerSpace.Controllers {
         [Authorize(Roles = "Administrador")]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Create(MaterialViewModel mat) {
-            // Lógica de guardado de imagen (si se ha subido un fichero)
             if (mat.Fichero != null && mat.Fichero.Length > 0) {
                 var fileName = Path.GetFileName(mat.Fichero.FileName).Trim();
                 var directory = _webHost.WebRootPath + "/Images";
@@ -88,13 +89,13 @@ namespace WebMarkerSpace.Controllers {
 
             using var tx = _session.BeginTransaction();
             try {
-                bool disponibleAutomatico = mat.Estado == ApplicationCore.Domain.Enums.EstadoMaterial.Disponible;
-                _materialCEN.Crear(mat.Nombre, mat.Descripcion, mat.Estado, disponibleAutomatico, mat.Imagen ?? string.Empty, null);
+                _materialCEN.Crear(mat.Nombre, mat.Descripcion, mat.Estado, mat.Categoria, mat.Imagen ?? string.Empty, null);
                 tx.Commit();
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex) {
                 tx.Rollback();
+                ViewBag.Categoria = new SelectList(Enum.GetValues(typeof(CategoriaMaterial)), mat.Categoria);
                 ModelState.AddModelError("", "Error al crear: " + ex.Message);
                 return View(mat);
             }
@@ -108,6 +109,7 @@ namespace WebMarkerSpace.Controllers {
                 return NotFound();
             }
             var model = new MaterialAssembler().ConvertirENToViewModel(materialEN);
+            ViewBag.Categoria = new SelectList(Enum.GetValues(typeof(CategoriaMaterial)), model.Categoria);
             return View(model);
         }
 
@@ -131,13 +133,19 @@ namespace WebMarkerSpace.Controllers {
 
             using var tx = _session.BeginTransaction();
             try {
-                bool disponibleAutomatico = mat.Estado == ApplicationCore.Domain.Enums.EstadoMaterial.Disponible;
-                _materialCEN.Modificar(mat.Id, mat.Nombre, mat.Descripcion, mat.Estado, disponibleAutomatico, mat.Imagen ?? string.Empty, null);
+                // El admin puede cambiar libremente Estado/Categoría, pero no
+                // tocamos aquí quién lo tiene prestado (UsuarioId): eso solo lo
+                // gestiona el flujo de préstamos/devoluciones.
+                var actual = _materialCEN.ObtenerPorId(id);
+                long? usuarioAsignadoId = actual?.UsuarioAsignado?.Id;
+
+                _materialCEN.Modificar(id, mat.Nombre, mat.Descripcion, mat.Estado, mat.Categoria, mat.Imagen ?? string.Empty, usuarioAsignadoId);
                 tx.Commit();
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex) {
                 tx.Rollback();
+                ViewBag.Categoria = new SelectList(Enum.GetValues(typeof(CategoriaMaterial)), mat.Categoria);
                 ModelState.AddModelError("", "Error al editar: " + ex.Message);
                 return View(mat);
             }

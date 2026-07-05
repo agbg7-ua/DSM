@@ -1,7 +1,8 @@
 @model WebMarkerSpace.Models.MaterialViewModel
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Detalles";
+    bool disponible = Model.Estado == ApplicationCore.Domain.Enums.EstadoMaterial.Disponible;
 }
 
 <h1>Detalles</h1>
@@ -17,6 +18,12 @@
             @Html.DisplayFor(model => model.Nombre)
         </dd>
         <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Categoria)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Categoria)
+        </dd>
+        <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Descripcion)
         </dt>
         <dd class = "col-sm-10">
@@ -27,12 +34,10 @@
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Estado)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.EstaDisponible)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.EstaDisponible)
+            @if (!string.IsNullOrEmpty(Model.NombreUsuarioAsignado))
+            {
+                <text> (prestado a @Model.NombreUsuarioAsignado)</text>
+            }
         </dd>
         <dd class="col-sm-11">
             @if (!string.IsNullOrEmpty(Model.Imagen))
@@ -47,13 +52,17 @@
     </dl>
 </div>
 <div>
-    @if (User.Identity != null && User.Identity.IsAuthenticated && Model.EstaDisponible)
+    @if (User.Identity != null && User.Identity.IsAuthenticated && disponible)
     {
         <a asp-controller="Prestamo" asp-action="Create" asp-route-materialId="@Model.Id" class="btn btn-primary">Solicitar préstamo</a>
     }
     else if (User.Identity == null || !User.Identity.IsAuthenticated)
     {
         <a asp-controller="Usuario" asp-action="Login" class="btn btn-outline-primary">Inicia sesión para solicitar este material</a>
+    }
+    else
+    {
+        <button class="btn btn-secondary" disabled>Material no disponible ahora mismo</button>
     }
     @if (User.IsInRole("Administrador"))
     {

@@ -22,12 +22,18 @@ namespace WebMarkerSpace.Models {
         public string Descripcion { get; set; }
         [Display(Name = "Estado del Material")]
         [Required(ErrorMessage = "Debe seleccionar un estado para el material")]
-        public ApplicationCore.Domain.Enums.EstadoMaterial Estado { get; set; }
+        public EstadoMaterial Estado { get; set; }
 
-        [Display(Name = "¿Está Disponible?")]
-        public bool EstaDisponible { get; set; }
+        [Display(Name = "Categoría")]
+        [Required(ErrorMessage = "Debe seleccionar una categoría para el material")]
+        public CategoriaMaterial Categoria { get; set; }
 
         public string Imagen { get; set; }
         public IFormFile Fichero { get; set; }
+
+        // Solo lectura: quién tiene el material actualmente prestado (si alguien).
+        // No es un campo redundante con Estado: Estado describe la condición
+        // física (disponible/en mantenimiento/roto/prestado); esto dice A QUIÉN.
+        public string? NombreUsuarioAsignado { get; set; }
     }
 }

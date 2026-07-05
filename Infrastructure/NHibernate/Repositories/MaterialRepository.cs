@@ -11,11 +11,6 @@ public class MaterialRepository : RepositoryBase<Material, long>, IMaterialRepos
     {
     }
 
-    public IList<Material> DameFilterDisponibles() =>
-        Session.Query<Material>()
-            .Where(m => m.EstaDisponible && m.Estado == EstadoMaterial.Disponible)
-            .ToList();
-
     public IList<Material> DameFilterPorEstado(EstadoMaterial estado) =>
         Session.Query<Material>()
             .Where(m => m.Estado == estado)
