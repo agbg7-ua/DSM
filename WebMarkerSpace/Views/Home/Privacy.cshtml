@@ -1,6 +1,49 @@
-﻿@{
-    ViewData["Title"] = "Privacy Policy";
+@{
+    ViewData["Title"] = "Política de privacidad";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h1 class="mb-1">Política de privacidad</h1>
+        <p class="text-muted small mb-4">Última actualización: enero de 2026</p>
+
+        <p>
+            WebMarkerSpace es una plataforma de gestión de préstamos de material para espacios maker.
+            Esta política explica qué datos recogemos, cómo los usamos y cómo los protegemos.
+        </p>
+
+        <h5 class="mt-4">Datos que recogemos</h5>
+        <p>
+            Al registrarte, almacenamos tu nombre, dirección de correo electrónico y contraseña
+            (cifrada). Durante el uso de la plataforma registramos también los préstamos que realizas,
+            incluyendo los materiales solicitados y las fechas asociadas.
+        </p>
+
+        <h5 class="mt-4">Finalidad del tratamiento</h5>
+        <p>
+            Los datos se usan exclusivamente para gestionar el servicio de préstamos: identificarte
+            como usuario, mostrarte tu historial y permitir a los administradores del espacio
+            controlar el inventario. No cedemos tus datos a terceros ni los usamos con fines
+            publicitarios.
+        </p>
+
+        <h5 class="mt-4">Acceso a los datos</h5>
+        <p>
+            Solo los administradores de la plataforma tienen acceso a los datos de usuarios y préstamos.
+            Cada usuario puede consultar y modificar sus propios datos desde la sección
+            <a asp-controller="Usuario" asp-action="Perfil">Mi perfil</a>.
+        </p>
+
+        <h5 class="mt-4">Conservación</h5>
+        <p>
+            Los datos se conservan mientras la cuenta esté activa. Si deseas eliminar tu cuenta,
+            contacta con un administrador del espacio.
+        </p>
+
+        <h5 class="mt-4">Contacto</h5>
+        <p>
+            Para cualquier consulta relacionada con tu privacidad puedes dirigirte al administrador
+            del makerspace a través de los canales habituales del centro.
+        </p>
+    </div>
+</div>
