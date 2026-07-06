@@ -1,19 +1,19 @@
 @model IEnumerable<WebMarkerSpace.Models.MaterialViewModel>
+@using ApplicationCore.Domain.Enums
 
 @{
     ViewData["Title"] = "Materiales";
 }
 
-<h1>Materiales</h1>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">Materiales</h1>
+    @if (User.IsInRole("Administrador"))
+    {
+        <a asp-action="Create" class="btn btn-primary">+ Nuevo material</a>
+    }
+</div>
 
-@if (User.IsInRole("Administrador"))
-{
-    <p>
-        <a asp-action="Create" class="btn btn-primary">Crear Nuevo</a>
-    </p>
-}
-
-<form asp-action="Index" method="get" class="row g-2 align-items-end mb-3">
+<form asp-action="Index" method="get" class="row g-2 align-items-end mb-4">
     <div class="col-auto">
         <label class="form-label">Nombre</label>
         <input type="text" name="nombre" value="@ViewBag.FiltroNombre" class="form-control" placeholder="Buscar por nombre..." />
@@ -36,59 +36,63 @@
     </div>
 </form>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Nombre)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Categoria)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Descripcion)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Estado)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Nombre)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Categoria)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Descripcion)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Estado)
-                @if (item.Estado == ApplicationCore.Domain.Enums.EstadoMaterial.Prestado && !string.IsNullOrEmpty(item.NombreUsuarioAsignado))
-                {
-                    <br /><small class="text-muted">a @item.NombreUsuarioAsignado</small>
-                }
-            </td>
-            <td>
-                @Html.ActionLink("Detalles", "Details", new { id = item.Id })
-                @if (User.IsInRole("Administrador"))
-                {
-                    <text> | </text>
-                    @Html.ActionLink("Editar", "Edit", new { id = item.Id })
-                    <text> | </text>
-                    @Html.ActionLink("Borrar", "Delete", new { id = item.Id })
-                }
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
-
 @if (!Model.Any())
 {
-    <p class="text-muted">No hay materiales que coincidan con la búsqueda.</p>
+    <div class="text-center py-5 text-muted">
+        <p class="fs-5">No hay materiales que coincidan con la búsqueda.</p>
+        <a asp-action="Index" class="btn btn-outline-secondary mt-2">Ver todos</a>
+    </div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        @foreach (var item in Model)
+        {
+            <div class="col">
+                <div class="card h-100">
+                    <div style="height:180px; overflow:hidden; background:#f8f9fa; border-radius: 0.375rem 0.375rem 0 0;"
+                         class="d-flex align-items-center justify-content-center p-2">
+                        @if (!string.IsNullOrEmpty(item.Imagen))
+                        {
+                            <img src="@item.Imagen" alt="@item.Nombre"
+                                 style="max-width:100%; max-height:100%; object-fit:contain;" />
+                        }
+                        else
+                        {
+                            <span class="text-muted small">Sin imagen</span>
+                        }
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">@item.Nombre</h5>
+                        <p class="card-text text-muted small mb-3">@item.Descripcion</p>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <span class="badge bg-secondary">@item.Categoria</span>
+                            @{
+                                string badgeClass = item.Estado switch {
+                                    EstadoMaterial.Disponible        => "bg-success",
+                                    EstadoMaterial.Prestado          => "bg-primary",
+                                    EstadoMaterial.EnMantenimiento   => "bg-warning text-dark",
+                                    EstadoMaterial.Roto              => "bg-danger",
+                                    _                                => "bg-secondary"
+                                };
+                            }
+                            <span class="badge @badgeClass">@item.Estado</span>
+                        </div>
+                        @if (item.Estado == EstadoMaterial.Prestado && !string.IsNullOrEmpty(item.NombreUsuarioAsignado))
+                        {
+                            <p class="small text-muted mt-1 mb-0">Prestado a @item.NombreUsuarioAsignado</p>
+                        }
+                    </div>
+                    <div class="card-footer bg-transparent d-flex gap-2">
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Ver detalles</a>
+                        @if (User.IsInRole("Administrador"))
+                        {
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">Editar</a>
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">Borrar</a>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 }
