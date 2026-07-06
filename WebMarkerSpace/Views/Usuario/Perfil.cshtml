@@ -9,48 +9,58 @@
 
 @if (TempData["MensajeExito"] != null)
 {
-    <div class="alert alert-success">@TempData["MensajeExito"]</div>
+    <div class="alert alert-success" role="status" aria-live="polite">@TempData["MensajeExito"]</div>
+}
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert" tabindex="-1"></div>
 }
 
 <div class="row">
     <div class="col-md-6">
-        <form asp-action="Perfil" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <form asp-action="Perfil" method="post" novalidate>
             <input type="hidden" asp-for="Id" />
             <input type="hidden" asp-for="Rol" />
 
-            <div class="form-group mb-3">
-                <label asp-for="Nombre" class="control-label"></label>
-                <input asp-for="Nombre" class="form-control" />
-                <span asp-validation-for="Nombre" class="text-danger"></span>
-            </div>
-            <div class="form-group mb-3">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-            <div class="form-group mb-3">
-                <label class="control-label">Rol</label>
-                <input class="form-control" value="@Model.Rol" disabled />
-                <div class="form-text">Solo un administrador puede cambiar tu rol.</div>
-            </div>
+            <fieldset>
+                <legend class="visually-hidden">Datos personales</legend>
+                <div class="form-group mb-3">
+                    <label asp-for="Nombre" class="form-label"></label>
+                    <input asp-for="Nombre" class="form-control" autocomplete="name" aria-describedby="Nombre-error" required />
+                    <span asp-validation-for="Nombre" class="text-danger" id="Nombre-error"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="Email" class="form-label"></label>
+                    <input asp-for="Email" class="form-control" autocomplete="email" inputmode="email" aria-describedby="Email-error" required />
+                    <span asp-validation-for="Email" class="text-danger" id="Email-error"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="rol-actual" class="form-label">Rol</label>
+                    <input id="rol-actual" class="form-control" value="@Model.Rol" disabled aria-describedby="rol-ayuda" />
+                    <div class="form-text" id="rol-ayuda">Solo un administrador puede cambiar tu rol.</div>
+                </div>
+            </fieldset>
 
             <hr />
-            <p class="text-muted">Deja los siguientes campos en blanco si no quieres cambiar tu contraseña.</p>
+            <p class="text-muted" id="contrasenia-ayuda">Deja los siguientes campos en blanco si no quieres cambiar tu contraseña.</p>
 
-            <div class="form-group mb-3">
-                <label asp-for="NuevaContrasenia" class="control-label"></label>
-                <input asp-for="NuevaContrasenia" class="form-control" />
-                <span asp-validation-for="NuevaContrasenia" class="text-danger"></span>
-            </div>
-            <div class="form-group mb-3">
-                <label asp-for="ConfirmarNuevaContrasenia" class="control-label"></label>
-                <input asp-for="ConfirmarNuevaContrasenia" class="form-control" />
-                <span asp-validation-for="ConfirmarNuevaContrasenia" class="text-danger"></span>
-            </div>
+            <fieldset aria-describedby="contrasenia-ayuda">
+                <legend class="visually-hidden">Cambiar contraseña (opcional)</legend>
+                <div class="form-group mb-3">
+                    <label asp-for="NuevaContrasenia" class="form-label"></label>
+                    <input asp-for="NuevaContrasenia" class="form-control" autocomplete="new-password" aria-describedby="NuevaContrasenia-error" />
+                    <span asp-validation-for="NuevaContrasenia" class="text-danger" id="NuevaContrasenia-error"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="ConfirmarNuevaContrasenia" class="form-label"></label>
+                    <input asp-for="ConfirmarNuevaContrasenia" class="form-control" autocomplete="new-password" aria-describedby="ConfirmarNuevaContrasenia-error" />
+                    <span asp-validation-for="ConfirmarNuevaContrasenia" class="text-danger" id="ConfirmarNuevaContrasenia-error"></span>
+                </div>
+            </fieldset>
 
             <div class="form-group">
-                <input type="submit" value="Guardar cambios" class="btn btn-primary" />
+                <button type="submit" class="btn btn-primary btn-accesible">Guardar cambios</button>
             </div>
         </form>
     </div>

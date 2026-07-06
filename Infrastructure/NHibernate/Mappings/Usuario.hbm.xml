@@ -14,6 +14,8 @@
     <property name="Email" column="Email" type="string" not-null="true" />
     <property name="Contrasenia" column="Contrasenia" type="string" not-null="true" />
     <property name="Rol" column="Rol" type="ApplicationCore.Domain.Enums.RolUsuario, ApplicationCore" not-null="true" />
+    <property name="ProveedorExterno" column="ProveedorExterno" type="string" not-null="false" length="100" />
+    <property name="IdExterno" column="IdExterno" type="string" not-null="false" length="200" />
     <bag name="Prestamos" inverse="true" cascade="all-delete-orphan">
       <key column="UsuarioId" />
       <one-to-many class="Prestamo" />

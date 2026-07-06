@@ -5,6 +5,7 @@ using ApplicationCore.Domain.EN;
 using ApplicationCore.Domain.Enums;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -14,15 +15,18 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using WebMarkerSpace.Assemblers;
 using WebMarkerSpace.Models;
+using WebMarkerSpace.Security;
 
 namespace WebMarkerSpace.Controllers {
     public class UsuarioController : Controller {
         private readonly UsuarioCEN _usuarioCEN;
         private readonly NHibernate.ISession _session;
+        private readonly OidcSettings _oidcSettings;
 
-        public UsuarioController(UsuarioCEN usuarioCEN, NHibernate.ISession session) {
+        public UsuarioController(UsuarioCEN usuarioCEN, NHibernate.ISession session, OidcSettings oidcSettings) {
             _usuarioCEN = usuarioCEN;
             _session = session;
+            _oidcSettings = oidcSettings;
         }
 
         private async Task IniciarSesionComo(long id, string nombre, string email, RolUsuario rol) {
@@ -44,8 +48,31 @@ namespace WebMarkerSpace.Controllers {
 
         // GET: UsuarioController/Login
         [AllowAnonymous]
-        public ActionResult Login() {
-            return View();
+        public ActionResult Login(string? returnUrl, string? error) {
+            ViewBag.OidcHabilitado = _oidcSettings.Habilitado;
+            ViewBag.OidcNombre = _oidcSettings.NombreProveedor;
+            ViewBag.ReturnUrl = returnUrl;
+
+            if (error == "oidc") {
+                ModelState.AddModelError("", "No se ha podido completar el inicio de sesión con el proveedor externo. Inténtalo de nuevo.");
+            }
+
+            return View(new LoginUsuarioViewModel());
+        }
+
+        // GET: UsuarioController/ExternalLogin
+        // Redirige al proveedor OAuth2 / OpenID Connect configurado. El resto del
+        // flujo (callback, creación/vinculación de cuenta) lo gestiona el middleware
+        // de autenticación configurado en Program.cs junto con OidcAccountProvisioning.
+        [AllowAnonymous]
+        public ActionResult ExternalLogin(string? returnUrl) {
+            if (!_oidcSettings.Habilitado) {
+                return NotFound();
+            }
+
+            var destino = string.IsNullOrWhiteSpace(returnUrl) ? Url.Action("Index", "Home")! : returnUrl;
+            var properties = new AuthenticationProperties { RedirectUri = destino };
+            return Challenge(properties, OpenIdConnectDefaults.AuthenticationScheme);
         }
 
         // POST: UsuarioController/Login
@@ -53,6 +80,9 @@ namespace WebMarkerSpace.Controllers {
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Login(LoginUsuarioViewModel login) {
+            ViewBag.OidcHabilitado = _oidcSettings.Habilitado;
+            ViewBag.OidcNombre = _oidcSettings.NombreProveedor;
+
             if (!ModelState.IsValid)
                 return View(login);
 
@@ -79,8 +109,15 @@ namespace WebMarkerSpace.Controllers {
 
         // GET: UsuarioController/Register
         // Formulario de registro público (cualquier persona puede darse de alta).
+        // También se ofrece aquí la opción de registrarse con el proveedor OAuth2 /
+        // OpenID Connect configurado: usa el mismo endpoint ExternalLogin que el
+        // login, ya que OidcAccountProvisioning crea la cuenta local automáticamente
+        // ("just-in-time") la primera vez que el proveedor externo confirma el login.
         [AllowAnonymous]
-        public ActionResult Register() {
+        public ActionResult Register(string? returnUrl) {
+            ViewBag.OidcHabilitado = _oidcSettings.Habilitado;
+            ViewBag.OidcNombre = _oidcSettings.NombreProveedor;
+            ViewBag.ReturnUrl = returnUrl;
             return View();
         }
 
@@ -89,6 +126,9 @@ namespace WebMarkerSpace.Controllers {
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Register(RegistroUsuarioViewModel model) {
+            ViewBag.OidcHabilitado = _oidcSettings.Habilitado;
+            ViewBag.OidcNombre = _oidcSettings.NombreProveedor;
+
             if (!ModelState.IsValid)
                 return View(model);
 

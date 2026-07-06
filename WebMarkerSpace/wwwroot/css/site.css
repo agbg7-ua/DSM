@@ -29,3 +29,121 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
+/* =======================================================================
+   Accesibilidad (objetivo: WCAG 2.2 AAA donde es razonablemente viable)
+   ======================================================================= */
+
+/* 2.4.1 (A) / 2.4.11 (AAA "Focus Not Obscured Enhanced"): enlace para saltar
+   la navegación repetitiva e ir directo al contenido. Oculto hasta que recibe
+   foco por teclado. */
+.skip-link {
+  position: absolute;
+  left: 0.5rem;
+  top: -3rem;
+  z-index: 2000;
+  background: #0b3d91;
+  color: #fff;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0 0 0.25rem 0.25rem;
+  text-decoration: underline;
+  transition: top 0.15s ease-in-out;
+}
+.skip-link:focus {
+  top: 0;
+  color: #fff;
+}
+
+/* 2.4.7 (AA) / 2.4.13 (AAA "Focus Appearance"): foco de teclado muy visible,
+   con alto contraste y grosor mínimo perceptible en cualquier fondo. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+.btn:focus-visible,
+.nav-link:focus-visible {
+  outline: 3px solid #0b3d91;
+  outline-offset: 2px;
+}
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.15rem #fff, 0 0 0 0.3rem #0b3d91;
+}
+
+/* 1.4.1: los enlaces dentro de texto corrido no dependen solo del color. */
+main a:not(.btn):not(.navbar-brand) {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* 1.4.6 (AAA, contraste mejorado 7:1) / 1.4.3 (AA): oscurecemos ligeramente
+   los textos "muted" de Bootstrap, que por defecto rondan 4.6:1 y no llegan
+   a 7:1 sobre fondo blanco. */
+.text-muted,
+.form-text,
+footer.footer {
+  color: #495057 !important;
+}
+
+/* 1.4.8 (AAA, presentación visual): interlineado, longitud de línea y
+   espaciado de párrafo más cómodos de leer. */
+main {
+  line-height: 1.6;
+}
+main p,
+.form-text {
+  max-width: 70ch;
+}
+
+/* 2.5.5 (AAA, tamaño del objetivo): los elementos interactivos miden al
+   menos 44x44px, incluidos los enlaces de navegación y los botones pequeños. */
+.nav-link,
+.btn,
+.btn-accesible,
+.navbar-toggler {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+.form-check-input {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* 2.3.3 (AAA, animación por interacción): respeta la preferencia del sistema
+   operativo de reducir movimiento/transiciones. */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Utilidad para separar visualmente el login local del login federado sin
+   depender solo de un icono o del color. */
+.separador-o {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: #495057;
+  margin: 1.25rem 0;
+}
+.separador-o::before,
+.separador-o::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid #ced4da;
+}
+.separador-o span {
+  padding: 0 0.75rem;
+}
+
+/* Resumen de errores de formulario: se le da foco por script al enviar un
+   formulario inválido (ver vistas de Login/Registro), así que necesita ser
+   perceptible incluso sin usar el ratón. */
+#resumen-errores:focus {
+  outline: 3px solid #842029;
+  outline-offset: 2px;
+}
