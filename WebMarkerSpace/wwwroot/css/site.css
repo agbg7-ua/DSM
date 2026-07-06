@@ -1,3 +1,11 @@
+/* =======================================================================
+   Variables: adaptadas al tema Flatly (primary = #2C3E50, success = #18BC9C)
+   ======================================================================= */
+:root {
+    --wms-focus-color: #18BC9C;   /* teal de Flatly, buen contraste */
+    --wms-focus-dark: #2C3E50;    /* navy de Flatly */
+}
+
 html {
   font-size: 14px;
 }
@@ -63,11 +71,11 @@ select:focus-visible,
 textarea:focus-visible,
 .btn:focus-visible,
 .nav-link:focus-visible {
-  outline: 3px solid #0b3d91;
+  outline: 3px solid var(--wms-focus-dark);
   outline-offset: 2px;
 }
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.15rem #fff, 0 0 0 0.3rem #0b3d91;
+  box-shadow: 0 0 0 0.15rem #fff, 0 0 0 0.3rem var(--wms-focus-dark);
 }
 
 /* 1.4.1: los enlaces dentro de texto corrido no dependen solo del color. */
@@ -80,9 +88,57 @@ main a:not(.btn):not(.navbar-brand) {
    los textos "muted" de Bootstrap, que por defecto rondan 4.6:1 y no llegan
    a 7:1 sobre fondo blanco. */
 .text-muted,
-.form-text,
-footer.footer {
+.form-text {
   color: #495057 !important;
+}
+
+/* =======================================================================
+   Footer — coordinado con la navbar de Flatly (bg-primary = #2C3E50)
+   ======================================================================= */
+footer.footer {
+    background-color: #2C3E50;
+    color: #adb5bd;
+    border-top: none !important;
+    margin-top: 3rem;
+}
+footer.footer a {
+    color: #18BC9C;
+    text-decoration: none;
+}
+footer.footer a:hover {
+    color: #fff;
+}
+
+/* =======================================================================
+   Cards — elevación suave al hacer hover
+   ======================================================================= */
+.card {
+    border: none;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.13);
+}
+
+/* =======================================================================
+   Tablas — cabecera con el color primario de Flatly
+   ======================================================================= */
+.table thead th {
+    background-color: #2C3E50;
+    color: #fff;
+    border-color: #2C3E50;
+}
+
+/* =======================================================================
+   Portada — más respiración en el hero de Home/Index
+   ======================================================================= */
+.display-4 {
+    font-weight: 700;
+}
+.lead {
+    color: #596574;
 }
 
 /* 1.4.8 (AAA, presentación visual): interlineado, longitud de línea y
