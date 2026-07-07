@@ -45,6 +45,11 @@ namespace WebMarkerSpace.Controllers {
 
             IEnumerable<MaterialViewModel> listMats = new MaterialAssembler().ConvertirListaENToViewModel(materiales.ToList());
 
+            // Peticiones AJAX (filtro dinámico) solo necesitan la tabla, no la página completa.
+            if (EsPeticionAjax()) {
+                return PartialView("_MaterialListPartial", listMats);
+            }
+
             ViewBag.FiltroNombre = nombre;
             ViewBag.FiltroEstado = new SelectList(Enum.GetValues(typeof(EstadoMaterial)), estado);
             ViewBag.FiltroCategoria = new SelectList(Enum.GetValues(typeof(CategoriaMaterial)), categoria);
@@ -171,13 +176,28 @@ namespace WebMarkerSpace.Controllers {
             try {
                 _materialCEN.Eliminar(id);
                 tx.Commit();
+
+                if (EsPeticionAjax()) {
+                    return Json(new { success = true });
+                }
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex) {
                 tx.Rollback();
+
+                if (EsPeticionAjax()) {
+                    return Json(new { success = false, message = "Error al eliminar: " + ex.Message });
+                }
                 ModelState.AddModelError("", "Error al eliminar: " + ex.Message);
                 return View(mat);
             }
+        }
+
+        // Indica si la petición viene de una llamada AJAX (fetch/$.ajax) en vez
+        // de una navegación normal del navegador, para poder responder solo con
+        // el fragmento de datos necesario (partial/JSON) en vez de la vista completa.
+        private bool EsPeticionAjax() {
+            return Request.Headers["X-Requested-With"] == "XMLHttpRequest";
         }
     }
 }

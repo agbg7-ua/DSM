@@ -1,0 +1,59 @@
+@model IEnumerable<WebMarkerSpace.Models.MaterialViewModel>
+
+<table class="table" id="tabla-materiales">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Nombre)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Categoria)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Descripcion)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Estado)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr data-material-id="@item.Id">
+            <td>
+                @Html.DisplayFor(modelItem => item.Nombre)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Categoria)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Descripcion)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Estado)
+                @if (item.Estado == ApplicationCore.Domain.Enums.EstadoMaterial.Prestado && !string.IsNullOrEmpty(item.NombreUsuarioAsignado))
+                {
+                    <br /><small class="text-muted">a @item.NombreUsuarioAsignado</small>
+                }
+            </td>
+            <td>
+                @Html.ActionLink("Detalles", "Details", new { id = item.Id })
+                @if (User.IsInRole("Administrador"))
+                {
+                    <text> | </text>
+                    @Html.ActionLink("Editar", "Edit", new { id = item.Id })
+                    <text> | </text>
+                    <a asp-action="Delete" asp-route-id="@item.Id"
+                       class="js-borrar-material" data-id="@item.Id" data-nombre="@item.Nombre">Borrar</a>
+                }
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+@if (!Model.Any())
+{
+    <p class="text-muted" id="materiales-sin-resultados">No hay materiales que coincidan con la búsqueda.</p>
+}

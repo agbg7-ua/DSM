@@ -16,7 +16,7 @@
 <form asp-action="Index" method="get" class="row g-2 align-items-end mb-4">
     <div class="col-auto">
         <label class="form-label">Nombre</label>
-        <input type="text" name="nombre" value="@ViewBag.FiltroNombre" class="form-control" placeholder="Buscar por nombre..." />
+        <input type="text" name="nombre" value="@ViewBag.FiltroNombre" class="form-control" placeholder="Buscar por nombre..." autocomplete="off" />
     </div>
     <div class="col-auto">
         <label class="form-label">Categoría</label>
@@ -31,11 +31,20 @@
         </select>
     </div>
     <div class="col-auto">
-        <button type="submit" class="btn btn-outline-secondary">Buscar</button>
-        <a asp-action="Index" class="btn btn-link">Limpiar</a>
+        <a asp-action="Index" class="btn btn-link" id="link-limpiar-filtro">Limpiar</a>
+        <span class="spinner-border spinner-border-sm text-secondary ms-2 d-none" role="status" aria-hidden="true" id="spinner-materiales"></span>
     </div>
 </form>
 
+@* Token reutilizado por material-index.js para las peticiones AJAX (borrado) *@
+<form id="af-token-form" class="d-none">@Html.AntiForgeryToken()</form>
+
+<div id="materiales-resultados" aria-live="polite">
+    @await Html.PartialAsync("_MaterialListPartial", Model)
+</div>
+
+@section Scripts {
+    <script src="~/js/material-index.js" asp-append-version="true"></script>
 @if (!Model.Any())
 {
     <div class="text-center py-5 text-muted">
