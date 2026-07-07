@@ -1,5 +1,10 @@
 // "Copyright (c) YOUR_COMPANY. All rights reserved."
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 using ApplicationCore.Domain.CEN;
 using ApplicationCore.Domain.EN;
 using ApplicationCore.Domain.Enums;
@@ -8,11 +13,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using WebMarkerSpace.Assemblers;
 using WebMarkerSpace.Models;
 using WebMarkerSpace.Security;
@@ -236,7 +237,12 @@ namespace WebMarkerSpace.Controllers {
             IEnumerable<UsuarioViewModel> listUsers = new UsuarioAssembler().ConvertirListaENToViewModel(usuarios.ToList());
 
             ViewBag.FiltroTexto = texto;
-            ViewBag.FiltroRol = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(Enum.GetValues(typeof(RolUsuario)), rol);
+            ViewBag.FiltroRol = new SelectList(Enum.GetValues(typeof(RolUsuario)), rol);
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest") {
+                return PartialView("_UsuarioListPartial", listUsers);
+            }
+
             return View(listUsers);
         }
 

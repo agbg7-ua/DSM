@@ -1,0 +1,328 @@
+diff --git a/WebMarkerSpace/Controllers/LineaPrestamoController.cs b/WebMarkerSpace/Controllers/LineaPrestamoController.cs
+index c89d196..706b734 100644
+--- a/WebMarkerSpace/Controllers/LineaPrestamoController.cs
++++ b/WebMarkerSpace/Controllers/LineaPrestamoController.cs
+@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
+ using System;
+ using System.Linq;
+ using System.Security.Claims;
++using WebMarkerSpace.Assemblers;
+ using WebMarkerSpace.Models;
+ 
+ namespace WebMarkerSpace.Controllers {
+@@ -99,6 +100,7 @@ namespace WebMarkerSpace.Controllers {
+             }
+ 
+             var linea = _lineaPrestamoCEN.ObtenerPorId(id);
++            string? error = null;
+ 
+             using var tx = _session.BeginTransaction();
+             try {
+@@ -115,6 +117,17 @@ namespace WebMarkerSpace.Controllers {
+             }
+             catch {
+                 tx.Rollback();
++                error = "No se pudo eliminar el material del préstamo.";
++            }
++
++            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest") {
++                var prestamoActualizado = _prestamoCEN.ObtenerPorId(prestamoId);
++                if (prestamoActualizado == null) {
++                    return NotFound();
++                }
++                var modelActualizado = new PrestamoAssembler().ConvertirENToViewModel(prestamoActualizado);
++                ViewBag.MensajeError = error;
++                return PartialView("~/Views/Prestamo/_PrestamoDetallesPartial.cshtml", modelActualizado);
+             }
+ 
+             return RedirectToAction("Details", "Prestamo", new { id = prestamoId });
+diff --git a/WebMarkerSpace/Controllers/PrestamoController.cs b/WebMarkerSpace/Controllers/PrestamoController.cs
+index be06009..adad422 100644
+--- a/WebMarkerSpace/Controllers/PrestamoController.cs
++++ b/WebMarkerSpace/Controllers/PrestamoController.cs
+@@ -70,6 +70,12 @@ namespace WebMarkerSpace.Controllers {
+             if (esAdmin) {
+                 ViewBag.FiltroUsuarioId = new SelectList(_usuarioCEN.ObtenerTodos(), "Id", "Nombre", usuarioId);
+             }
++
++            // Peticiones AJAX (filtro dinámico) solo necesitan la tabla.
++            if (EsPeticionAjax()) {
++                return PartialView("_PrestamoListPartial", modelList);
++            }
++
+             return View(modelList);
+         }
+ 
+@@ -87,6 +93,7 @@ namespace WebMarkerSpace.Controllers {
+             }
+ 
+             PrestamoViewModel model = new PrestamoAssembler().ConvertirENToViewModel(prestamoEN);
++            ViewBag.MensajeError = TempData["Error"];
+             return View(model);
+         }
+ 
+@@ -189,13 +196,25 @@ namespace WebMarkerSpace.Controllers {
+                 return Forbid();
+             }
+ 
++            string? error = null;
+             try {
+                 casosProceso.DevolverMaterial(id);
+             }
+             catch (Exception) {
+-                TempData["Error"] = "No se pudo marcar el préstamo como devuelto.";
++                error = "No se pudo marcar el préstamo como devuelto.";
++            }
++
++            if (EsPeticionAjax()) {
++                var actualizado = _prestamoCEN.ObtenerPorId(id);
++                if (actualizado == null) {
++                    return NotFound();
++                }
++                var modelActualizado = new PrestamoAssembler().ConvertirENToViewModel(actualizado);
++                ViewBag.MensajeError = error;
++                return PartialView("_PrestamoDetallesPartial", modelActualizado);
+             }
+ 
++            TempData["Error"] = error;
+             return RedirectToAction(nameof(Details), new { id });
+         }
+ 
+@@ -252,13 +271,27 @@ namespace WebMarkerSpace.Controllers {
+             try {
+                 _prestamoCEN.Eliminar(id);
+                 tx.Commit();
++
++                if (EsPeticionAjax()) {
++                    return Json(new { success = true });
++                }
+                 return RedirectToAction(nameof(Index));
+             }
+             catch (Exception ex) {
+                 tx.Rollback();
++
++                if (EsPeticionAjax()) {
++                    return Json(new { success = false, message = "Error al eliminar: " + ex.Message });
++                }
+                 ModelState.AddModelError("", "Error al eliminar: " + ex.Message);
+                 return View(model);
+             }
+         }
++
++        // Indica si la petición viene de una llamada AJAX (fetch/$.ajax) en vez
++        // de una navegación normal del navegador.
++        private bool EsPeticionAjax() {
++            return Request.Headers["X-Requested-With"] == "XMLHttpRequest";
++        }
+     }
+ }
+diff --git a/WebMarkerSpace/Views/Prestamo/Details.cshtml b/WebMarkerSpace/Views/Prestamo/Details.cshtml
+index dda41c1..125655a 100644
+--- a/WebMarkerSpace/Views/Prestamo/Details.cshtml
++++ b/WebMarkerSpace/Views/Prestamo/Details.cshtml
+@@ -1,5 +1,4 @@
+ @model WebMarkerSpace.Models.PrestamoViewModel
+-@using ApplicationCore.Domain.Enums
+ 
+ @{
+     ViewData["Title"] = "Detalles del préstamo";
+@@ -7,97 +6,13 @@
+ 
+ <h1>Detalles</h1>
+ 
+-@if (TempData["Error"] != null)
+-{
+-    <div class="alert alert-danger">@TempData["Error"]</div>
+-}
++<div id="prestamo-detalle">
++    @await Html.PartialAsync("_PrestamoDetallesPartial", Model)
++</div>
+ 
+-<div>
+-    <h4>Prestamo</h4>
+-    <hr />
+-    <dl class="row">
+-        <dt class = "col-sm-2">
+-            @Html.DisplayNameFor(model => model.Id)
+-        </dt>
+-        <dd class = "col-sm-10">
+-            @Html.DisplayFor(model => model.Id)
+-        </dd>
+-        <dt class = "col-sm-2">
+-            @Html.DisplayNameFor(model => model.NombreUsuario)
+-        </dt>
+-        <dd class = "col-sm-10">
+-            @Html.DisplayFor(model => model.NombreUsuario)
+-        </dd>
+-        <dt class = "col-sm-2">
+-            @Html.DisplayNameFor(model => model.FechaCreacion)
+-        </dt>
+-        <dd class = "col-sm-10">
+-            @Html.DisplayFor(model => model.FechaCreacion)
+-        </dd>
+-        <dt class = "col-sm-2">
+-            @Html.DisplayNameFor(model => model.Estado)
+-        </dt>
+-        <dd class = "col-sm-10">
+-            @Html.DisplayFor(model => model.Estado)
+-        </dd>
+-        <dt class = "col-sm-2">
+-            @Html.DisplayNameFor(model => model.TotalDias)
+-        </dt>
+-        <dd class = "col-sm-10">
+-            @Html.DisplayFor(model => model.TotalDias)
+-        </dd>
+-    </dl>
++@* Token reutilizado por prestamo-detalle.js para las peticiones AJAX *@
++<form id="af-token-form" class="d-none">@Html.AntiForgeryToken()</form>
+ 
+-    @if (Model.Estado != EstadoPrestamo.Devuelto)
+-    {
+-        <form asp-action="Devolver" asp-route-id="@Model.Id" method="post" class="mb-3">
+-            <button type="submit" class="btn btn-success">Marcar como devuelto</button>
+-        </form>
+-    }
+-</div>
+-<h3>Materiales en este préstamo</h3>
+-@if (Model.Estado != EstadoPrestamo.Devuelto)
+-{
+-    <p>
+-        <a asp-controller="LineaPrestamo" asp-action="Create" asp-route-prestamoId="@Model.Id" class="btn btn-primary">Añadir Material</a>
+-    </p>
++@section Scripts {
++    <script src="~/js/prestamo-detalle.js" asp-append-version="true"></script>
+ }
+-
+-<table class="table">
+-    <thead>
+-        <tr>
+-            <th>Material</th>
+-            <th>Descripción</th>
+-            <th>Días Estimados</th>
+-            <th>Acciones</th>
+-        </tr>
+-    </thead>
+-    <tbody>
+-        @foreach (var linea in Model.Lineas)
+-        {
+-            <tr>
+-                <td>@linea.NombreMaterial</td>
+-                <td>@linea.DescripcionMaterial</td>
+-                <td>@linea.DiasEstimados</td>
+-                <td>
+-                    @if (Model.Estado != EstadoPrestamo.Devuelto)
+-                    {
+-                        <form asp-controller="LineaPrestamo" asp-action="Delete" method="post" style="display:inline;">
+-                            <input type="hidden" name="id" value="@linea.Id" />
+-                            <input type="hidden" name="prestamoId" value="@Model.Id" />
+-                            <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+-                        </form>
+-                    }
+-                </td>
+-            </tr>
+-        }
+-    </tbody>
+-</table>
+-<div>
+-    @if (User.IsInRole("Administrador"))
+-    {
+-        @Html.ActionLink("Editar", "Edit", new { id = Model.Id })
+-        <text> | </text>
+-    }
+-    <a asp-action="Index">Volver a la lista</a>
+-</div>
+diff --git a/WebMarkerSpace/Views/Prestamo/Index.cshtml b/WebMarkerSpace/Views/Prestamo/Index.cshtml
+index bc305c6..dafb334 100644
+--- a/WebMarkerSpace/Views/Prestamo/Index.cshtml
++++ b/WebMarkerSpace/Views/Prestamo/Index.cshtml
+@@ -11,7 +11,7 @@
+     <a asp-action="Create" class="btn btn-primary">Nuevo préstamo</a>
+ </p>
+ 
+-<form asp-action="Index" method="get" class="row g-2 align-items-end mb-3">
++<form asp-action="Index" method="get" class="row g-2 align-items-end mb-3" id="form-filtro-prestamos">
+     <div class="col-auto">
+         <label class="form-label">Estado</label>
+         <select name="estado" class="form-control" asp-items="ViewBag.FiltroEstado">
+@@ -29,71 +29,18 @@
+     }
+     <div class="col-auto">
+         <button type="submit" class="btn btn-outline-secondary">Filtrar</button>
+-        <a asp-action="Index" class="btn btn-link">Limpiar</a>
++        <a asp-action="Index" class="btn btn-link" id="link-limpiar-filtro-prestamos">Limpiar</a>
++        <span class="spinner-border spinner-border-sm text-secondary ms-2 d-none" role="status" aria-hidden="true" id="spinner-prestamos"></span>
+     </div>
+ </form>
+ 
+-<table class="table">
+-    <thead>
+-        <tr>
+-            <th>
+-                @Html.DisplayNameFor(model => model.Id)
+-            </th>
+-            @if (esAdmin)
+-            {
+-                <th>
+-                    @Html.DisplayNameFor(model => model.NombreUsuario)
+-                </th>
+-            }
+-            <th>
+-                @Html.DisplayNameFor(model => model.FechaCreacion)
+-            </th>
+-            <th>
+-                @Html.DisplayNameFor(model => model.Estado)
+-            </th>
+-            <th>
+-                @Html.DisplayNameFor(model => model.TotalDias)
+-            </th>
+-            <th></th>
+-        </tr>
+-    </thead>
+-    <tbody>
+-@foreach (var item in Model) {
+-        <tr>
+-            <td>
+-                @Html.DisplayFor(modelItem => item.Id)
+-            </td>
+-            @if (esAdmin)
+-            {
+-                <td>
+-                    @Html.DisplayFor(modelItem => item.NombreUsuario)
+-                </td>
+-            }
+-            <td>
+-                @Html.DisplayFor(modelItem => item.FechaCreacion)
+-            </td>
+-            <td>
+-                @Html.DisplayFor(modelItem => item.Estado)
+-            </td>
+-            <td>
+-                @Html.DisplayFor(modelItem => item.TotalDias)
+-            </td>
+-            <td>
+-                @Html.ActionLink("Detalles", "Details", new { id = item.Id })
+-                @if (esAdmin)
+-                {
+-                    <text> | </text>
+-                    @Html.ActionLink("Editar", "Edit", new { id = item.Id })
+-                    <text> | </text>
+-                    @Html.ActionLink("Borrar", "Delete", new { id = item.Id })
+-                }
+-            </td>
+-        </tr>
+-}
+-    </tbody>
+-</table>
++@* Token reutilizado por prestamo-index.js para el borrado AJAX *@
++<form id="af-token-form" class="d-none">@Html.AntiForgeryToken()</form>
++
++<div id="prestamos-resultados" aria-live="polite">
++    @await Html.PartialAsync("_PrestamoListPartial", Model)
++</div>
+ 
+-@if (!Model.Any())
+-{
+-    <p class="text-muted">No hay préstamos que coincidan con el filtro.</p>
++@section Scripts {
++    <script src="~/js/prestamo-index.js" asp-append-version="true"></script>
+ }

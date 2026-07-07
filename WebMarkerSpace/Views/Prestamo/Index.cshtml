@@ -11,7 +11,7 @@
     <a asp-action="Create" class="btn btn-primary">Nuevo préstamo</a>
 </p>
 
-<form asp-action="Index" method="get" class="row g-2 align-items-end mb-3">
+<form asp-action="Index" method="get" class="row g-2 align-items-end mb-3" id="form-filtro-prestamos">
     <div class="col-auto">
         <label class="form-label">Estado</label>
         <select name="estado" class="form-control" asp-items="ViewBag.FiltroEstado">
@@ -28,72 +28,18 @@
         </div>
     }
     <div class="col-auto">
-        <button type="submit" class="btn btn-outline-secondary">Filtrar</button>
-        <a asp-action="Index" class="btn btn-link">Limpiar</a>
+        <a asp-action="Index" class="btn btn-link" id="link-limpiar-filtro-prestamos">Limpiar</a>
+        <span class="spinner-border spinner-border-sm text-secondary ms-2 d-none" role="status" aria-hidden="true" id="spinner-prestamos"></span>
     </div>
 </form>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Id)
-            </th>
-            @if (esAdmin)
-            {
-                <th>
-                    @Html.DisplayNameFor(model => model.NombreUsuario)
-                </th>
-            }
-            <th>
-                @Html.DisplayNameFor(model => model.FechaCreacion)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Estado)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TotalDias)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Id)
-            </td>
-            @if (esAdmin)
-            {
-                <td>
-                    @Html.DisplayFor(modelItem => item.NombreUsuario)
-                </td>
-            }
-            <td>
-                @Html.DisplayFor(modelItem => item.FechaCreacion)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Estado)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TotalDias)
-            </td>
-            <td>
-                @Html.ActionLink("Detalles", "Details", new { id = item.Id })
-                @if (esAdmin)
-                {
-                    <text> | </text>
-                    @Html.ActionLink("Editar", "Edit", new { id = item.Id })
-                    <text> | </text>
-                    @Html.ActionLink("Borrar", "Delete", new { id = item.Id })
-                }
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+@* Token reutilizado por prestamo-index.js para el borrado AJAX *@
+<form id="af-token-form" class="d-none">@Html.AntiForgeryToken()</form>
 
-@if (!Model.Any())
-{
-    <p class="text-muted">No hay préstamos que coincidan con el filtro.</p>
+<div id="prestamos-resultados" aria-live="polite">
+    @await Html.PartialAsync("_PrestamoListPartial", Model)
+</div>
+
+@section Scripts {
+    <script src="~/js/prestamo-index.js" asp-append-version="true"></script>
 }

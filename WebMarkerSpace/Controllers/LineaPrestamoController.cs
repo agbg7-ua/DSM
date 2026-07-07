@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Linq;
 using System.Security.Claims;
+using WebMarkerSpace.Assemblers;
 using WebMarkerSpace.Models;
 
 namespace WebMarkerSpace.Controllers {
@@ -99,6 +100,7 @@ namespace WebMarkerSpace.Controllers {
             }
 
             var linea = _lineaPrestamoCEN.ObtenerPorId(id);
+            string? error = null;
 
             using var tx = _session.BeginTransaction();
             try {
@@ -115,6 +117,17 @@ namespace WebMarkerSpace.Controllers {
             }
             catch {
                 tx.Rollback();
+                error = "No se pudo eliminar el material del préstamo.";
+            }
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest") {
+                var prestamoActualizado = _prestamoCEN.ObtenerPorId(prestamoId);
+                if (prestamoActualizado == null) {
+                    return NotFound();
+                }
+                var modelActualizado = new PrestamoAssembler().ConvertirENToViewModel(prestamoActualizado);
+                ViewBag.MensajeError = error;
+                return PartialView("~/Views/Prestamo/_PrestamoDetallesPartial.cshtml", modelActualizado);
             }
 
             return RedirectToAction("Details", "Prestamo", new { id = prestamoId });

@@ -1,0 +1,103 @@
+@model WebMarkerSpace.Models.PrestamoViewModel
+@using ApplicationCore.Domain.Enums
+
+@if (ViewBag.MensajeError != null)
+{
+    <div class="alert alert-danger" id="prestamo-mensaje-error">@ViewBag.MensajeError</div>
+}
+
+<div>
+    <h4>Prestamo</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Id)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Id)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.NombreUsuario)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.NombreUsuario)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.FechaCreacion)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.FechaCreacion)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Estado)
+        </dt>
+        <dd class="col-sm-10" id="prestamo-estado-valor">
+            @Html.DisplayFor(model => model.Estado)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.TotalDias)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.TotalDias)
+        </dd>
+    </dl>
+
+    @if (Model.Estado != EstadoPrestamo.Devuelto)
+    {
+        <form asp-controller="Prestamo" asp-action="Devolver" asp-route-id="@Model.Id" method="post" class="mb-3 js-form-devolver">
+            <button type="submit" class="btn btn-success">Marcar como devuelto</button>
+        </form>
+    }
+</div>
+<h3>Materiales en este préstamo</h3>
+@if (Model.Estado != EstadoPrestamo.Devuelto)
+{
+    <p>
+        <a asp-controller="LineaPrestamo" asp-action="Create" asp-route-prestamoId="@Model.Id" class="btn btn-primary">Añadir Material</a>
+    </p>
+}
+
+<table class="table" id="tabla-lineas-prestamo">
+    <thead>
+        <tr>
+            <th>Material</th>
+            <th>Descripción</th>
+            <th>Días Estimados</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var linea in Model.Lineas)
+        {
+            <tr data-linea-id="@linea.Id">
+                <td>@linea.NombreMaterial</td>
+                <td>@linea.DescripcionMaterial</td>
+                <td>@linea.DiasEstimados</td>
+                <td>
+                    @if (Model.Estado != EstadoPrestamo.Devuelto)
+                    {
+                        <form asp-controller="LineaPrestamo" asp-action="Delete" method="post" class="d-inline js-form-eliminar-linea">
+                            <input type="hidden" name="id" value="@linea.Id" />
+                            <input type="hidden" name="prestamoId" value="@Model.Id" />
+                            <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (!Model.Lineas.Any())
+{
+    <p class="text-muted" id="lineas-sin-resultados">Este préstamo no tiene materiales asociados.</p>
+}
+
+<div>
+    @if (User.IsInRole("Administrador"))
+    {
+        @Html.ActionLink("Editar", "Edit", "Prestamo", new { id = Model.Id })
+        <text> | </text>
+    }
+    <a asp-controller="Prestamo" asp-action="Index">Volver a la lista</a>
+</div>

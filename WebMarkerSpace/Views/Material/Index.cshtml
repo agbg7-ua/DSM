@@ -13,95 +13,63 @@
     }
 </div>
 
-<form asp-action="Index" method="get" class="row g-2 align-items-end mb-4">
+<form asp-action="Index"
+      method="get"
+      class="row g-2 align-items-end mb-4"
+      id="form-filtro-materiales">
+
     <div class="col-auto">
         <label class="form-label">Nombre</label>
-        <input type="text" name="nombre" value="@ViewBag.FiltroNombre" class="form-control" placeholder="Buscar por nombre..." autocomplete="off" />
+        <input type="text"
+               name="nombre"
+               value="@ViewBag.FiltroNombre"
+               class="form-control"
+               placeholder="Buscar por nombre..."
+               autocomplete="off" />
     </div>
+
     <div class="col-auto">
         <label class="form-label">Categoría</label>
-        <select name="categoria" class="form-control" asp-items="ViewBag.FiltroCategoria">
+        <select name="categoria"
+                class="form-control"
+                asp-items="ViewBag.FiltroCategoria">
             <option value="">-- Todas --</option>
         </select>
     </div>
+
     <div class="col-auto">
         <label class="form-label">Estado</label>
-        <select name="estado" class="form-control" asp-items="ViewBag.FiltroEstado">
+        <select name="estado"
+                class="form-control"
+                asp-items="ViewBag.FiltroEstado">
             <option value="">-- Todos --</option>
         </select>
     </div>
+
     <div class="col-auto">
-        <a asp-action="Index" class="btn btn-link" id="link-limpiar-filtro">Limpiar</a>
-        <span class="spinner-border spinner-border-sm text-secondary ms-2 d-none" role="status" aria-hidden="true" id="spinner-materiales"></span>
+        <a asp-action="Index"
+           class="btn btn-link"
+           id="link-limpiar-filtro">
+            Limpiar
+        </a>
+
+        <span id="spinner-materiales"
+              class="spinner-border spinner-border-sm text-secondary ms-2 d-none"
+              role="status"
+              aria-hidden="true">
+        </span>
     </div>
 </form>
 
-@* Token reutilizado por material-index.js para las peticiones AJAX (borrado) *@
-<form id="af-token-form" class="d-none">@Html.AntiForgeryToken()</form>
+<form id="af-token-form" class="d-none">
+    @Html.AntiForgeryToken()
+</form>
 
 <div id="materiales-resultados" aria-live="polite">
     @await Html.PartialAsync("_MaterialListPartial", Model)
 </div>
 
-@section Scripts {
+@section Scripts
+{
     <script src="~/js/material-index.js" asp-append-version="true"></script>
-@if (!Model.Any())
-{
-    <div class="text-center py-5 text-muted">
-        <p class="fs-5">No hay materiales que coincidan con la búsqueda.</p>
-        <a asp-action="Index" class="btn btn-outline-secondary mt-2">Ver todos</a>
-    </div>
-}
-else
-{
-    <div class="row row-cols-1 row-cols-md-3 g-4">
-        @foreach (var item in Model)
-        {
-            <div class="col">
-                <div class="card h-100">
-                    <div style="height:180px; overflow:hidden; background:#f8f9fa; border-radius: 0.375rem 0.375rem 0 0;"
-                         class="d-flex align-items-center justify-content-center p-2">
-                        @if (!string.IsNullOrEmpty(item.Imagen))
-                        {
-                            <img src="@item.Imagen" alt="@item.Nombre"
-                                 style="max-width:100%; max-height:100%; object-fit:contain;" />
-                        }
-                        else
-                        {
-                            <span class="text-muted small">Sin imagen</span>
-                        }
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">@item.Nombre</h5>
-                        <p class="card-text text-muted small mb-3">@item.Descripcion</p>
-                        <div class="d-flex gap-2 flex-wrap">
-                            <span class="badge bg-secondary">@item.Categoria</span>
-                            @{
-                                string badgeClass = item.Estado switch {
-                                    EstadoMaterial.Disponible        => "bg-success",
-                                    EstadoMaterial.Prestado          => "bg-primary",
-                                    EstadoMaterial.EnMantenimiento   => "bg-warning text-dark",
-                                    EstadoMaterial.Roto              => "bg-danger",
-                                    _                                => "bg-secondary"
-                                };
-                            }
-                            <span class="badge @badgeClass">@item.Estado</span>
-                        </div>
-                        @if (item.Estado == EstadoMaterial.Prestado && !string.IsNullOrEmpty(item.NombreUsuarioAsignado))
-                        {
-                            <p class="small text-muted mt-1 mb-0">Prestado a @item.NombreUsuarioAsignado</p>
-                        }
-                    </div>
-                    <div class="card-footer bg-transparent d-flex gap-2">
-                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Ver detalles</a>
-                        @if (User.IsInRole("Administrador"))
-                        {
-                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">Editar</a>
-                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">Borrar</a>
-                        }
-                    </div>
-                </div>
-            </div>
-        }
-    </div>
 }

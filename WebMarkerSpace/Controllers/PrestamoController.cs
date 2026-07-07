@@ -70,6 +70,12 @@ namespace WebMarkerSpace.Controllers {
             if (esAdmin) {
                 ViewBag.FiltroUsuarioId = new SelectList(_usuarioCEN.ObtenerTodos(), "Id", "Nombre", usuarioId);
             }
+
+            // Peticiones AJAX (filtro dinámico) solo necesitan la tabla.
+            if (EsPeticionAjax()) {
+                return PartialView("_PrestamoListPartial", modelList);
+            }
+
             return View(modelList);
         }
 
@@ -87,6 +93,7 @@ namespace WebMarkerSpace.Controllers {
             }
 
             PrestamoViewModel model = new PrestamoAssembler().ConvertirENToViewModel(prestamoEN);
+            ViewBag.MensajeError = TempData["Error"];
             return View(model);
         }
 
@@ -189,13 +196,25 @@ namespace WebMarkerSpace.Controllers {
                 return Forbid();
             }
 
+            string? error = null;
             try {
                 casosProceso.DevolverMaterial(id);
             }
             catch (Exception) {
-                TempData["Error"] = "No se pudo marcar el préstamo como devuelto.";
+                error = "No se pudo marcar el préstamo como devuelto.";
             }
 
+            if (EsPeticionAjax()) {
+                var actualizado = _prestamoCEN.ObtenerPorId(id);
+                if (actualizado == null) {
+                    return NotFound();
+                }
+                var modelActualizado = new PrestamoAssembler().ConvertirENToViewModel(actualizado);
+                ViewBag.MensajeError = error;
+                return PartialView("_PrestamoDetallesPartial", modelActualizado);
+            }
+
+            TempData["Error"] = error;
             return RedirectToAction(nameof(Details), new { id });
         }
 
@@ -252,13 +271,27 @@ namespace WebMarkerSpace.Controllers {
             try {
                 _prestamoCEN.Eliminar(id);
                 tx.Commit();
+
+                if (EsPeticionAjax()) {
+                    return Json(new { success = true });
+                }
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex) {
                 tx.Rollback();
+
+                if (EsPeticionAjax()) {
+                    return Json(new { success = false, message = "Error al eliminar: " + ex.Message });
+                }
                 ModelState.AddModelError("", "Error al eliminar: " + ex.Message);
                 return View(model);
             }
+        }
+
+        // Indica si la petición viene de una llamada AJAX (fetch/$.ajax) en vez
+        // de una navegación normal del navegador.
+        private bool EsPeticionAjax() {
+            return Request.Headers["X-Requested-With"] == "XMLHttpRequest";
         }
     }
 }
