@@ -1,51 +1,78 @@
 @model WebMarkerSpace.Models.MaterialViewModel
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Editar material";
 }
 
-<h1>Editar</h1>
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-action="Index">Materiales</a></li>
+        <li class="breadcrumb-item active">Editar</li>
+    </ol>
+</nav>
 
-<h4>Material</h4>
-<hr />
+<h1 class="mb-4">Editar material</h1>
+
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-6">
         <form asp-action="Edit" method="post" enctype="multipart/form-data">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
             <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="Nombre" class="control-label"></label>
+
+            <div class="form-group mb-3">
+                <label asp-for="Nombre" class="form-label"></label>
                 <input asp-for="Nombre" class="form-control" />
                 <span asp-validation-for="Nombre" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Descripcion" class="control-label"></label>
-                <input asp-for="Descripcion" class="form-control" />
+
+            <div class="form-group mb-3">
+                <label asp-for="Descripcion" class="form-label"></label>
+                <textarea asp-for="Descripcion" class="form-control" rows="3"></textarea>
                 <span asp-validation-for="Descripcion" class="text-danger"></span>
             </div>
+
             <div class="form-group mb-3">
-                <label asp-for="Estado" class="control-label"></label>
+                <label asp-for="Estado" class="form-label"></label>
                 <select asp-for="Estado" class="form-control"
                         asp-items="Html.GetEnumSelectList<ApplicationCore.Domain.Enums.EstadoMaterial>()">
                 </select>
                 <span asp-validation-for="Estado" class="text-danger"></span>
             </div>
+
             <div class="form-group mb-3">
-                <label asp-for="Categoria" class="control-label"></label>
+                <label asp-for="Categoria" class="form-label"></label>
                 <select asp-for="Categoria" class="form-control"
                         asp-items="Html.GetEnumSelectList<ApplicationCore.Domain.Enums.CategoriaMaterial>()">
                 </select>
                 <span asp-validation-for="Categoria" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Guardar" class="btn btn-primary" />
+
+            <div class="form-group mb-3">
+                <label class="form-label">Imagen actual</label>
+                <div class="mb-2">
+                    @if (!string.IsNullOrEmpty(Model.Imagen))
+                    {
+                        <div style="height:140px; background:#f8f9fa; border-radius:0.375rem; display:flex; align-items:center; justify-content:center; padding:0.5rem;">
+                            <img src="@Model.Imagen" alt="Imagen actual"
+                                 style="max-width:100%; max-height:100%; object-fit:contain;" />
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-muted small fst-italic">Sin imagen</div>
+                    }
+                </div>
+                <label asp-for="Fichero" class="form-label">Subir nueva imagen (opcional)</label>
+                <input asp-for="Fichero" type="file" class="form-control" accept="image/*" />
+                <div class="form-text">Si no seleccionas ningún archivo, se conserva la imagen actual.</div>
+            </div>
+
+            <div class="d-flex gap-2 mt-4">
+                <input type="submit" value="Guardar cambios" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
             </div>
         </form>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Volver a la lista</a>
 </div>
 
 @section Scripts {
