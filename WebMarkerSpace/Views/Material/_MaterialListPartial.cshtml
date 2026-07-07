@@ -1,59 +1,75 @@
 @model IEnumerable<WebMarkerSpace.Models.MaterialViewModel>
-
-<table class="table" id="tabla-materiales">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Nombre)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Categoria)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Descripcion)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Estado)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr data-material-id="@item.Id">
-            <td>
-                @Html.DisplayFor(modelItem => item.Nombre)
-            </td>
-            <td>
-                @Localizer.Localize(item.Categoria)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Descripcion)
-            </td>
-            <td>
-                @Localizer.Localize(item.Estado)
-                @if (item.Estado == ApplicationCore.Domain.Enums.EstadoMaterial.Prestado && !string.IsNullOrEmpty(item.NombreUsuarioAsignado))
-                {
-                    <br /><small class="text-muted">@Localizer["Material.Index.LoanedTo", item.NombreUsuarioAsignado]</small>
-                }
-            </td>
-            <td>
-                <a asp-action="Details" asp-route-id="@item.Id">@Localizer["Common.Details"]</a>
-                @if (User.IsInRole("Administrador"))
-                {
-                    <text> | </text>
-                    <a asp-action="Edit" asp-route-id="@item.Id">@Localizer["Common.Edit"]</a>
-                    <text> | </text>
-                    <a asp-action="Delete" asp-route-id="@item.Id"
-                       class="js-borrar-material" data-id="@item.Id" data-nombre="@item.Nombre">@Localizer["Common.DeleteLink"]</a>
-                }
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+@using ApplicationCore.Domain.Enums
 
 @if (!Model.Any())
 {
-    <p class="text-muted" id="materiales-sin-resultados">@Localizer["Material.Index.Empty"]</p>
+    <div class="text-center py-5 text-muted">
+        <i class="bi bi-search" style="font-size:2.5rem;"></i>
+        <p class="fs-5 mt-2">No hay materiales que coincidan con la búsqueda.</p>
+        <a asp-action="Index" class="btn btn-outline-secondary mt-1">Ver todos</a>
+    </div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-3 g-4" id="grid-materiales">
+        @foreach (var item in Model)
+        {
+            <div class="col" data-material-id="@item.Id">
+                <div class="card h-100">
+                    <div style="height:180px; overflow:hidden; background:#f8f9fa; border-radius:0.375rem 0.375rem 0 0;"
+                         class="d-flex align-items-center justify-content-center p-2">
+                        @if (!string.IsNullOrEmpty(item.Imagen))
+                        {
+                            <img src="@item.Imagen" alt="@item.Nombre"
+                                 style="max-width:100%; max-height:100%; object-fit:contain;" />
+                        }
+                        else
+                        {
+                            <div class="text-center text-muted">
+                                <i class="bi bi-image" style="font-size:2rem;"></i>
+                                <p class="small mt-1 mb-0">Sin imagen</p>
+                            </div>
+                        }
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">@item.Nombre</h5>
+                        <p class="card-text text-muted small mb-3">@item.Descripcion</p>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <span class="badge bg-secondary">@item.Categoria</span>
+                            @{
+                                string badgeClass = item.Estado switch {
+                                    EstadoMaterial.Disponible      => "bg-success",
+                                    EstadoMaterial.Prestado        => "bg-primary",
+                                    EstadoMaterial.EnMantenimiento => "bg-warning text-dark",
+                                    EstadoMaterial.Roto            => "bg-danger",
+                                    _                              => "bg-secondary"
+                                };
+                            }
+                            <span class="badge @badgeClass">@item.Estado</span>
+                        </div>
+                        @if (item.Estado == EstadoMaterial.Prestado && !string.IsNullOrEmpty(item.NombreUsuarioAsignado))
+                        {
+                            <p class="small text-muted mt-1 mb-0">Prestado a @item.NombreUsuarioAsignado</p>
+                        }
+                    </div>
+                    <div class="card-footer bg-transparent d-flex gap-2 flex-wrap">
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-eye me-1"></i>Ver detalles
+                        </a>
+                        @if (User.IsInRole("Administrador"))
+                        {
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-pencil me-1"></i>Editar
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@item.Id"
+                               class="btn btn-sm btn-outline-danger js-borrar-material"
+                               data-id="@item.Id" data-nombre="@item.Nombre">
+                                <i class="bi bi-trash me-1"></i>Borrar
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 }

@@ -126,12 +126,12 @@
             .then(function (resp) { return resp.json(); })
             .then(function (data) {
                 if (data.success) {
-                    var fila = link.closest("tr");
-                    if (fila) {
-                        fila.parentNode.removeChild(fila);
+                    var card = link.closest(".col");
+                    if (card) {
+                        card.parentNode.removeChild(card);
                     }
-                    var tabla = document.getElementById("tabla-materiales");
-                    if (tabla && !tabla.querySelector("tbody tr")) {
+                    var grid = document.getElementById("grid-materiales");
+                    if (grid && !grid.querySelector(".col")) {
                         cargarResultados(form.action + "?" + new URLSearchParams(new FormData(form)).toString(), false);
                     }
                 } else {
