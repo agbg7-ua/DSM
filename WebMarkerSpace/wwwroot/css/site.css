@@ -203,3 +203,107 @@ main p,
   outline: 3px solid #842029;
   outline-offset: 2px;
 }
+/* =======================================================================
+   Internacionalización (i18n): toggle de idioma ES / EN
+   ======================================================================= */
+.language-toggle-form {
+  display: inline-block;
+}
+
+.language-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  /* Objetivo táctil mínimo 44x44 (accesibilidad), igual que el resto de
+     controles interactivos del sitio. */
+  min-height: 44px;
+}
+
+.language-toggle__label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #fff;
+  opacity: 0.9;
+  user-select: none;
+}
+
+/* El interruptor en sí: un checkbox real (semántica y foco nativos), con
+   el <label> convertido visualmente en la "pista" del toggle. El checkbox
+   no se oculta con display:none (perdería el foco de teclado); se hace
+   transparente y se superpone al carril. */
+.language-toggle__switch {
+  position: relative;
+  display: inline-block;
+  width: 3rem;
+  height: 1.75rem;
+}
+
+.language-toggle__switch input[type="checkbox"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.language-toggle__slider {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 999px;
+  transition: background-color 0.15s ease-in-out;
+  pointer-events: none;
+  cursor: pointer;
+}
+
+.language-toggle__slider::before {
+  content: "";
+  position: absolute;
+  top: 0.1875rem;
+  left: 0.1875rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  background-color: #fff;
+  border-radius: 50%;
+  transition: transform 0.15s ease-in-out;
+}
+
+.language-toggle__switch input[type="checkbox"]:checked + .language-toggle__slider {
+  background-color: #18BC9C;
+  border-color: #18BC9C;
+}
+
+.language-toggle__switch input[type="checkbox"]:checked + .language-toggle__slider::before {
+  transform: translateX(1.25rem);
+}
+
+/* Foco de teclado muy visible sobre el carril (no solo sobre el checkbox
+   invisible). */
+.language-toggle__switch input[type="checkbox"]:focus-visible + .language-toggle__slider {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+}
+
+.language-toggle__apply {
+  min-height: 44px;
+}
+
+/* Variante para cuando el toggle se muestra sobre fondo claro (p. ej. la
+   pantalla de login/registro, que no tiene la barra de navegación oscura)
+   en vez del fondo azul de la navbar. Mismo contraste alto, solo cambia el
+   color de "ES"/"EN" y del carril en reposo. */
+.language-toggle-on-light .language-toggle__label {
+  color: #495057;
+  opacity: 1;
+}
+.language-toggle-on-light .language-toggle__slider {
+  background-color: #ced4da;
+  border-color: #adb5bd;
+}
+.language-toggle-on-light .language-toggle__switch input[type="checkbox"]:focus-visible + .language-toggle__slider {
+  outline-color: #0b3d91;
+}

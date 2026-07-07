@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Layout.SkipToContent" xml:space="preserve">
+    <value>Saltar al contenido principal</value>
+  </data>
+  <data name="Layout.MainNav" xml:space="preserve">
+    <value>Navegación principal</value>
+  </data>
+  <data name="Layout.ToggleNav" xml:space="preserve">
+    <value>Mostrar u ocultar el menú de navegación</value>
+  </data>
+  <data name="Layout.Home" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="Layout.Materials" xml:space="preserve">
+    <value>Materiales</value>
+  </data>
+  <data name="Layout.Loans" xml:space="preserve">
+    <value>Préstamos</value>
+  </data>
+  <data name="Layout.Users" xml:space="preserve">
+    <value>Usuarios</value>
+  </data>
+  <data name="Layout.NewMaterial" xml:space="preserve">
+    <value>Nuevo material</value>
+  </data>
+  <data name="Layout.MyProfile" xml:space="preserve">
+    <value>Mi perfil</value>
+  </data>
+  <data name="Layout.Logout" xml:space="preserve">
+    <value>Cerrar sesión</value>
+  </data>
+  <data name="Layout.Login" xml:space="preserve">
+    <value>Entrar</value>
+  </data>
+  <data name="Layout.FooterPageLabel" xml:space="preserve">
+    <value>Pie de página</value>
+  </data>
+  <data name="Layout.FooterPrivacyLink" xml:space="preserve">
+    <value>Política de privacidad</value>
+  </data>
+  <data name="Home.HeroLead" xml:space="preserve">
+    <value>Accede a herramientas, componentes y equipos del makerspace. Solicita lo que necesitas y ponlo en marcha.</value>
+  </data>
+  <data name="Home.ViewCatalog" xml:space="preserve">
+    <value>Ver catálogo</value>
+  </data>
+  <data name="Home.CreateAccount" xml:space="preserve">
+    <value>Crear cuenta</value>
+  </data>
+  <data name="Home.MyLoans" xml:space="preserve">
+    <value>Mis préstamos</value>
+  </data>
+  <data name="Home.HowItWorks" xml:space="preserve">
+    <value>¿Cómo funciona?</value>
+  </data>
+  <data name="Home.Step1Title" xml:space="preserve">
+    <value>1. Busca</value>
+  </data>
+  <data name="Home.Step1Body" xml:space="preserve">
+    <value>Explora el catálogo de materiales disponibles. Filtra por categoría, nombre o estado.</value>
+  </data>
+  <data name="Home.Step2Title" xml:space="preserve">
+    <value>2. Solicita</value>
+  </data>
+  <data name="Home.Step2Body" xml:space="preserve">
+    <value>Inicia sesión y solicita el préstamo del material que necesitas para tu proyecto.</value>
+  </data>
+  <data name="Home.Step3Title" xml:space="preserve">
+    <value>3. Úsalo y devuélvelo</value>
+  </data>
+  <data name="Home.Step3Body" xml:space="preserve">
+    <value>Recoge el material, completa tu proyecto y devuélvelo cuando termines.</value>
+  </data>
+  <data name="Home.LatestAdditions" xml:space="preserve">
+    <value>Últimas incorporaciones</value>
+  </data>
+  <data name="Home.ViewFullCatalog" xml:space="preserve">
+    <value>Ver todo el catálogo</value>
+  </data>
+  <data name="Home.NoImage" xml:space="preserve">
+    <value>Sin imagen</value>
+  </data>
+  <data name="Home.ViewDetails" xml:space="preserve">
+    <value>Ver detalles</value>
+  </data>
+  <data name="Layout.Language.SwitchLabel" xml:space="preserve">
+    <value>Cambiar idioma entre español e inglés</value>
+  </data>
+  <data name="Layout.Language.Apply" xml:space="preserve">
+    <value>Aplicar</value>
+  </data>
+  <data name="Login.Title" xml:space="preserve">
+    <value>Bienvenido a WebMarkerSpace</value>
+  </data>
+  <data name="Login.Lead" xml:space="preserve">
+    <value>Inicia sesión para acceder a tu cuenta.</value>
+  </data>
+  <data name="Login.FieldsetLegend" xml:space="preserve">
+    <value>Datos de acceso</value>
+  </data>
+  <data name="Login.SubmitButton" xml:space="preserve">
+    <value>Entrar</value>
+  </data>
+  <data name="Common.Or" xml:space="preserve">
+    <value>o</value>
+  </data>
+  <data name="Login.ExternalButton" xml:space="preserve">
+    <value>Entrar con {0}</value>
+  </data>
+  <data name="Login.NoAccount" xml:space="preserve">
+    <value>¿No tienes cuenta?</value>
+  </data>
+  <data name="Login.RegisterHere" xml:space="preserve">
+    <value>Regístrate aquí</value>
+  </data>
+  <data name="Register.Title" xml:space="preserve">
+    <value>Crea tu cuenta</value>
+  </data>
+  <data name="Register.Lead" xml:space="preserve">
+    <value>Regístrate para poder pedir materiales prestados.</value>
+  </data>
+  <data name="Register.FieldsetLegend" xml:space="preserve">
+    <value>Datos de la nueva cuenta</value>
+  </data>
+  <data name="Register.SubmitButton" xml:space="preserve">
+    <value>Crear cuenta</value>
+  </data>
+  <data name="Register.ExternalButton" xml:space="preserve">
+    <value>Regístrate con {0}</value>
+  </data>
+  <data name="Register.ExternalHint" xml:space="preserve">
+    <value>Si es la primera vez que entras con {0}, tu cuenta se creará automáticamente.</value>
+  </data>
+  <data name="Register.HaveAccount" xml:space="preserve">
+    <value>¿Ya tienes cuenta?</value>
+  </data>
+  <data name="Register.SignInHere" xml:space="preserve">
+    <value>Inicia sesión</value>
+  </data>
+  <data name="Perfil.Title" xml:space="preserve">
+    <value>Mi perfil</value>
+  </data>
+  <data name="Perfil.PersonalDataLegend" xml:space="preserve">
+    <value>Datos personales</value>
+  </data>
+  <data name="Perfil.RoleLabel" xml:space="preserve">
+    <value>Rol</value>
+  </data>
+  <data name="Perfil.RoleHelp" xml:space="preserve">
+    <value>Solo un administrador puede cambiar tu rol.</value>
+  </data>
+  <data name="Perfil.PasswordHelp" xml:space="preserve">
+    <value>Deja los siguientes campos en blanco si no quieres cambiar tu contraseña.</value>
+  </data>
+  <data name="Perfil.PasswordLegend" xml:space="preserve">
+    <value>Cambiar contraseña (opcional)</value>
+  </data>
+  <data name="Perfil.SaveButton" xml:space="preserve">
+    <value>Guardar cambios</value>
+  </data>
+  <data name="Perfil.ViewLoans" xml:space="preserve">
+    <value>Ver mis préstamos</value>
+  </data>
+  <data name="Material.Index.Title" xml:space="preserve">
+    <value>Materiales</value>
+  </data>
+  <data name="Material.Index.NewMaterial" xml:space="preserve">
+    <value>+ Nuevo material</value>
+  </data>
+  <data name="Material.Index.FilterName" xml:space="preserve">
+    <value>Nombre</value>
+  </data>
+  <data name="Material.Index.FilterNamePlaceholder" xml:space="preserve">
+    <value>Buscar por nombre...</value>
+  </data>
+  <data name="Material.Index.FilterCategory" xml:space="preserve">
+    <value>Categoría</value>
+  </data>
+  <data name="Material.Index.FilterStatus" xml:space="preserve">
+    <value>Estado</value>
+  </data>
+  <data name="Common.AllFem" xml:space="preserve">
+    <value>-- Todas --</value>
+  </data>
+  <data name="Common.AllMasc" xml:space="preserve">
+    <value>-- Todos --</value>
+  </data>
+  <data name="Common.Clear" xml:space="preserve">
+    <value>Limpiar</value>
+  </data>
+  <data name="Material.Index.Empty" xml:space="preserve">
+    <value>No hay materiales que coincidan con la búsqueda.</value>
+  </data>
+  <data name="Material.Index.LoanedTo" xml:space="preserve">
+    <value>a {0}</value>
+  </data>
+  <data name="Common.Details" xml:space="preserve">
+    <value>Detalles</value>
+  </data>
+  <data name="Common.Edit" xml:space="preserve">
+    <value>Editar</value>
+  </data>
+  <data name="Common.DeleteLink" xml:space="preserve">
+    <value>Borrar</value>
+  </data>
+  <data name="Common.BreadcrumbLabel" xml:space="preserve">
+    <value>Ruta de navegación</value>
+  </data>
+  <data name="Material.Details.NoImage" xml:space="preserve">
+    <value>Sin imagen</value>
+  </data>
+  <data name="Material.Details.LoanedTo" xml:space="preserve">
+    <value>Prestado actualmente a {0}</value>
+  </data>
+  <data name="Material.Details.RequestLoan" xml:space="preserve">
+    <value>Solicitar préstamo</value>
+  </data>
+  <data name="Material.Details.LoginToRequest" xml:space="preserve">
+    <value>Inicia sesión para solicitar</value>
+  </data>
+  <data name="Material.Details.NotAvailable" xml:space="preserve">
+    <value>No disponible ahora mismo</value>
+  </data>
+  <data name="Material.Details.DeleteButton" xml:space="preserve">
+    <value>Eliminar</value>
+  </data>
+  <data name="Material.Details.BackToCatalog" xml:space="preserve">
+    <value>Volver al catálogo</value>
+  </data>
+  <data name="Enum.RolUsuario.Administrador" xml:space="preserve">
+    <value>Administrador</value>
+  </data>
+  <data name="Enum.RolUsuario.Usuario" xml:space="preserve">
+    <value>Usuario</value>
+  </data>
+  <data name="Enum.CategoriaMaterial.Herramientas" xml:space="preserve">
+    <value>Herramientas</value>
+  </data>
+  <data name="Enum.CategoriaMaterial.Electronica" xml:space="preserve">
+    <value>Electrónica</value>
+  </data>
+  <data name="Enum.CategoriaMaterial.ImpresionYFabricacion" xml:space="preserve">
+    <value>Impresión y Fabricación</value>
+  </data>
+  <data name="Enum.CategoriaMaterial.Costura" xml:space="preserve">
+    <value>Costura</value>
+  </data>
+  <data name="Enum.CategoriaMaterial.Carpinteria" xml:space="preserve">
+    <value>Carpintería</value>
+  </data>
+  <data name="Enum.CategoriaMaterial.Informatica" xml:space="preserve">
+    <value>Informática</value>
+  </data>
+  <data name="Enum.CategoriaMaterial.Otros" xml:space="preserve">
+    <value>Otros</value>
+  </data>
+  <data name="Enum.EstadoMaterial.Disponible" xml:space="preserve">
+    <value>Disponible</value>
+  </data>
+  <data name="Enum.EstadoMaterial.Prestado" xml:space="preserve">
+    <value>Prestado</value>
+  </data>
+  <data name="Enum.EstadoMaterial.EnMantenimiento" xml:space="preserve">
+    <value>En Mantenimiento</value>
+  </data>
+  <data name="Enum.EstadoMaterial.Roto" xml:space="preserve">
+    <value>Roto</value>
+  </data>
+  <data name="Material.Index.LoadError" xml:space="preserve">
+    <value>No se pudo cargar el listado de materiales. Inténtalo de nuevo.</value>
+  </data>
+
+  <!-- Claves para DataAnnotations (Display/Required/etc.) de los ViewModels.
+       AddDataAnnotationsLocalization (Program.cs) usa el propio texto del
+       atributo como clave de este recurso, así que estas claves deben
+       coincidir EXACTAMENTE con lo escrito en Name="..."/ErrorMessage="...". -->
+  <data name="Common.Field.Id" xml:space="preserve">
+    <value>Identificador</value>
+  </data>
+  <data name="Common.Field.Username" xml:space="preserve">
+    <value>Nombre de Usuario</value>
+  </data>
+  <data name="Common.Field.Username.Required" xml:space="preserve">
+    <value>El nombre de usuario es obligatorio.</value>
+  </data>
+  <data name="Common.Field.Email" xml:space="preserve">
+    <value>Correo Electrónico</value>
+  </data>
+  <data name="Common.Field.Email.Required" xml:space="preserve">
+    <value>El correo electrónico es obligatorio.</value>
+  </data>
+  <data name="Common.Field.Email.Invalid" xml:space="preserve">
+    <value>Correo inválido.</value>
+  </data>
+  <data name="Common.Field.Password" xml:space="preserve">
+    <value>Contraseña</value>
+  </data>
+  <data name="Common.Field.Password.Required" xml:space="preserve">
+    <value>La contraseña es obligatoria.</value>
+  </data>
+  <data name="Common.Field.ConfirmPassword" xml:space="preserve">
+    <value>Confirmar contraseña</value>
+  </data>
+  <data name="Common.Field.ConfirmPassword.Required" xml:space="preserve">
+    <value>Debes confirmar la contraseña.</value>
+  </data>
+  <data name="Common.Field.ConfirmPassword.Mismatch" xml:space="preserve">
+    <value>Las contraseñas no coinciden.</value>
+  </data>
+  <data name="Common.Field.NewPassword" xml:space="preserve">
+    <value>Nueva contraseña</value>
+  </data>
+  <data name="Common.Field.ConfirmNewPassword" xml:space="preserve">
+    <value>Confirmar nueva contraseña</value>
+  </data>
+  <data name="Common.Field.Role" xml:space="preserve">
+    <value>Rol de Usuario</value>
+  </data>
+  <data name="Common.Field.Role.Required" xml:space="preserve">
+    <value>El rol es obligatorio.</value>
+  </data>
+
+  <data name="Material.Field.Name" xml:space="preserve">
+    <value>Nombre</value>
+  </data>
+  <data name="Material.Field.Name.Prompt" xml:space="preserve">
+    <value>Escribe el nombre del material</value>
+  </data>
+  <data name="Material.Field.Name.Description" xml:space="preserve">
+    <value>Nombre del material</value>
+  </data>
+  <data name="Material.Field.Name.Required" xml:space="preserve">
+    <value>Debe indicar un nombre para el material</value>
+  </data>
+  <data name="Material.Field.Name.Length" xml:space="preserve">
+    <value>El nombre del material debe tener entre {2} y {1} caracteres</value>
+  </data>
+  <data name="Material.Field.Description" xml:space="preserve">
+    <value>Descripción</value>
+  </data>
+  <data name="Material.Field.Description.Prompt" xml:space="preserve">
+    <value>Describe el material</value>
+  </data>
+  <data name="Material.Field.Description.Description" xml:space="preserve">
+    <value>Descripción del material</value>
+  </data>
+  <data name="Material.Field.Description.Required" xml:space="preserve">
+    <value>Debe indicar una descripción para el material</value>
+  </data>
+  <data name="Material.Field.Description.Length" xml:space="preserve">
+    <value>La descripción del material debe tener entre {2} y {1} caracteres</value>
+  </data>
+  <data name="Material.Field.Status" xml:space="preserve">
+    <value>Estado del Material</value>
+  </data>
+  <data name="Material.Field.Status.Required" xml:space="preserve">
+    <value>Debe seleccionar un estado para el material</value>
+  </data>
+  <data name="Material.Field.Category" xml:space="preserve">
+    <value>Categoría</value>
+  </data>
+  <data name="Material.Field.Category.Required" xml:space="preserve">
+    <value>Debe seleccionar una categoría para el material</value>
+  </data>
+</root>

@@ -1,5 +1,6 @@
+@using System.Globalization
 <!DOCTYPE html>
-<html lang="es">
+<html lang="@CultureInfo.CurrentUICulture.TwoLetterISOLanguageName">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,17 +11,20 @@
     <link rel="stylesheet" href="~/WebMarkerSpace.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <a class="skip-link" href="#contenido-principal">Saltar al contenido principal</a>
+    <a class="skip-link" href="#contenido-principal">@Localizer["Layout.SkipToContent"]</a>
 
     <div class="container">
+        <div class="d-flex justify-content-end pt-3 language-toggle-on-light">
+            @await Html.PartialAsync("_LanguageToggle")
+        </div>
         <main id="contenido-principal" role="main" class="pb-3" tabindex="-1">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted" aria-label="Pie de página">
+    <footer class="border-top footer text-muted" aria-label="@Localizer["Layout.FooterPageLabel"]">
         <div class="container">
-            &copy; 2026 - WebMarkerSpace - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacidad</a>
+            &copy; 2026 - WebMarkerSpace - <a asp-area="" asp-controller="Home" asp-action="Privacy">@Localizer["Layout.FooterPrivacyLink"]</a>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

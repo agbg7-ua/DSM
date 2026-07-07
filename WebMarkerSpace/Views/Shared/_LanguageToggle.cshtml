@@ -1,0 +1,36 @@
+@using System.Globalization
+@{
+    bool esIngles = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.Equals("en", StringComparison.OrdinalIgnoreCase);
+    string returnUrl = Context.Request.Path + Context.Request.QueryString;
+}
+<form asp-controller="Culture" asp-action="SetLanguage" method="post" id="language-toggle-form" class="language-toggle-form">
+    <input type="hidden" name="returnUrl" value="@returnUrl" />
+    <div class="language-toggle">
+        <span class="language-toggle__label" id="lang-es-label">ES</span>
+
+        <span class="language-toggle__switch">
+            <span class="visually-hidden" id="language-toggle-desc">@Localizer["Layout.Language.SwitchLabel"]</span>
+            @if (esIngles)
+            {
+                <input type="checkbox" id="language-toggle-input" name="ingles" value="true"
+                       role="switch" checked
+                       aria-labelledby="lang-es-label lang-en-label" aria-describedby="language-toggle-desc"
+                       onchange="this.form.submit()" />
+            }
+            else
+            {
+                <input type="checkbox" id="language-toggle-input" name="ingles" value="true"
+                       role="switch"
+                       aria-labelledby="lang-es-label lang-en-label" aria-describedby="language-toggle-desc"
+                       onchange="this.form.submit()" />
+            }
+            <label class="language-toggle__slider" for="language-toggle-input" aria-hidden="true"></label>
+        </span>
+
+        <span class="language-toggle__label" id="lang-en-label">EN</span>
+
+        <noscript>
+            <button type="submit" class="btn btn-sm btn-light language-toggle__apply">@Localizer["Layout.Language.Apply"]</button>
+        </noscript>
+    </div>
+</form>

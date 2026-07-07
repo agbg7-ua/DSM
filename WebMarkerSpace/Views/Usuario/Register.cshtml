@@ -8,8 +8,8 @@
     string? returnUrl = ViewBag.ReturnUrl;
 }
 
-<h1>Crea tu cuenta</h1>
-<p class="lead">Regístrate para poder pedir materiales prestados.</p>
+<h1>@Localizer["Register.Title"]</h1>
+<p class="lead">@Localizer["Register.Lead"]</p>
 <hr />
 <div class="row">
     <div class="col-md-5">
@@ -21,7 +21,7 @@
 
         <form asp-action="Register" method="post" novalidate>
             <fieldset>
-                <legend class="visually-hidden">Datos de la nueva cuenta</legend>
+                <legend class="visually-hidden">@Localizer["Register.FieldsetLegend"]</legend>
 
                 <div class="form-group mb-3">
                     <label asp-for="Nombre" class="form-label"></label>
@@ -45,28 +45,28 @@
                 </div>
             </fieldset>
             <div class="form-group mt-3">
-                <button type="submit" class="btn btn-primary btn-accesible">Crear cuenta</button>
+                <button type="submit" class="btn btn-primary btn-accesible">@Localizer["Register.SubmitButton"]</button>
             </div>
         </form>
 
         @if (oidcHabilitado)
         {
-            <div class="separador-o" role="separator" aria-label="o">
-                <span>o</span>
+            <div class="separador-o" role="separator" aria-label="@Localizer["Common.Or"]">
+                <span>@Localizer["Common.Or"]</span>
             </div>
             <form asp-action="ExternalLogin" method="get">
                 <input type="hidden" name="returnUrl" value="@returnUrl" />
                 <button type="submit" class="btn btn-outline-secondary btn-accesible w-100">
-                    Regístrate con @oidcNombre
+                    @Localizer["Register.ExternalButton", oidcNombre]
                 </button>
             </form>
             <p class="form-text mt-2">
-                Si es la primera vez que entras con @oidcNombre, tu cuenta se creará automáticamente.
+                @Localizer["Register.ExternalHint", oidcNombre]
             </p>
         }
 
         <p class="mt-4">
-            ¿Ya tienes cuenta? <a asp-action="Login">Inicia sesión</a>
+            @Localizer["Register.HaveAccount"] <a asp-action="Login">@Localizer["Register.SignInHere"]</a>
         </p>
     </div>
 </div>

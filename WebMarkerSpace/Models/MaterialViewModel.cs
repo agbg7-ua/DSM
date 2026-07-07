@@ -12,20 +12,20 @@ namespace WebMarkerSpace.Models {
         [ScaffoldColumn(false)]
         public int Id { get; set; }
 
-        [Display (Prompt = "Escribe el nombre del material", Description = "Nombre del material", Name = "Nombre")]
-        [Required(ErrorMessage = "Debe indicar un nombre para el material")]
-        [StringLength(100, MinimumLength = 3, ErrorMessage = "El nombre del material debe tener entre 3 y 100 caracteres")]
+        [Display(Prompt = "Material.Field.Name.Prompt", Description = "Material.Field.Name.Description", Name = "Material.Field.Name")]
+        [Required(ErrorMessage = "Material.Field.Name.Required")]
+        [StringLength(100, MinimumLength = 3, ErrorMessage = "Material.Field.Name.Length")]
         public string Nombre { get; set; }
-        [Display(Prompt = "Describe el material", Description = "Descripción del material", Name = "Descripción")]
-        [Required(ErrorMessage = "Debe indicar una descripción para el material")]
-        [StringLength(1000, MinimumLength = 20, ErrorMessage = "El nombre del material debe tener entre 20 y 1000 caracteres")]
+        [Display(Prompt = "Material.Field.Description.Prompt", Description = "Material.Field.Description.Description", Name = "Material.Field.Description")]
+        [Required(ErrorMessage = "Material.Field.Description.Required")]
+        [StringLength(1000, MinimumLength = 20, ErrorMessage = "Material.Field.Description.Length")]
         public string Descripcion { get; set; }
-        [Display(Name = "Estado del Material")]
-        [Required(ErrorMessage = "Debe seleccionar un estado para el material")]
+        [Display(Name = "Material.Field.Status")]
+        [Required(ErrorMessage = "Material.Field.Status.Required")]
         public EstadoMaterial Estado { get; set; }
 
-        [Display(Name = "Categoría")]
-        [Required(ErrorMessage = "Debe seleccionar una categoría para el material")]
+        [Display(Name = "Material.Field.Category")]
+        [Required(ErrorMessage = "Material.Field.Category.Required")]
         public CategoriaMaterial Categoria { get; set; }
 
         public string Imagen { get; set; }

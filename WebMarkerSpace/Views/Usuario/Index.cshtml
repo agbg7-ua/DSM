@@ -1,6 +1,9 @@
 @model IEnumerable<WebMarkerSpace.Models.UsuarioViewModel>
 @using ApplicationCore.Domain.Enums
 
+@* Si necesitas usar SharedResource, especifica el namespace completo para evitar ambigüedad *@
+@* Ejemplo: @WebMarkerSpace.Resources.SharedResource o @WebMarkerSpace.SharedResource *@
+
 @{
     ViewData["Title"] = "Usuarios";
 }
@@ -64,3 +67,6 @@
 {
     <script src="~/js/usuario-index.js" asp-append-version="true"></script>
 }
+
+@* Cuando uses SharedResource, usa el nombre completo del namespace para evitar ambigüedad *@
+@* Ejemplo: @WebMarkerSpace.Resources.SharedResource.AlgunaPropiedad *@

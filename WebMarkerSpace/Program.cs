@@ -7,8 +7,12 @@ using Infrastructure.NHibernate.UnitOfWork;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using NHibernate;
+using System.Globalization;
+using WebMarkerSpace;
 using WebMarkerSpace.Security;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -128,8 +132,59 @@ if (oidcHabilitado)
 
 builder.Services.AddAuthorization();
 
+// ---------------------------------------------------------------------
+// Internacionalización (i18n) — PASO 2: toggle manual ES/EN.
+// El idioma se resuelve, por petición, en este orden:
+//   1) Cookie de cultura (".AspNetCore.Culture"), la que fija el toggle
+//      ES/EN de Views/Shared/_LanguageToggle.cshtml a través de
+//      CultureController.SetLanguage. Si la persona ya eligió idioma a
+//      mano, esta cookie manda siempre por encima de lo que diga el
+//      navegador.
+//   2) Cabecera Accept-Language del navegador (detección automática, la
+//      primera vez que se visita el sitio, antes de elegir nada a mano).
+//   3) Si nada de lo anterior aplica: español (DefaultRequestCulture).
+// ---------------------------------------------------------------------
+// Los textos localizados viven en /Resources:
+//   - SharedResource.resx     -> español (cultura neutra, es-ES)
+//   - SharedResource.en.resx  -> inglés (en-US)
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
+var culturasSoportadas = new[]
+{
+    new CultureInfo("es-ES"),
+    new CultureInfo("en-US"),
+};
+
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    options.DefaultRequestCulture = new RequestCulture("es-ES");
+    options.SupportedCultures = culturasSoportadas;
+    options.SupportedUICultures = culturasSoportadas;
+
+    options.RequestCultureProviders = new List<IRequestCultureProvider>
+    {
+        new CookieRequestCultureProvider(),
+        new AcceptLanguageHeaderRequestCultureProvider()
+    };
+});
+
 // MVC
-builder.Services.AddControllersWithViews();
+// IMPORTANTE (i18n): AddViewLocalization + AddDataAnnotationsLocalization son
+// las piezas que faltaban para que las DataAnnotations (Display, Required,
+// EmailAddress, StringLength, Compare...) de los ViewModels se traduzcan igual
+// que los textos de las vistas con @Localizer[...]. Sin esto, el
+// "Name"/"ErrorMessage" que se escriba en los atributos se imprime tal cual,
+// siempre en el idioma en que esté escrito en el código (español), sin
+// importar el toggle ES/EN. Con esto, MVC usa el propio texto del atributo
+// como CLAVE de SharedResource (p. ej. [Required(ErrorMessage = "Login.Email.Required")]
+// hace internamente Localizer["Login.Email.Required"]).
+builder.Services.AddControllersWithViews()
+    .AddViewLocalization()
+    .AddDataAnnotationsLocalization(options =>
+    {
+        options.DataAnnotationLocalizerProvider = (type, factory) =>
+            factory.Create(typeof(SharedResource));
+    });
 
 var app = builder.Build();
 
@@ -138,6 +193,11 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
+
+// UseRequestLocalization debe ir pronto en el pipeline (antes de enrutado
+// y de que se ejecuten controladores/vistas) para que la cultura ya esté
+// resuelta cuando se renderiza la página.
+app.UseRequestLocalization(app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value);
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

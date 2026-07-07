@@ -25,27 +25,27 @@
                 @Html.DisplayFor(modelItem => item.Nombre)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Categoria)
+                @Localizer.Localize(item.Categoria)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Descripcion)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Estado)
+                @Localizer.Localize(item.Estado)
                 @if (item.Estado == ApplicationCore.Domain.Enums.EstadoMaterial.Prestado && !string.IsNullOrEmpty(item.NombreUsuarioAsignado))
                 {
-                    <br /><small class="text-muted">a @item.NombreUsuarioAsignado</small>
+                    <br /><small class="text-muted">@Localizer["Material.Index.LoanedTo", item.NombreUsuarioAsignado]</small>
                 }
             </td>
             <td>
-                @Html.ActionLink("Detalles", "Details", new { id = item.Id })
+                <a asp-action="Details" asp-route-id="@item.Id">@Localizer["Common.Details"]</a>
                 @if (User.IsInRole("Administrador"))
                 {
                     <text> | </text>
-                    @Html.ActionLink("Editar", "Edit", new { id = item.Id })
+                    <a asp-action="Edit" asp-route-id="@item.Id">@Localizer["Common.Edit"]</a>
                     <text> | </text>
                     <a asp-action="Delete" asp-route-id="@item.Id"
-                       class="js-borrar-material" data-id="@item.Id" data-nombre="@item.Nombre">Borrar</a>
+                       class="js-borrar-material" data-id="@item.Id" data-nombre="@item.Nombre">@Localizer["Common.DeleteLink"]</a>
                 }
             </td>
         </tr>
@@ -55,5 +55,5 @@
 
 @if (!Model.Any())
 {
-    <p class="text-muted" id="materiales-sin-resultados">No hay materiales que coincidan con la búsqueda.</p>
+    <p class="text-muted" id="materiales-sin-resultados">@Localizer["Material.Index.Empty"]</p>
 }

@@ -15,9 +15,9 @@
 }
 
 <!-- Breadcrumb -->
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="@Localizer["Common.BreadcrumbLabel"]" class="mb-3">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a asp-controller="Material" asp-action="Index">Materiales</a></li>
+        <li class="breadcrumb-item"><a asp-controller="Material" asp-action="Index">@Localizer["Material.Index.Title"]</a></li>
         <li class="breadcrumb-item active" aria-current="page">@Model.Nombre</li>
     </ol>
 </nav>
@@ -38,7 +38,7 @@
                 {
                     <div class="text-center text-muted">
                         <i class="bi bi-image" style="font-size:3rem;"></i>
-                        <p class="mt-2 small">Sin imagen</p>
+                        <p class="mt-2 small">@Localizer["Material.Details.NoImage"]</p>
                     </div>
                 }
             </div>
@@ -50,14 +50,14 @@
         <h1 class="mb-2">@Model.Nombre</h1>
 
         <div class="d-flex gap-2 mb-3 flex-wrap">
-            <span class="badge bg-secondary fs-6">@Model.Categoria</span>
-            <span class="badge @badgeClass fs-6">@Model.Estado</span>
+            <span class="badge bg-secondary fs-6">@Localizer.Localize(Model.Categoria)</span>
+            <span class="badge @badgeClass fs-6">@Localizer.Localize(Model.Estado)</span>
         </div>
 
         @if (Model.Estado == EstadoMaterial.Prestado && !string.IsNullOrEmpty(Model.NombreUsuarioAsignado))
         {
             <div class="alert alert-info py-2 mb-3">
-                <i class="bi bi-person me-1"></i> Prestado actualmente a <strong>@Model.NombreUsuarioAsignado</strong>
+                <i class="bi bi-person me-1"></i> @Localizer["Material.Details.LoanedTo", Model.NombreUsuarioAsignado]
             </div>
         }
 
@@ -71,36 +71,36 @@
             {
                 <a asp-controller="Prestamo" asp-action="Create" asp-route-materialId="@Model.Id"
                    class="btn btn-success btn-lg">
-                    <i class="bi bi-clipboard-plus me-2"></i>Solicitar préstamo
+                    <i class="bi bi-clipboard-plus me-2"></i>@Localizer["Material.Details.RequestLoan"]
                 </a>
             }
             else if (User.Identity == null || !User.Identity.IsAuthenticated)
             {
                 <a asp-controller="Usuario" asp-action="Login" class="btn btn-primary btn-lg">
-                    <i class="bi bi-box-arrow-in-right me-2"></i>Inicia sesión para solicitar
+                    <i class="bi bi-box-arrow-in-right me-2"></i>@Localizer["Material.Details.LoginToRequest"]
                 </a>
             }
             else if (!disponible)
             {
                 <button class="btn btn-secondary btn-lg" disabled>
-                    <i class="bi bi-x-circle me-2"></i>No disponible ahora mismo
+                    <i class="bi bi-x-circle me-2"></i>@Localizer["Material.Details.NotAvailable"]
                 </button>
             }
 
             @if (User.IsInRole("Administrador"))
             {
                 <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-secondary">
-                    <i class="bi bi-pencil me-1"></i>Editar
+                    <i class="bi bi-pencil me-1"></i>@Localizer["Common.Edit"]
                 </a>
                 <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger">
-                    <i class="bi bi-trash me-1"></i>Eliminar
+                    <i class="bi bi-trash me-1"></i>@Localizer["Material.Details.DeleteButton"]
                 </a>
             }
         </div>
 
         <div class="mt-3">
             <a asp-action="Index" class="text-muted small">
-                <i class="bi bi-arrow-left me-1"></i>Volver al catálogo
+                <i class="bi bi-arrow-left me-1"></i>@Localizer["Material.Details.BackToCatalog"]
             </a>
         </div>
     </div>

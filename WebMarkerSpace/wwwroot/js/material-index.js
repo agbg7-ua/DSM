@@ -43,7 +43,9 @@
                 }
             })
             .catch(function () {
-                resultados.innerHTML = '<p class="text-danger">No se pudo cargar el listado de materiales. Inténtalo de nuevo.</p>';
+                var i18n = document.getElementById("materiales-i18n");
+                var mensaje = i18n ? i18n.getAttribute("data-error-cargando") : "Couldn't load the materials list. Please try again.";
+                resultados.innerHTML = '<p class="text-danger">' + mensaje + '</p>';
             })
             .finally(function () {
                 mostrarSpinner(false);

@@ -10,23 +10,22 @@
     <div class="py-2 px-3">
         <h1 class="display-4 fw-bold mb-3">WebMarkerSpace</h1>
         <p class="lead mx-auto mb-4" style="max-width:560px;">
-            Accede a herramientas, componentes y equipos del makerspace.
-            Solicita lo que necesitas y ponlo en marcha.
+            @Localizer["Home.HeroLead"]
         </p>
         <div class="d-flex justify-content-center gap-3 flex-wrap">
             <a asp-controller="Material" asp-action="Index" class="btn btn-success btn-lg">
-                <i class="bi bi-grid me-2"></i>Ver catálogo
+                <i class="bi bi-grid me-2"></i>@Localizer["Home.ViewCatalog"]
             </a>
             @if (User.Identity == null || !User.Identity.IsAuthenticated)
             {
                 <a asp-controller="Usuario" asp-action="Register" class="btn btn-outline-light btn-lg">
-                    <i class="bi bi-person-plus me-2"></i>Crear cuenta
+                    <i class="bi bi-person-plus me-2"></i>@Localizer["Home.CreateAccount"]
                 </a>
             }
             else
             {
                 <a asp-controller="Prestamo" asp-action="Index" class="btn btn-outline-light btn-lg">
-                    <i class="bi bi-box-arrow-in-right me-2"></i>Mis préstamos
+                    <i class="bi bi-box-arrow-in-right me-2"></i>@Localizer["Home.MyLoans"]
                 </a>
             }
         </div>
@@ -35,27 +34,27 @@
 
 <!-- CÓMO FUNCIONA -->
 <div class="mb-5">
-    <h2 class="text-center mb-4">¿Cómo funciona?</h2>
+    <h2 class="text-center mb-4">@Localizer["Home.HowItWorks"]</h2>
     <div class="row g-4 text-center">
         <div class="col-md-4">
             <div class="p-4">
                 <i class="bi bi-search mb-3 d-block" style="font-size:2.5rem; color:#18BC9C;"></i>
-                <h5 class="fw-bold">1. Busca</h5>
-                <p class="text-muted">Explora el catálogo de materiales disponibles. Filtra por categoría, nombre o estado.</p>
+                <h5 class="fw-bold">@Localizer["Home.Step1Title"]</h5>
+                <p class="text-muted">@Localizer["Home.Step1Body"]</p>
             </div>
         </div>
         <div class="col-md-4">
             <div class="p-4">
                 <i class="bi bi-clipboard-plus mb-3 d-block" style="font-size:2.5rem; color:#18BC9C;"></i>
-                <h5 class="fw-bold">2. Solicita</h5>
-                <p class="text-muted">Inicia sesión y solicita el préstamo del material que necesitas para tu proyecto.</p>
+                <h5 class="fw-bold">@Localizer["Home.Step2Title"]</h5>
+                <p class="text-muted">@Localizer["Home.Step2Body"]</p>
             </div>
         </div>
         <div class="col-md-4">
             <div class="p-4">
                 <i class="bi bi-tools mb-3 d-block" style="font-size:2.5rem; color:#18BC9C;"></i>
-                <h5 class="fw-bold">3. Úsalo y devuélvelo</h5>
-                <p class="text-muted">Recoge el material, completa tu proyecto y devuélvelo cuando termines.</p>
+                <h5 class="fw-bold">@Localizer["Home.Step3Title"]</h5>
+                <p class="text-muted">@Localizer["Home.Step3Body"]</p>
             </div>
         </div>
     </div>
@@ -68,9 +67,9 @@
 {
     <div class="mb-5">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2 class="mb-0">Últimas incorporaciones</h2>
+            <h2 class="mb-0">@Localizer["Home.LatestAdditions"]</h2>
             <a asp-controller="Material" asp-action="Index" class="btn btn-outline-secondary btn-sm">
-                Ver todo el catálogo <i class="bi bi-arrow-right ms-1"></i>
+                @Localizer["Home.ViewFullCatalog"] <i class="bi bi-arrow-right ms-1"></i>
             </a>
         </div>
         <div class="row row-cols-1 row-cols-md-3 g-4">
@@ -87,7 +86,7 @@
                             }
                             else
                             {
-                                <span class="text-muted small">Sin imagen</span>
+                                <span class="text-muted small">@Localizer["Home.NoImage"]</span>
                             }
                         </div>
                         <div class="card-body">
@@ -102,12 +101,17 @@
                                     _                              => "bg-secondary"
                                 };
                             }
+                            <!-- NOTA (i18n, pendiente para un próximo paso): item.Categoria e
+                                 item.Estado son enums de dominio; ToString() siempre imprime el
+                                 nombre técnico en español (p. ej. "EnMantenimiento"). Los
+                                 traduciremos con un helper de localización de enums cuando
+                                 abordemos las vistas de Material/Préstamo. -->
                             <span class="badge bg-secondary me-1">@item.Categoria</span>
                             <span class="badge @badgeClass">@item.Estado</span>
                         </div>
                         <div class="card-footer bg-transparent">
                             <a asp-controller="Material" asp-action="Details" asp-route-id="@item.Id"
-                               class="btn btn-sm btn-outline-primary">Ver detalles</a>
+                               class="btn btn-sm btn-outline-primary">@Localizer["Home.ViewDetails"]</a>
                         </div>
                     </div>
                 </div>

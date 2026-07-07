@@ -6,35 +6,35 @@ using ApplicationCore.Domain.Enums;
 namespace WebMarkerSpace.Models {
     public class UsuarioViewModel
     {
-        [Display(Name = "Identificador")]
+        [Display(Name = "Common.Field.Id")]
         public long Id { get; set; }
 
-        [Display(Name = "Nombre de Usuario")]
-        [Required(ErrorMessage = "El nombre de usuario es obligatorio.")]
+        [Display(Name = "Common.Field.Username")]
+        [Required(ErrorMessage = "Common.Field.Username.Required")]
         public string Nombre { get; set; }
 
-        [Display(Name = "Correo Electrónico")]
-        [Required(ErrorMessage = "El correo electrónico es obligatorio.")]
-        [EmailAddress(ErrorMessage = "Correo inválido.")]
+        [Display(Name = "Common.Field.Email")]
+        [Required(ErrorMessage = "Common.Field.Email.Required")]
+        [EmailAddress(ErrorMessage = "Common.Field.Email.Invalid")]
         public string Email { get; set; }
 
-        [Display(Name = "Contraseña")]
-        [Required(ErrorMessage = "La contraseña es obligatoria.")]
+        [Display(Name = "Common.Field.Password")]
+        [Required(ErrorMessage = "Common.Field.Password.Required")]
         [DataType(DataType.Password)]
         public string Contrasenia { get; set; }
 
-        [Display(Name = "Rol de Usuario")]
-        [Required(ErrorMessage = "El rol es obligatorio.")]
+        [Display(Name = "Common.Field.Role")]
+        [Required(ErrorMessage = "Common.Field.Role.Required")]
         public RolUsuario Rol { get; set; }
     }
     public class LoginUsuarioViewModel {
-        [Display(Name = "Correo Electrónico")]
-        [Required(ErrorMessage = "El correo es obligatorio.")]
-        [EmailAddress(ErrorMessage = "Correo inválido.")]
+        [Display(Name = "Common.Field.Email")]
+        [Required(ErrorMessage = "Common.Field.Email.Required")]
+        [EmailAddress(ErrorMessage = "Common.Field.Email.Invalid")]
         public string Email { get; set; }
 
-        [Display(Name = "Contraseña")]
-        [Required(ErrorMessage = "La contraseña es obligatoria.")]
+        [Display(Name = "Common.Field.Password")]
+        [Required(ErrorMessage = "Common.Field.Password.Required")]
         [DataType(DataType.Password)]
         public string Contrasenia { get; set; }
     }
@@ -44,24 +44,24 @@ namespace WebMarkerSpace.Models {
     // recibe siempre el rol "Usuario" (se fuerza en el controlador), nunca
     // se confía en un valor de rol que venga del cliente.
     public class RegistroUsuarioViewModel {
-        [Display(Name = "Nombre de Usuario")]
-        [Required(ErrorMessage = "El nombre de usuario es obligatorio.")]
+        [Display(Name = "Common.Field.Username")]
+        [Required(ErrorMessage = "Common.Field.Username.Required")]
         public string Nombre { get; set; }
 
-        [Display(Name = "Correo Electrónico")]
-        [Required(ErrorMessage = "El correo electrónico es obligatorio.")]
-        [EmailAddress(ErrorMessage = "Correo inválido.")]
+        [Display(Name = "Common.Field.Email")]
+        [Required(ErrorMessage = "Common.Field.Email.Required")]
+        [EmailAddress(ErrorMessage = "Common.Field.Email.Invalid")]
         public string Email { get; set; }
 
-        [Display(Name = "Contraseña")]
-        [Required(ErrorMessage = "La contraseña es obligatoria.")]
+        [Display(Name = "Common.Field.Password")]
+        [Required(ErrorMessage = "Common.Field.Password.Required")]
         [DataType(DataType.Password)]
         public string Contrasenia { get; set; }
 
-        [Display(Name = "Confirmar contraseña")]
-        [Required(ErrorMessage = "Debes confirmar la contraseña.")]
+        [Display(Name = "Common.Field.ConfirmPassword")]
+        [Required(ErrorMessage = "Common.Field.ConfirmPassword.Required")]
         [DataType(DataType.Password)]
-        [Compare(nameof(Contrasenia), ErrorMessage = "Las contraseñas no coinciden.")]
+        [Compare(nameof(Contrasenia), ErrorMessage = "Common.Field.ConfirmPassword.Mismatch")]
         public string ConfirmarContrasenia { get; set; }
     }
 
@@ -69,28 +69,28 @@ namespace WebMarkerSpace.Models {
     // email y (opcionalmente) su contraseña. Deliberadamente NO tiene "Rol":
     // nadie puede ascenderse a sí mismo a Administrador desde aquí.
     public class PerfilViewModel {
-        [Display(Name = "Identificador")]
+        [Display(Name = "Common.Field.Id")]
         public long Id { get; set; }
 
-        [Display(Name = "Nombre de Usuario")]
-        [Required(ErrorMessage = "El nombre de usuario es obligatorio.")]
+        [Display(Name = "Common.Field.Username")]
+        [Required(ErrorMessage = "Common.Field.Username.Required")]
         public string Nombre { get; set; }
 
-        [Display(Name = "Correo Electrónico")]
-        [Required(ErrorMessage = "El correo electrónico es obligatorio.")]
-        [EmailAddress(ErrorMessage = "Correo inválido.")]
+        [Display(Name = "Common.Field.Email")]
+        [Required(ErrorMessage = "Common.Field.Email.Required")]
+        [EmailAddress(ErrorMessage = "Common.Field.Email.Invalid")]
         public string Email { get; set; }
 
-        [Display(Name = "Rol")]
+        [Display(Name = "Common.Field.Role")]
         public RolUsuario Rol { get; set; }
 
-        [Display(Name = "Nueva contraseña")]
+        [Display(Name = "Common.Field.NewPassword")]
         [DataType(DataType.Password)]
         public string? NuevaContrasenia { get; set; }
 
-        [Display(Name = "Confirmar nueva contraseña")]
+        [Display(Name = "Common.Field.ConfirmNewPassword")]
         [DataType(DataType.Password)]
-        [Compare(nameof(NuevaContrasenia), ErrorMessage = "Las contraseñas no coinciden.")]
+        [Compare(nameof(NuevaContrasenia), ErrorMessage = "Common.Field.ConfirmPassword.Mismatch")]
         public string? ConfirmarNuevaContrasenia { get; set; }
     }
 }

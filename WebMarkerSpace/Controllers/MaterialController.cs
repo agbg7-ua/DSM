@@ -7,12 +7,15 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Localization;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using WebMarkerSpace;
 using WebMarkerSpace.Assemblers;
+using WebMarkerSpace.Extensions;
 using WebMarkerSpace.Models;
 
 namespace WebMarkerSpace.Controllers {
@@ -20,11 +23,13 @@ namespace WebMarkerSpace.Controllers {
         private readonly MaterialCEN _materialCEN;
         private readonly IWebHostEnvironment _webHost;
         private readonly NHibernate.ISession _session;
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
-        public MaterialController(MaterialCEN materialCEN, IWebHostEnvironment webHost, NHibernate.ISession session) {
+        public MaterialController(MaterialCEN materialCEN, IWebHostEnvironment webHost, NHibernate.ISession session, IStringLocalizer<SharedResource> localizer) {
             _materialCEN = materialCEN;
             _webHost = webHost;
             _session = session;
+            _localizer = localizer;
         }
 
         // GET: MaterialController
@@ -51,8 +56,18 @@ namespace WebMarkerSpace.Controllers {
             }
 
             ViewBag.FiltroNombre = nombre;
-            ViewBag.FiltroEstado = new SelectList(Enum.GetValues(typeof(EstadoMaterial)), estado);
-            ViewBag.FiltroCategoria = new SelectList(Enum.GetValues(typeof(CategoriaMaterial)), categoria);
+            // Los <option> del filtro deben mostrar el nombre TRADUCIDO del enum
+            // (Enum.EstadoMaterial.*, Enum.CategoriaMaterial.* en SharedResource),
+            // no el ToString() en crudo; por eso se construye el SelectList a
+            // mano con SelectListItem en lugar de pasarle el enum directamente.
+            ViewBag.FiltroEstado = new SelectList(
+                Enum.GetValues(typeof(EstadoMaterial)).Cast<EstadoMaterial>()
+                    .Select(e => new SelectListItem(_localizer.Localize(e), e.ToString(), e.Equals(estado))),
+                "Value", "Text", estado);
+            ViewBag.FiltroCategoria = new SelectList(
+                Enum.GetValues(typeof(CategoriaMaterial)).Cast<CategoriaMaterial>()
+                    .Select(c => new SelectListItem(_localizer.Localize(c), c.ToString(), c.Equals(categoria))),
+                "Value", "Text", categoria);
             return View(listMats);
         }
 
