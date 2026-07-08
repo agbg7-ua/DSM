@@ -89,6 +89,16 @@
         cargarResultados(window.location.href, false);
     });
 
+    resultados.addEventListener("click", function (e) {
+
+        var col = e.target.closest("[data-details-url]");
+        if (!col) return;
+
+        if (e.target.closest("a, button")) return;
+
+        window.location.href = col.dataset.detailsUrl;
+    });
+
     resultados.addEventListener("click", async function (e) {
 
         var link = e.target.closest(".js-borrar-material");
