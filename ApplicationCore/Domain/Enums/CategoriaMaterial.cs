@@ -1,5 +1,6 @@
 namespace ApplicationCore.Domain.Enums;
 
+
 public enum CategoriaMaterial
 {
     Herramientas,

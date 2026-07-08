@@ -14,7 +14,9 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Localization;
 using WebMarkerSpace.Assemblers;
+using WebMarkerSpace.Extensions;
 using WebMarkerSpace.Models;
 using WebMarkerSpace.Security;
 
@@ -23,11 +25,13 @@ namespace WebMarkerSpace.Controllers {
         private readonly UsuarioCEN _usuarioCEN;
         private readonly NHibernate.ISession _session;
         private readonly OidcSettings _oidcSettings;
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
-        public UsuarioController(UsuarioCEN usuarioCEN, NHibernate.ISession session, OidcSettings oidcSettings) {
+        public UsuarioController(UsuarioCEN usuarioCEN, NHibernate.ISession session, OidcSettings oidcSettings, IStringLocalizer<SharedResource> localizer) {
             _usuarioCEN = usuarioCEN;
             _session = session;
             _oidcSettings = oidcSettings;
+            _localizer = localizer;
         }
 
         private async Task IniciarSesionComo(long id, string nombre, string email, RolUsuario rol) {
@@ -55,7 +59,7 @@ namespace WebMarkerSpace.Controllers {
             ViewBag.ReturnUrl = returnUrl;
 
             if (error == "oidc") {
-                ModelState.AddModelError("", "No se ha podido completar el inicio de sesión con el proveedor externo. Inténtalo de nuevo.");
+                ModelState.AddModelError("", _localizer["Login.ExternalError"].Value);
             }
 
             return View(new LoginUsuarioViewModel());
@@ -91,7 +95,7 @@ namespace WebMarkerSpace.Controllers {
             var usuEN = loginOk ? _usuarioCEN.ObtenerTodos().FirstOrDefault(u => u.Email == login.Email) : null;
 
             if (!loginOk || usuEN == null) {
-                ModelState.AddModelError("", "Email o contraseña incorrectos.");
+                ModelState.AddModelError("", _localizer["Login.InvalidCredentials"].Value);
                 return View(login);
             }
 
@@ -135,7 +139,7 @@ namespace WebMarkerSpace.Controllers {
 
             bool emailEnUso = _usuarioCEN.ObtenerTodos().Any(u => u.Email == model.Email);
             if (emailEnUso) {
-                ModelState.AddModelError(nameof(model.Email), "Ya existe una cuenta con ese correo.");
+                ModelState.AddModelError(nameof(model.Email), _localizer["Register.EmailTaken"].Value);
                 return View(model);
             }
 
@@ -149,7 +153,7 @@ namespace WebMarkerSpace.Controllers {
             }
             catch (Exception ex) {
                 tx.Rollback();
-                ModelState.AddModelError("", "Error al registrar: " + ex.Message);
+                ModelState.AddModelError("", _localizer["Register.Error", ex.Message].Value);
                 return View(model);
             }
 
@@ -209,14 +213,14 @@ namespace WebMarkerSpace.Controllers {
             }
             catch (Exception ex) {
                 tx.Rollback();
-                ModelState.AddModelError("", "Error al actualizar el perfil: " + ex.Message);
+                ModelState.AddModelError("", _localizer["Perfil.UpdateError", ex.Message].Value);
                 return View(model);
             }
 
             // Refrescamos la cookie por si ha cambiado el nombre (aparece en la barra de navegación).
             await IniciarSesionComo(miId, model.Nombre, model.Email, usuarioActual.Rol);
 
-            TempData["MensajeExito"] = "Tus datos se han actualizado correctamente.";
+            TempData["MensajeExito"] = _localizer["Perfil.UpdateSuccess"].Value;
             return RedirectToAction(nameof(Perfil));
         }
 
@@ -237,7 +241,13 @@ namespace WebMarkerSpace.Controllers {
             IEnumerable<UsuarioViewModel> listUsers = new UsuarioAssembler().ConvertirListaENToViewModel(usuarios.ToList());
 
             ViewBag.FiltroTexto = texto;
-            ViewBag.FiltroRol = new SelectList(Enum.GetValues(typeof(RolUsuario)), rol);
+            // Igual que en MaterialController/PrestamoController: el <option>
+            // debe mostrar el nombre TRADUCIDO del rol (Enum.RolUsuario.* en
+            // SharedResource), no Enum.GetValues(...).ToString() en crudo.
+            ViewBag.FiltroRol = new SelectList(
+                Enum.GetValues(typeof(RolUsuario)).Cast<RolUsuario>()
+                    .Select(r => new SelectListItem(_localizer.Localize(r), r.ToString(), r.Equals(rol))),
+                "Value", "Text", rol);
 
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest") {
                 return PartialView("_UsuarioListPartial", listUsers);
@@ -281,7 +291,7 @@ namespace WebMarkerSpace.Controllers {
             }
             catch (Exception ex) {
                 tx.Rollback();
-                ModelState.AddModelError("", "Error al editar: " + ex.Message);
+                ModelState.AddModelError("", _localizer["Usuario.Edit.Error", ex.Message].Value);
                 return View(user);
             }
         }
@@ -310,7 +320,7 @@ namespace WebMarkerSpace.Controllers {
             }
             catch (Exception ex) {
                 tx.Rollback();
-                ModelState.AddModelError("", "Error al eliminar: " + ex.Message);
+                ModelState.AddModelError("", _localizer["Usuario.Delete.Error", ex.Message].Value);
                 return View(user);
             }
         }

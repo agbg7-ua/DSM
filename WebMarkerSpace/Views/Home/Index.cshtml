@@ -101,13 +101,13 @@
                                     _                              => "bg-secondary"
                                 };
                             }
-                            <!-- NOTA (i18n, pendiente para un próximo paso): item.Categoria e
-                                 item.Estado son enums de dominio; ToString() siempre imprime el
-                                 nombre técnico en español (p. ej. "EnMantenimiento"). Los
-                                 traduciremos con un helper de localización de enums cuando
-                                 abordemos las vistas de Material/Préstamo. -->
-                            <span class="badge bg-secondary me-1">@item.Categoria</span>
-                            <span class="badge @badgeClass">@item.Estado</span>
+                            <span class="badge bg-secondary me-1">
+                                @Localizer[$"Enum.CategoriaMaterial.{item.Categoria}"]
+                            </span>
+
+                            <span class="badge @badgeClass">
+                                @Localizer[$"Enum.EstadoMaterial.{item.Estado}"]
+                            </span>
                         </div>
                         <div class="card-footer bg-transparent">
                             <a asp-controller="Material" asp-action="Details" asp-route-id="@item.Id"

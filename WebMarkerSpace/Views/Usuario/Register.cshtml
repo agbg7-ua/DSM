@@ -1,7 +1,7 @@
 @model WebMarkerSpace.Models.RegistroUsuarioViewModel
 
 @{
-    ViewData["Title"] = "Registro";
+    ViewData["Title"] = Localizer["Register.Title"];
     Layout = "~/Views/Shared/_LayoutLogin.cshtml";
     bool oidcHabilitado = ViewBag.OidcHabilitado ?? false;
     string oidcNombre = ViewBag.OidcNombre ?? "proveedor externo";

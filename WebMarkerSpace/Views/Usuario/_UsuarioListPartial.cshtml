@@ -3,7 +3,7 @@
 @if (!Model.Any())
 {
     <div class="alert alert-info">
-        No hay usuarios que coincidan con los filtros.
+        @Localizer["Usuario.Index.Empty"]
     </div>
 }
 else
@@ -11,9 +11,9 @@ else
     <table class="table table-striped align-middle">
         <thead>
             <tr>
-                <th>Nombre</th>
-                <th>Email</th>
-                <th>Rol</th>
+                <th>@Localizer["Common.Field.Username"]</th>
+                <th>@Localizer["Common.Field.Email"]</th>
+                <th>@Localizer["Common.Field.Role"]</th>
                 <th></th>
             </tr>
         </thead>
@@ -24,26 +24,26 @@ else
             <tr>
                 <td>@item.Nombre</td>
                 <td>@item.Email</td>
-                <td>@item.Rol</td>
+                <td>@Localizer.Localize(item.Rol)</td>
 
                 <td class="text-end">
 
                     <a asp-action="Details"
                        asp-route-id="@item.Id"
                        class="btn btn-outline-info btn-sm">
-                        Detalles
+                        @Localizer["Common.Details"]
                     </a>
 
                     <a asp-action="Edit"
                        asp-route-id="@item.Id"
                        class="btn btn-outline-primary btn-sm">
-                        Editar
+                        @Localizer["Common.Edit"]
                     </a>
 
                     <a asp-action="Delete"
                        asp-route-id="@item.Id"
                        class="btn btn-outline-danger btn-sm">
-                        Eliminar
+                        @Localizer["Eliminar"]
                     </a>
 
                 </td>

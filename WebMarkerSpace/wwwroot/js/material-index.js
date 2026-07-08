@@ -1,8 +1,3 @@
-// Interacciones AJAX para el listado de Materiales:
-// - El formulario de filtro se envía por fetch y solo reemplaza la tabla.
-// - El enlace "Borrar" hace la baja por fetch y quita la fila, sin recargar.
-// Si JS falla o está desactivado, el formulario y los enlaces siguen
-// funcionando como una navegación normal (progressive enhancement).
 (function () {
     "use strict";
 
@@ -10,7 +5,7 @@
     var resultados = document.getElementById("materiales-resultados");
     var spinner = document.getElementById("spinner-materiales");
     var limpiarLink = document.getElementById("link-limpiar-filtro");
-
+    var i18n = document.getElementById("materiales-i18n");
 
     if (!form || !resultados) {
         return;
@@ -28,24 +23,29 @@
 
     function cargarResultados(url, actualizarHistorial) {
         mostrarSpinner(true);
+
         fetch(url, {
             method: "GET",
-            headers: { "X-Requested-With": "XMLHttpRequest" }
+            headers: {
+                "X-Requested-With": "XMLHttpRequest"
+            }
         })
             .then(function (resp) {
-                if (!resp.ok) { throw new Error("HTTP " + resp.status); }
+                if (!resp.ok) {
+                    throw new Error("HTTP " + resp.status);
+                }
                 return resp.text();
             })
             .then(function (html) {
                 resultados.innerHTML = html;
+
                 if (actualizarHistorial) {
                     window.history.pushState({ url: url }, "", url);
                 }
             })
             .catch(function () {
-                var i18n = document.getElementById("materiales-i18n");
-                var mensaje = i18n ? i18n.getAttribute("data-error-cargando") : "Couldn't load the materials list. Please try again.";
-                resultados.innerHTML = '<p class="text-danger">' + mensaje + '</p>';
+                resultados.innerHTML =
+                    '<p class="text-danger">' + i18n.dataset.errorCargando + '</p>';
             })
             .finally(function () {
                 mostrarSpinner(false);
@@ -58,15 +58,14 @@
         cargarResultados(url, true);
     }
 
-    // Envío normal del formulario (botón "Buscar" o Enter)
     form.addEventListener("submit", function (e) {
         e.preventDefault();
         enviarFiltro();
     });
 
-    // Búsqueda "en vivo" al escribir el nombre, con pequeño retardo (debounce)
     var nombreInput = form.querySelector("input[name='nombre']");
     var debounceTimer = null;
+
     if (nombreInput) {
         nombreInput.addEventListener("input", function () {
             clearTimeout(debounceTimer);
@@ -74,12 +73,10 @@
         });
     }
 
-    // Filtrar al cambiar categoría/estado, sin esperar al botón
     form.querySelectorAll("select").forEach(function (select) {
         select.addEventListener("change", enviarFiltro);
     });
 
-    // "Limpiar" también se resuelve por AJAX, sin recargar la página
     if (limpiarLink) {
         limpiarLink.addEventListener("click", function (e) {
             e.preventDefault();
@@ -88,60 +85,107 @@
         });
     }
 
-    // Atrás/adelante del navegador vuelve a pedir el listado correspondiente
     window.addEventListener("popstate", function () {
         cargarResultados(window.location.href, false);
     });
 
-    // Borrado inline: delegado en un contenedor estable porque la tabla
-    // se reemplaza cada vez que se filtra.
-    resultados.addEventListener("click", function (e) {
+    resultados.addEventListener("click", async function (e) {
+
         var link = e.target.closest(".js-borrar-material");
         if (!link) return;
 
         e.preventDefault();
 
-        var nombre = link.dataset.nombre || "este material";
-        if (!window.confirm('¿Seguro que quieres borrar "' + nombre + '"?')) {
+        var nombre = link.dataset.nombre || "";
+
+        const result = await Swal.fire({
+            title: i18n.dataset.confirmarTitulo,
+            text: i18n.dataset.confirmarTexto.replace("{0}", nombre),
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: i18n.dataset.confirmarBoton,
+            cancelButtonText: i18n.dataset.cancelar,
+            confirmButtonColor: "#dc3545",
+            cancelButtonColor: "#6c757d",
+            reverseButtons: true,
+            focusCancel: true
+        });
+
+        if (!result.isConfirmed) {
             return;
         }
 
         var token = getAntiForgeryToken();
+
         var body = new URLSearchParams();
         body.append("id", link.dataset.id);
+
         if (token) {
             body.append("__RequestVerificationToken", token);
         }
 
         link.setAttribute("aria-disabled", "true");
 
-        fetch(link.href, {
-            method: "POST",
-            headers: {
-                "X-Requested-With": "XMLHttpRequest",
-                "Content-Type": "application/x-www-form-urlencoded"
-            },
-            body: body.toString()
-        })
-            .then(function (resp) { return resp.json(); })
-            .then(function (data) {
-                if (data.success) {
-                    var card = link.closest(".col");
-                    if (card) {
-                        card.parentNode.removeChild(card);
-                    }
-                    var grid = document.getElementById("grid-materiales");
-                    if (grid && !grid.querySelector(".col")) {
-                        cargarResultados(form.action + "?" + new URLSearchParams(new FormData(form)).toString(), false);
-                    }
-                } else {
-                    window.alert(data.message || "No se pudo borrar el material.");
-                    link.removeAttribute("aria-disabled");
-                }
-            })
-            .catch(function () {
-                window.alert("Error de red al borrar el material.");
-                link.removeAttribute("aria-disabled");
+        try {
+
+            const response = await fetch(link.href, {
+                method: "POST",
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: body.toString()
             });
+
+            const data = await response.json();
+
+            if (data.success) {
+
+                await Swal.fire({
+                    icon: "success",
+                    title: i18n.dataset.eliminadoTitulo,
+                    text: i18n.dataset.eliminadoTexto,
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+
+                var card = link.closest(".col");
+
+                if (card) {
+                    card.remove();
+                }
+
+                var grid = document.getElementById("grid-materiales");
+
+                if (grid && !grid.querySelector(".col")) {
+                    cargarResultados(
+                        form.action + "?" + new URLSearchParams(new FormData(form)).toString(),
+                        false
+                    );
+                }
+            }
+            else {
+
+                Swal.fire({
+                    icon: "error",
+                    title: i18n.dataset.error,
+                    text: data.message || i18n.dataset.errorBorrar
+                });
+
+                link.removeAttribute("aria-disabled");
+            }
+
+        } catch (err) {
+
+            Swal.fire({
+                icon: "error",
+                title: i18n.dataset.error,
+                text: i18n.dataset.errorRed
+            });
+
+            link.removeAttribute("aria-disabled");
+        }
+
     });
+
 })();

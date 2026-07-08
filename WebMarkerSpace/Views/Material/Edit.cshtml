@@ -1,22 +1,28 @@
 @model WebMarkerSpace.Models.MaterialViewModel
 
+
 @{
-    ViewData["Title"] = "Editar material";
+    ViewData["Title"] = Localizer["Material.Edit.Title"];
 }
 
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="@Localizer["Common.BreadcrumbLabel"]" class="mb-3">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a asp-action="Index">Materiales</a></li>
-        <li class="breadcrumb-item active">Editar</li>
+        <li class="breadcrumb-item">
+            <a asp-action="Index">@Localizer["Material.Index.Title"]</a>
+        </li>
+        <li class="breadcrumb-item active">
+            @Localizer["Common.Edit"]
+        </li>
     </ol>
 </nav>
 
-<h1 class="mb-4">Editar material</h1>
+<h1 class="mb-4">@Localizer["Material.Edit.Title"]</h1>
 
 <div class="row">
     <div class="col-md-6">
         <form asp-action="Edit" method="post" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
             <input type="hidden" asp-for="Id" />
 
             <div class="form-group mb-3">
@@ -33,48 +39,90 @@
 
             <div class="form-group mb-3">
                 <label asp-for="Estado" class="form-label"></label>
-                <select asp-for="Estado" class="form-control"
-                        asp-items="Html.GetEnumSelectList<ApplicationCore.Domain.Enums.EstadoMaterial>()">
+                <select asp-for="Estado" class="form-control">
+                    <option value="">@Localizer["Material.Create.SelectStatus"]</option>
+
+                    @foreach (ApplicationCore.Domain.Enums.EstadoMaterial estado in Enum.GetValues(typeof(ApplicationCore.Domain.Enums.EstadoMaterial)))
+                    {
+                        <option value="@estado">
+                            @Localizer[$"Enum.EstadoMaterial.{estado}"]
+                        </option>
+                    }
                 </select>
                 <span asp-validation-for="Estado" class="text-danger"></span>
             </div>
 
             <div class="form-group mb-3">
                 <label asp-for="Categoria" class="form-label"></label>
-                <select asp-for="Categoria" class="form-control"
-                        asp-items="Html.GetEnumSelectList<ApplicationCore.Domain.Enums.CategoriaMaterial>()">
+                <select asp-for="Categoria" class="form-control">
+                    <option value="">@Localizer["Material.Create.SelectCategory"]</option>
+
+                    @foreach (ApplicationCore.Domain.Enums.CategoriaMaterial categoria in Enum.GetValues(typeof(ApplicationCore.Domain.Enums.CategoriaMaterial)))
+                    {
+                        <option value="@categoria">
+                            @Localizer[$"Enum.CategoriaMaterial.{categoria}"]
+                        </option>
+                    }
                 </select>
                 <span asp-validation-for="Categoria" class="text-danger"></span>
             </div>
 
             <div class="form-group mb-3">
-                <label class="form-label">Imagen actual</label>
+
+                <label class="form-label">
+                    @Localizer["Material.Edit.Image"]
+                </label>
+
                 <div class="mb-2">
                     @if (!string.IsNullOrEmpty(Model.Imagen))
                     {
                         <div style="height:140px; background:#f8f9fa; border-radius:0.375rem; display:flex; align-items:center; justify-content:center; padding:0.5rem;">
-                            <img src="@Model.Imagen" alt="Imagen actual"
+                            <img src="@Model.Imagen"
+                                 alt="@Localizer["Material.Edit.Image"]"
                                  style="max-width:100%; max-height:100%; object-fit:contain;" />
                         </div>
                     }
                     else
                     {
-                        <div class="text-muted small fst-italic">Sin imagen</div>
+                        <div class="text-muted small fst-italic">
+                            @Localizer["Home.NoImage"]
+                        </div>
                     }
                 </div>
-                <label asp-for="Fichero" class="form-label">Subir nueva imagen (opcional)</label>
-                <input asp-for="Fichero" type="file" class="form-control" accept="image/*" />
-                <div class="form-text">Si no seleccionas ningún archivo, se conserva la imagen actual.</div>
+
+                <label asp-for="Fichero" class="form-label">
+                    @Localizer["Material.Edit.ImageNew"]
+                </label>
+
+                <input asp-for="Fichero"
+                       type="file"
+                       class="form-control"
+                       accept="image/*" />
+
+                <div class="form-text">
+                    @Localizer["Material.Edit.ImageHelp"]
+                </div>
+
             </div>
 
             <div class="d-flex gap-2 mt-4">
-                <input type="submit" value="Guardar cambios" class="btn btn-primary" />
-                <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+
+                <input type="submit"
+                       value="@Localizer["Material.Edit.SaveButton"]"
+                       class="btn btn-primary" />
+
+                <a asp-action="Index"
+                   class="btn btn-outline-secondary">
+                    @Localizer["Material.Edit.CancelButton"]
+                </a>
+
             </div>
         </form>
     </div>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

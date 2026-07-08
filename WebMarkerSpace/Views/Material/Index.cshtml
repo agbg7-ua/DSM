@@ -2,14 +2,17 @@
 @using ApplicationCore.Domain.Enums
 
 @{
-    ViewData["Title"] = "Materiales";
+    ViewData["Title"] = Localizer["Material.Index.Title"];
 }
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0">@Localizer["Material.Index.Title"]</h1>
+
     @if (User.IsInRole("Administrador"))
     {
-        <a asp-action="Create" class="btn btn-primary">@Localizer["Material.Index.NewMaterial"]</a>
+        <a asp-action="Create" class="btn btn-primary">
+            @Localizer["Material.Index.NewMaterial"]
+        </a>
     }
 </div>
 
@@ -65,8 +68,19 @@
     @Html.AntiForgeryToken()
 </form>
 
-<span id="materiales-i18n" class="d-none"
-      data-error-cargando="@Localizer["Material.Index.LoadError"]"></span>
+<div id="materiales-i18n"
+     class="d-none"
+     data-error-cargando="@Localizer["Material.Index.LoadError"]"
+     data-confirmar-titulo="@Localizer["Material.Delete.ConfirmTitle"]"
+     data-confirmar-texto="@Localizer["Material.Delete.ConfirmText"]"
+     data-confirmar-boton="@Localizer["Material.Delete.ConfirmButton"]"
+     data-cancelar="@Localizer["Material.Edit.CancelButton"]"
+     data-eliminado-titulo="@Localizer["Material.Delete.SuccessTitle"]"
+     data-eliminado-texto="@Localizer["Material.Delete.SuccessText"]"
+     data-error="@Localizer["Common.Error"]"
+     data-error-borrar="@Localizer["Material.Delete.Error"]"
+     data-error-red="@Localizer["Common.NetworkError"]">
+</div>
 
 <div id="materiales-resultados" aria-live="polite">
     @await Html.PartialAsync("_MaterialListPartial", Model)

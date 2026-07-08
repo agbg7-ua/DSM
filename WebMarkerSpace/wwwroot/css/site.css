@@ -2,31 +2,32 @@
    Variables: adaptadas al tema Flatly (primary = #2C3E50, success = #18BC9C)
    ======================================================================= */
 :root {
-    --wms-focus-color: #18BC9C;   /* teal de Flatly, buen contraste */
-    --wms-focus-dark: #2C3E50;    /* navy de Flatly */
+    --wms-focus-color: #18BC9C;
+    --wms-focus-dark: #2C3E50;
 }
 
 html {
-  font-size: 14px;
+    font-size: 14px;
+    height: 100%;
 }
 
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+@media (min-width:768px) {
+    html {
+        font-size: 16px;
+    }
 }
 
 body {
-  margin-bottom: 60px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+}
+
+/* El contenido ocupa todo el espacio disponible */
+main {
+    flex: 1 0 auto;
+    line-height: 1.6;
 }
 
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
@@ -96,18 +97,21 @@ main a:not(.btn):not(.navbar-brand) {
    Footer — coordinado con la navbar de Flatly (bg-primary = #2C3E50)
    ======================================================================= */
 footer.footer {
+    flex-shrink: 0;
+    margin-top: 2rem;
     background-color: #2C3E50;
     color: #adb5bd;
-    border-top: none !important;
-    margin-top: 3rem;
+    border-top: none;
 }
-footer.footer a {
-    color: #18BC9C;
-    text-decoration: none;
-}
-footer.footer a:hover {
-    color: #fff;
-}
+
+    footer.footer a {
+        color: #18BC9C;
+        text-decoration: none;
+    }
+
+        footer.footer a:hover {
+            color: #fff;
+        }
 
 /* =======================================================================
    Cards — elevación suave al hacer hover

@@ -1,71 +1,86 @@
+@using Microsoft.Extensions.Localization
 @model IEnumerable<WebMarkerSpace.Models.PrestamoViewModel>
 
 @{
     bool esAdmin = (bool)(ViewBag.EsAdmin ?? false);
 }
 
-<table class="table" id="tabla-prestamos">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Id)
-            </th>
-            @if (esAdmin)
-            {
-                <th>
-                    @Html.DisplayNameFor(model => model.NombreUsuario)
-                </th>
-            }
-            <th>
-                @Html.DisplayNameFor(model => model.FechaCreacion)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Estado)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TotalDias)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr data-prestamo-id="@item.Id">
-            <td>
-                @Html.DisplayFor(modelItem => item.Id)
-            </td>
-            @if (esAdmin)
-            {
-                <td>
-                    @Html.DisplayFor(modelItem => item.NombreUsuario)
-                </td>
-            }
-            <td>
-                @Html.DisplayFor(modelItem => item.FechaCreacion)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Estado)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TotalDias)
-            </td>
-            <td>
-                @Html.ActionLink("Detalles", "Details", new { id = item.Id })
-                @if (esAdmin)
-                {
-                    <text> | </text>
-                    @Html.ActionLink("Editar", "Edit", new { id = item.Id })
-                    <text> | </text>
-                    <a asp-action="Delete" asp-route-id="@item.Id"
-                       class="js-borrar-prestamo" data-id="@item.Id" data-descripcion="el préstamo #@item.Id">Borrar</a>
-                }
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
-
 @if (!Model.Any())
 {
-    <p class="text-muted" id="prestamos-sin-resultados">No hay préstamos que coincidan con el filtro.</p>
+    <div class="alert alert-info">
+        @Localizer["NoPrestamos"]
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped align-middle" id="tabla-prestamos">
+            <thead>
+                <tr>
+                    <th>@Localizer["Id"]</th>
+
+                    @if (esAdmin)
+                    {
+                        <th>@Localizer["Usuario"]</th>
+                    }
+
+                    <th>@Localizer["FechaCreacion"]</th>
+                    <th>@Localizer["Estado"]</th>
+                    <th>@Localizer["TotalDias"]</th>
+                    <th class="text-end">@Localizer["Acciones"]</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr data-prestamo-id="@item.Id">
+
+                        <td>@item.Id</td>
+
+                        @if (esAdmin)
+                        {
+                            <td>@item.NombreUsuario</td>
+                        }
+
+                        <td>@Html.DisplayFor(modelItem => item.FechaCreacion)</td>
+
+                        <td>
+                            @Localizer.Localize(item.Estado)
+                        </td>
+
+                        <td>@item.TotalDias</td>
+
+                        <td class="text-end">
+
+                            <a asp-action="Details"
+                               asp-route-id="@item.Id"
+                               class="btn btn-outline-info btn-sm">
+                                @Localizer["Detalles"]
+                            </a>
+
+                            @if (esAdmin)
+                            {
+                                <a asp-action="Edit"
+                                   asp-route-id="@item.Id"
+                                   class="btn btn-outline-primary btn-sm">
+                                    @Localizer["Editar"]
+                                </a>
+
+                                <a asp-action="Delete"
+                                   asp-route-id="@item.Id"
+                                   class="btn btn-outline-danger btn-sm js-borrar-prestamo"
+                                   data-id="@item.Id"
+                                   data-descripcion="@($"{Localizer["Prestamo"]} #{item.Id}")">
+                                    @Localizer["Eliminar"]
+                                </a>
+                            }
+
+                        </td>
+
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 }

@@ -1,60 +1,89 @@
 @model WebMarkerSpace.Models.MaterialViewModel
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = Localizer["Material.Create.Title"];
 }
 
-<h1>Crear</h1>
+<h1>@Localizer["Material.Create.Title"]</h1>
 
-<h4>Material</h4>
+<h4>@Localizer["Material"]</h4>
 <hr />
+
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create" method="post" enctype="multipart/form-data">
+
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
+
+            <div class="form-group mb-3">
                 <label asp-for="Nombre" class="control-label"></label>
                 <input asp-for="Nombre" class="form-control" />
                 <span asp-validation-for="Nombre" class="text-danger"></span>
             </div>
-            <div class="form-group">
+
+            <div class="form-group mb-3">
                 <label asp-for="Descripcion" class="control-label"></label>
                 <input asp-for="Descripcion" class="form-control" />
                 <span asp-validation-for="Descripcion" class="text-danger"></span>
             </div>
+
             <div class="form-group mb-3">
                 <label asp-for="Estado" class="control-label"></label>
 
-                <select asp-for="Estado" class="form-control"
-                        asp-items="Html.GetEnumSelectList<ApplicationCore.Domain.Enums.EstadoMaterial>()">
-                    <option value="">-- Seleccione un Estado --</option>
+                <select asp-for="Estado" class="form-control">
+                    <option value="">@Localizer["Material.Create.SelectStatus"]</option>
+
+                    @foreach (ApplicationCore.Domain.Enums.EstadoMaterial estado in Enum.GetValues(typeof(ApplicationCore.Domain.Enums.EstadoMaterial)))
+                    {
+                        <option value="@estado">
+                            @Localizer[$"Enum.EstadoMaterial.{estado}"]
+                        </option>
+                    }
                 </select>
 
                 <span asp-validation-for="Estado" class="text-danger"></span>
             </div>
+
             <div class="form-group mb-3">
                 <label asp-for="Categoria" class="control-label"></label>
-                <select asp-for="Categoria" class="form-control"
-                        asp-items="Html.GetEnumSelectList<ApplicationCore.Domain.Enums.CategoriaMaterial>()">
-                    <option value="">-- Seleccione una Categoría --</option>
+
+                <select asp-for="Categoria" class="form-control">
+                    <option value="">@Localizer["Material.Create.SelectCategory"]</option>
+
+                    @foreach (ApplicationCore.Domain.Enums.CategoriaMaterial categoria in Enum.GetValues(typeof(ApplicationCore.Domain.Enums.CategoriaMaterial)))
+                    {
+                        <option value="@categoria">
+                            @Localizer[$"Enum.CategoriaMaterial.{categoria}"]
+                        </option>
+                    }
                 </select>
                 <span asp-validation-for="Categoria" class="text-danger"></span>
             </div>
-            <div class="form-group">
-              <label asp-for="Fichero" class="control-label"></label>
-              <input asp-for="Fichero" type="file" />
+
+            <div class="form-group mb-3">
+                <label asp-for="Fichero" class="control-label">
+                    @Localizer["Material.Create.Image"]
+                </label>
+
+                <input asp-for="Fichero" type="file" class="form-control" />
             </div>
+
             <div class="form-group">
-                <input type="submit" value="Crear" class="btn btn-primary" />
+                <input type="submit"
+                       value="@Localizer["Material.Create.CreateButton"]"
+                       class="btn btn-primary" />
             </div>
+
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Volver a la lista</a>
+<div class="mt-3">
+    <a asp-action="Index">@Localizer["VolverLista"]</a>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

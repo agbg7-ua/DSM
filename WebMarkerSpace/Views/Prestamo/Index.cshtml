@@ -1,40 +1,60 @@
+@using Microsoft.Extensions.Localization
 @model IEnumerable<WebMarkerSpace.Models.PrestamoViewModel>
 
 @{
-    ViewData["Title"] = "Préstamos";
+    ViewData["Title"] = Localizer["Prestamos"];
     bool esAdmin = (bool)(ViewBag.EsAdmin ?? false);
 }
 
-<h1>@(esAdmin ? "Préstamos" : "Mis préstamos")</h1>
+<h1>@(esAdmin? Localizer["Prestamos"] : Localizer["MisPrestamos"])</h1>
 
 <p>
-    <a asp-action="Create" class="btn btn-primary">Nuevo préstamo</a>
+    <a asp-action="Create" class="btn btn-primary">
+        @Localizer["NuevoPrestamo"]
+    </a>
 </p>
 
 <form asp-action="Index" method="get" class="row g-2 align-items-end mb-3" id="form-filtro-prestamos">
+
     <div class="col-auto">
-        <label class="form-label">Estado</label>
+        <label class="form-label">@Localizer["Estado"]</label>
+
         <select name="estado" class="form-control" asp-items="ViewBag.FiltroEstado">
-            <option value="">-- Todos --</option>
+            <option value="">-- @Localizer["Todos"] --</option>
         </select>
     </div>
+
     @if (esAdmin)
     {
         <div class="col-auto">
-            <label class="form-label">Usuario</label>
+            <label class="form-label">@Localizer["Usuario"]</label>
+
             <select name="usuarioId" class="form-control" asp-items="ViewBag.FiltroUsuarioId">
-                <option value="">-- Todos --</option>
+                <option value="">-- @Localizer["Todos"] --</option>
             </select>
         </div>
     }
+
     <div class="col-auto">
-        <a asp-action="Index" class="btn btn-link" id="link-limpiar-filtro-prestamos">Limpiar</a>
-        <span class="spinner-border spinner-border-sm text-secondary ms-2 d-none" role="status" aria-hidden="true" id="spinner-prestamos"></span>
+        <a asp-action="Index"
+           class="btn btn-link"
+           id="link-limpiar-filtro-prestamos">
+            @Localizer["Limpiar"]
+        </a>
+
+        <span class="spinner-border spinner-border-sm text-secondary ms-2 d-none"
+              role="status"
+              aria-hidden="true"
+              id="spinner-prestamos">
+        </span>
     </div>
+
 </form>
 
 @* Token reutilizado por prestamo-index.js para el borrado AJAX *@
-<form id="af-token-form" class="d-none">@Html.AntiForgeryToken()</form>
+<form id="af-token-form" class="d-none">
+    @Html.AntiForgeryToken()
+</form>
 
 <div id="prestamos-resultados" aria-live="polite">
     @await Html.PartialAsync("_PrestamoListPartial", Model)

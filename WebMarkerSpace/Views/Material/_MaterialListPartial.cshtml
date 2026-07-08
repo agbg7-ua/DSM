@@ -5,8 +5,8 @@
 {
     <div class="text-center py-5 text-muted">
         <i class="bi bi-search" style="font-size:2.5rem;"></i>
-        <p class="fs-5 mt-2">No hay materiales que coincidan con la búsqueda.</p>
-        <a asp-action="Index" class="btn btn-outline-secondary mt-1">Ver todos</a>
+        <p class="fs-5 mt-2">@Localizer["Material.Index.Empty"]</p>
+        <a asp-action="Index" class="btn btn-outline-secondary mt-1">@Localizer["VerTodos"]</a>
     </div>
 }
 else
@@ -27,7 +27,7 @@ else
                         {
                             <div class="text-center text-muted">
                                 <i class="bi bi-image" style="font-size:2rem;"></i>
-                                <p class="small mt-1 mb-0">Sin imagen</p>
+                                <p class="small mt-1 mb-0">@Localizer["Material.Details.NoImage"]</p>
                             </div>
                         }
                     </div>
@@ -35,7 +35,7 @@ else
                         <h5 class="card-title">@item.Nombre</h5>
                         <p class="card-text text-muted small mb-3">@item.Descripcion</p>
                         <div class="d-flex gap-2 flex-wrap">
-                            <span class="badge bg-secondary">@item.Categoria</span>
+                            <span class="badge bg-secondary">@Localizer.Localize(item.Categoria)</span>
                             @{
                                 string badgeClass = item.Estado switch {
                                     EstadoMaterial.Disponible      => "bg-success",
@@ -45,26 +45,28 @@ else
                                     _                              => "bg-secondary"
                                 };
                             }
-                            <span class="badge @badgeClass">@item.Estado</span>
+                            <span class="badge @badgeClass">@Localizer.Localize(item.Estado)</span>
                         </div>
                         @if (item.Estado == EstadoMaterial.Prestado && !string.IsNullOrEmpty(item.NombreUsuarioAsignado))
                         {
-                            <p class="small text-muted mt-1 mb-0">Prestado a @item.NombreUsuarioAsignado</p>
+                            <p class="small text-muted mt-1 mb-0">
+                                @Localizer.Localize(item.Estado) @string.Format(Localizer["Material.Index.LoanedTo"], item.NombreUsuarioAsignado)
+                            </p>
                         }
                     </div>
                     <div class="card-footer bg-transparent d-flex gap-2 flex-wrap">
                         <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-eye me-1"></i>Ver detalles
+                            <i class="bi bi-eye me-1"></i>@Localizer["Common.Details"]
                         </a>
                         @if (User.IsInRole("Administrador"))
                         {
                             <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">
-                                <i class="bi bi-pencil me-1"></i>Editar
+                                <i class="bi bi-pencil me-1"></i>@Localizer["Common.Edit"]
                             </a>
                             <a asp-action="Delete" asp-route-id="@item.Id"
                                class="btn btn-sm btn-outline-danger js-borrar-material"
                                data-id="@item.Id" data-nombre="@item.Nombre">
-                                <i class="bi bi-trash me-1"></i>Borrar
+                                <i class="bi bi-trash me-1"></i>@Localizer["Common.DeleteLink"]
                             </a>
                         }
                     </div>

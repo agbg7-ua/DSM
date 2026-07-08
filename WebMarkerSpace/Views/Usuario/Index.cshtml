@@ -1,14 +1,14 @@
 @model IEnumerable<WebMarkerSpace.Models.UsuarioViewModel>
 @using ApplicationCore.Domain.Enums
 
-@* Si necesitas usar SharedResource, especifica el namespace completo para evitar ambigüedad *@
-@* Ejemplo: @WebMarkerSpace.Resources.SharedResource o @WebMarkerSpace.SharedResource *@
+@* SharedResource ya está inyectado globalmente como "Localizer" (ver _ViewImports.cshtml). *@
+@* No re-inyectes IStringLocalizer<WebMarkerSpace.Resources.SharedResource>: ese namespace no existe/no tiene .resx. *@
 
 @{
-    ViewData["Title"] = "Usuarios";
+    ViewData["Title"] = Localizer["Usuario.Index.Title"];
 }
 
-<h1>Usuarios</h1>
+<h1>@Localizer["Usuario.Index.Title"]</h1>
 
 <form asp-action="Index"
       method="get"
@@ -16,23 +16,23 @@
       class="row g-2 align-items-end mb-4">
 
     <div class="col-md-4">
-        <label class="form-label">Buscar</label>
+        <label class="form-label">@Localizer["Usuario.Index.Search"]</label>
 
         <input type="text"
                class="form-control"
                name="texto"
                value="@ViewBag.FiltroTexto"
-               placeholder="Nombre o email" />
+               placeholder="@Localizer["Usuario.Index.SearchPlaceholder"]" />
     </div>
 
     <div class="col-md-3">
-        <label class="form-label">Rol</label>
+        <label class="form-label">@Localizer["Common.Field.Role"]</label>
 
         <select name="rol"
                 class="form-select"
                 asp-items="ViewBag.FiltroRol">
 
-            <option value="">Todos</option>
+            <option value="">@Localizer["Common.AllMasc"]</option>
 
         </select>
     </div>
@@ -43,7 +43,7 @@
            class="btn btn-link"
            id="link-limpiar-filtro">
 
-            Limpiar
+            @Localizer["Limpiar"]
 
         </a>
 
@@ -68,5 +68,5 @@
     <script src="~/js/usuario-index.js" asp-append-version="true"></script>
 }
 
-@* Cuando uses SharedResource, usa el nombre completo del namespace para evitar ambigüedad *@
-@* Ejemplo: @WebMarkerSpace.Resources.SharedResource.AlgunaPropiedad *@
+@* Usa el "Localizer" ya inyectado globalmente (_ViewImports.cshtml), p. ej. @Localizer["Clave"]. *@
+@* No re-inyectes IStringLocalizer<WebMarkerSpace.Resources.SharedResource>: ese namespace no existe/no tiene .resx. *@

@@ -1,13 +1,13 @@
 @model WebMarkerSpace.Models.UsuarioViewModel
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = Localizer["Detalles"];
 }
 
-<h1>Detalles</h1>
+<h1>@Localizer["Detalles"]</h1>
 
 <div>
-    <h4>Usuario</h4>
+    <h4>@Localizer["Usuario"]</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
@@ -32,11 +32,11 @@
             @Html.DisplayNameFor(model => model.Rol)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Rol)
+            @Localizer.Localize(Model.Rol)
         </dd>
     </dl>
 </div>
 <div>
-    @Html.ActionLink("Editar", "Edit", new { id = Model.Id }) |
-    <a asp-action="Index">Volver a la lista</a>
+    @Html.ActionLink(Localizer["Editar"].Value, "Edit", new { id = Model.Id }) |
+    <a asp-action="Index">@Localizer["VolverLista"]</a>
 </div>

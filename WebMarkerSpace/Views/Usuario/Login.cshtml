@@ -1,7 +1,7 @@
 @model WebMarkerSpace.Models.LoginUsuarioViewModel
 
 @{
-    ViewData["Title"] = "Login";
+    ViewData["Title"] = Localizer["Login.Title"];
     Layout = "~/Views/Shared/_LayoutLogin.cshtml";
     bool oidcHabilitado = ViewBag.OidcHabilitado ?? false;
     string oidcNombre = ViewBag.OidcNombre ?? "proveedor externo";

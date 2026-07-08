@@ -1,14 +1,14 @@
 @model WebMarkerSpace.Models.UsuarioViewModel
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = Localizer["Eliminar"];
 }
 
-<h1>Eliminar</h1>
+<h1>@Localizer["Eliminar"]</h1>
 
-<h3>¿Estás seguro de que deseas borrar a este usuario?</h3>
+<h3>@Localizer["Usuario.Delete.Confirm"]</h3>
 <div>
-    <h4>Usuario</h4>
+    <h4>@Localizer["Usuario"]</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
@@ -39,12 +39,12 @@
             @Html.DisplayNameFor(model => model.Rol)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Rol)
+            @Localizer.Localize(Model.Rol)
         </dd>
     </dl>
-    
+
     <form asp-action="Delete" method="post">
-        <input type="submit" value="Borrar" class="btn btn-danger" /> |
-        <a asp-action="Index">Cancelar</a>
+        <input type="submit" value="@Localizer["Common.DeleteLink"]" class="btn btn-danger" /> |
+        <a asp-action="Index">@Localizer["Cancelar"]</a>
     </form>
 </div>

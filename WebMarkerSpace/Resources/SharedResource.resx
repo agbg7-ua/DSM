@@ -286,6 +286,43 @@
   <data name="Material.Details.BackToCatalog" xml:space="preserve">
     <value>Volver al catálogo</value>
   </data>
+  <data name="Material.Edit.Title" xml:space="preserve">
+    <value>Editar Material</value>
+  </data>
+  <data name="Material.Edit.Image" xml:space="preserve">
+    <value>Imagen actual</value>
+  </data>
+  <data name="Material.Edit.ImageNew" xml:space="preserve">
+    <value>Subir nueva imagen (opcional)</value>
+  </data>
+  <data name="Material.Edit.SaveButton" xml:space="preserve">
+    <value>Guardar cambios</value>
+  </data>
+  <data name="Material.Edit.CancelButton" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
+  <data name="Material.Edit.ImageHelp" xml:space="preserve">
+    <value>Si no seleccionas un archivo, se mantendrá la imagen actual.</value>
+  </data>
+  <data name="Material.Create.Title" xml:space="preserve">
+    <value>Crear material</value>
+  </data>
+
+  <data name="Material.Create.Image" xml:space="preserve">
+    <value>Imagen</value>
+  </data>
+
+  <data name="Material.Create.SelectStatus" xml:space="preserve">
+    <value>-- Seleccione un estado --</value>
+  </data>
+
+  <data name="Material.Create.SelectCategory" xml:space="preserve">
+    <value>-- Seleccione una categoría --</value>
+  </data>
+
+  <data name="Material.Create.CreateButton" xml:space="preserve">
+    <value>Crear</value>
+  </data>
   <data name="Enum.RolUsuario.Administrador" xml:space="preserve">
     <value>Administrador</value>
   </data>
@@ -420,5 +457,229 @@
   </data>
   <data name="Material.Field.Category.Required" xml:space="preserve">
     <value>Debe seleccionar una categoría para el material</value>
+  </data>
+  <data name="Prestamos" xml:space="preserve">
+  <value>Préstamos</value>
+</data>
+
+<data name="MisPrestamos" xml:space="preserve">
+  <value>Mis préstamos</value>
+</data>
+
+<data name="Prestamo" xml:space="preserve">
+  <value>Préstamo</value>
+</data>
+
+<data name="NuevoPrestamo" xml:space="preserve">
+  <value>Nuevo préstamo</value>
+</data>
+
+<data name="SolicitarPrestamo" xml:space="preserve">
+  <value>Solicitar préstamo</value>
+</data>
+
+<data name="CrearPrestamo" xml:space="preserve">
+  <value>Crear préstamo</value>
+</data>
+
+<data name="EditarPrestamo" xml:space="preserve">
+  <value>Editar préstamo</value>
+</data>
+
+<data name="EliminarPrestamo" xml:space="preserve">
+  <value>Eliminar préstamo</value>
+</data>
+
+<data name="DetallesPrestamo" xml:space="preserve">
+  <value>Detalles del préstamo</value>
+</data>
+
+<data name="NoPrestamos" xml:space="preserve">
+  <value>No hay préstamos que coincidan con la búsqueda.</value>
+</data>
+
+<data name="Materiales" xml:space="preserve">
+  <value>Materiales</value>
+</data>
+
+<data name="Material" xml:space="preserve">
+  <value>Material</value>
+</data>
+
+<data name="AñadirMaterial" xml:space="preserve">
+  <value>Añadir material</value>
+</data>
+
+<data name="QuitarMaterial" xml:space="preserve">
+  <value>Quitar material</value>
+</data>
+
+<data name="MarcarDevuelto" xml:space="preserve">
+  <value>Marcar como devuelto</value>
+</data>
+
+<data name="PrestamoPendiente" xml:space="preserve">
+  <value>El préstamo se creará con estado Pendiente.</value>
+</data>
+
+<data name="MaterialAñadidoAutomaticamente" xml:space="preserve">
+  <value>El material seleccionado se añadirá automáticamente al préstamo.</value>
+</data>
+
+<data name="ConfirmarEliminarPrestamo" xml:space="preserve">
+  <value>¿Estás seguro de que quieres eliminar este préstamo?</value>
+</data>
+
+<data name="PrestamoConMateriales" xml:space="preserve">
+  <value>Este préstamo tiene {0} material(es) asociado(s).</value>
+</data>
+
+<data name="VerTodos" xml:space="preserve">
+  <value>Ver todos</value>
+</data>
+
+<data name="VolverLista" xml:space="preserve">
+  <value>Volver a la lista</value>
+</data>
+
+<data name="VolverPrestamo" xml:space="preserve">
+  <value>Volver al préstamo</value>
+</data>
+
+<data name="TotalDias" xml:space="preserve">
+  <value>Total días</value>
+</data>
+
+<data name="FechaCreacion" xml:space="preserve">
+  <value>Fecha de creación</value>
+</data>
+    <data name="Estado" xml:space="preserve">
+  <value>Estado</value>
+</data>
+
+    <data name="Usuario" xml:space="preserve">
+  <value>Usuario</value>
+</data>
+
+    <data name="Todos" xml:space="preserve">
+  <value>Todos</value>
+</data>
+
+    <data name="Limpiar" xml:space="preserve">
+  <value>Limpiar</value>
+</data>
+
+    <data name="Detalles" xml:space="preserve">
+  <value>Detalles</value>
+</data>
+
+    <data name="Editar" xml:space="preserve">
+  <value>Editar</value>
+</data>
+
+    <data name="Eliminar" xml:space="preserve">
+  <value>Eliminar</value>
+</data>
+
+    <data name="Guardar" xml:space="preserve">
+  <value>Guardar</value>
+</data>
+
+    <data name="Cancelar" xml:space="preserve">
+  <value>Cancelar</value>
+</data>
+
+    <data name="Descripcion" xml:space="preserve">
+  <value>Descripción</value>
+</data>
+
+    <data name="Acciones" xml:space="preserve">
+  <value>Acciones</value>
+</data>
+
+    <data name="SinMateriales" xml:space="preserve">
+  <value>Este préstamo no tiene materiales asociados.</value>
+</data>
+  <data name="Enum.EstadoPrestamo.Pendiente" xml:space="preserve">
+    <value>Pendiente</value>
+  </data>
+  <data name="Enum.EstadoPrestamo.Activo" xml:space="preserve">
+    <value>Activo</value>
+  </data>
+  <data name="Enum.EstadoPrestamo.Devuelto" xml:space="preserve">
+    <value>Devuelto</value>
+  </data>
+  <data name="Enum.EstadoPrestamo.Retrasado" xml:space="preserve">
+    <value>Retrasado</value>
+  </data>
+  <data name="Usuario.Index.Title" xml:space="preserve">
+    <value>Usuarios</value>
+  </data>
+  <data name="Usuario.Index.Search" xml:space="preserve">
+    <value>Buscar</value>
+  </data>
+  <data name="Usuario.Index.SearchPlaceholder" xml:space="preserve">
+    <value>Nombre o email</value>
+  </data>
+  <data name="Usuario.Index.Empty" xml:space="preserve">
+    <value>No hay usuarios que coincidan con los filtros.</value>
+  </data>
+  <data name="Usuario.Delete.Confirm" xml:space="preserve">
+    <value>¿Estás seguro de que deseas borrar a este usuario?</value>
+  </data>
+  <data name="Login.ExternalError" xml:space="preserve">
+    <value>No se ha podido completar el inicio de sesión con el proveedor externo. Inténtalo de nuevo.</value>
+  </data>
+  <data name="Login.InvalidCredentials" xml:space="preserve">
+    <value>Email o contraseña incorrectos.</value>
+  </data>
+  <data name="Register.EmailTaken" xml:space="preserve">
+    <value>Ya existe una cuenta con ese correo.</value>
+  </data>
+  <data name="Register.Error" xml:space="preserve">
+    <value>Error al registrar: {0}</value>
+  </data>
+  <data name="Perfil.UpdateError" xml:space="preserve">
+    <value>Error al actualizar el perfil: {0}</value>
+  </data>
+  <data name="Perfil.UpdateSuccess" xml:space="preserve">
+    <value>Tus datos se han actualizado correctamente.</value>
+  </data>
+  <data name="Usuario.Edit.Error" xml:space="preserve">
+    <value>Error al editar: {0}</value>
+  </data>
+  <data name="Usuario.Delete.Error" xml:space="preserve">
+    <value>Error al eliminar: {0}</value>
+  </data>
+  <data name="Material.Delete.ConfirmTitle" xml:space="preserve">
+    <value>¿Borrar material?</value>
+  </data>
+
+  <data name="Material.Delete.ConfirmText" xml:space="preserve">
+    <value>¿Estás seguro de que deseas borrar "{0}"?</value>
+  </data>
+
+  <data name="Material.Delete.ConfirmButton" xml:space="preserve">
+    <value>Sí, borrar</value>
+  </data>
+
+  <data name="Material.Delete.SuccessTitle" xml:space="preserve">
+    <value>Material borrado</value>
+  </data>
+
+  <data name="Material.Delete.SuccessText" xml:space="preserve">
+    <value>El material ha sido borrado exitosamente.</value>
+  </data>
+
+  <data name="Material.Delete.Error" xml:space="preserve">
+    <value>No se pudo borrar el material.</value>
+  </data>
+
+  <data name="Common.Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+
+  <data name="Common.NetworkError" xml:space="preserve">
+    <value>Error de red. Por favor, inténtalo de nuevo.</value>
   </data>
 </root>

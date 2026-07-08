@@ -7,11 +7,13 @@ using ApplicationCore.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Localization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using WebMarkerSpace.Assemblers;
+using WebMarkerSpace.Extensions;
 using WebMarkerSpace.Models;
 
 namespace WebMarkerSpace.Controllers {
@@ -25,6 +27,7 @@ namespace WebMarkerSpace.Controllers {
         private readonly LineaPrestamoCEN _lineaPrestamoCEN;
         private readonly MaterialCEN _materialCEN;
         private readonly NHibernate.ISession _session;
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
         // OJO: CasosProceso (y su IUnitOfWork) NO se inyectan aquí por
         // constructor a propósito: IUnitOfWork abre una transacción en cuanto
@@ -32,12 +35,13 @@ namespace WebMarkerSpace.Controllers {
         // las acciones de este controlador, chocando con nuestras propias
         // transacciones manuales de Create/Edit/Delete. Por eso en Devolver()
         // se pide como parámetro de acción ([FromServices]), solo cuando hace falta.
-        public PrestamoController(PrestamoCEN prestamoCEN, UsuarioCEN usuarioCEN, LineaPrestamoCEN lineaPrestamoCEN, MaterialCEN materialCEN, NHibernate.ISession session) {
+        public PrestamoController(PrestamoCEN prestamoCEN, UsuarioCEN usuarioCEN, LineaPrestamoCEN lineaPrestamoCEN, MaterialCEN materialCEN, NHibernate.ISession session, IStringLocalizer<SharedResource> localizer) {
             _prestamoCEN = prestamoCEN;
             _usuarioCEN = usuarioCEN;
             _lineaPrestamoCEN = lineaPrestamoCEN;
             _materialCEN = materialCEN;
             _session = session;
+            _localizer = localizer;
         }
 
         private long ObtenerIdUsuarioActual() {
@@ -66,7 +70,13 @@ namespace WebMarkerSpace.Controllers {
             IEnumerable<PrestamoViewModel> modelList = new PrestamoAssembler().ConvertirListaENToViewModel(prestamos.ToList());
 
             ViewBag.EsAdmin = esAdmin;
-            ViewBag.FiltroEstado = new SelectList(Enum.GetValues(typeof(EstadoPrestamo)), estado);
+            // Igual que en MaterialController.Index: el <option> debe mostrar
+            // el nombre TRADUCIDO del estado (Enum.EstadoPrestamo.* en
+            // SharedResource), no Enum.GetValues(...).ToString() en crudo.
+            ViewBag.FiltroEstado = new SelectList(
+                Enum.GetValues(typeof(EstadoPrestamo)).Cast<EstadoPrestamo>()
+                    .Select(e => new SelectListItem(_localizer.Localize(e), e.ToString(), e.Equals(estado))),
+                "Value", "Text", estado);
             if (esAdmin) {
                 ViewBag.FiltroUsuarioId = new SelectList(_usuarioCEN.ObtenerTodos(), "Id", "Nombre", usuarioId);
             }
