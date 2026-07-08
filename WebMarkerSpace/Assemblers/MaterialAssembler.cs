@@ -1,4 +1,3 @@
-// "Copyright (c) YOUR_COMPANY. All rights reserved."
 
 using WebMarkerSpace.Models;
 using ApplicationCore.Domain.EN;

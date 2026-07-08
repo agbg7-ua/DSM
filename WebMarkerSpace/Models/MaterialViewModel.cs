@@ -1,4 +1,4 @@
-// "Copyright (c) YOUR_COMPANY. All rights reserved."
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -31,9 +31,6 @@ namespace WebMarkerSpace.Models {
         public string Imagen { get; set; }
         public IFormFile Fichero { get; set; }
 
-        // Solo lectura: quién tiene el material actualmente prestado (si alguien).
-        // No es un campo redundante con Estado: Estado describe la condición
-        // física (disponible/en mantenimiento/roto/prestado); esto dice A QUIÉN.
         public string? NombreUsuarioAsignado { get; set; }
     }
 }

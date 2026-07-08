@@ -77,7 +77,6 @@ public class MaterialCEN
         _repository.Modify(material);
     }
 
-
     private void ActualizarMaterial(
     Material material,
     string nombre,

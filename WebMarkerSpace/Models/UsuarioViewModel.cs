@@ -1,4 +1,3 @@
-// "Copyright (c) YOUR_COMPANY. All rights reserved."
 
 using System.ComponentModel.DataAnnotations;
 using ApplicationCore.Domain.Enums;
@@ -39,10 +38,6 @@ namespace WebMarkerSpace.Models {
         public string Contrasenia { get; set; }
     }
 
-    // Modelo del formulario de registro público. Deliberadamente NO tiene
-    // propiedad "Rol": cualquier usuario que se registra por su cuenta
-    // recibe siempre el rol "Usuario" (se fuerza en el controlador), nunca
-    // se confía en un valor de rol que venga del cliente.
     public class RegistroUsuarioViewModel {
         [Display(Name = "Common.Field.Username")]
         [Required(ErrorMessage = "Common.Field.Username.Required")]
@@ -65,9 +60,6 @@ namespace WebMarkerSpace.Models {
         public string ConfirmarContrasenia { get; set; }
     }
 
-    // Modelo del formulario de "Mi perfil": el propio usuario edita su nombre,
-    // email y (opcionalmente) su contraseña. Deliberadamente NO tiene "Rol":
-    // nadie puede ascenderse a sí mismo a Administrador desde aquí.
     public class PerfilViewModel {
         [Display(Name = "Common.Field.Id")]
         public long Id { get; set; }

@@ -9,25 +9,21 @@ var builder = WebApplication.CreateBuilder(args);
 
 const string connectionString = "Server=.\\SQLEXPRESS;Database=GestionMakerspace;Trusted_Connection=True;TrustServerCertificate=True;";
 
-// NHibernate
 var sessionFactory = NHibernateHelper.BuildSessionFactory(connectionString);
 builder.Services.AddSingleton<ISessionFactory>(sessionFactory);
 builder.Services.AddScoped<NHibernate.ISession>(provider =>
     provider.GetRequiredService<ISessionFactory>().OpenSession());
 
-// Repositorios
 builder.Services.AddScoped<IMaterialRepository, MaterialRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IPrestamoRepository, PrestamoRepository>();
 builder.Services.AddScoped<ILineaPrestamoRepository, LineaPrestamoRepository>();
 
-// CENs
 builder.Services.AddScoped<MaterialCEN>();
 builder.Services.AddScoped<UsuarioCEN>();
 builder.Services.AddScoped<PrestamoCEN>();
 builder.Services.AddScoped<LineaPrestamoCEN>();
 
-// Autenticación por cookies + autorización basada en roles (Administrador / Usuario)
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
@@ -39,7 +35,6 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     });
 builder.Services.AddAuthorization();
 
-// MVC
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();

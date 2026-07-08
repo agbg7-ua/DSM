@@ -1,10 +1,4 @@
-// Interacciones AJAX para el listado de Préstamos:
-// - El formulario de filtro (estado/usuario) se envía por fetch y solo
-//   reemplaza la tabla.
-// - El enlace "Borrar" (solo Administrador) hace la baja por fetch y quita
-//   la fila, sin recargar.
-// Si JS falla o está desactivado, todo sigue funcionando como navegación
-// normal (progressive enhancement).
+
 (function () {
     "use strict";
 
@@ -62,7 +56,6 @@
         enviarFiltro();
     });
 
-    // Filtrar al cambiar estado/usuario, sin esperar al botón
     form.querySelectorAll("select").forEach(function (select) {
         select.addEventListener("change", enviarFiltro);
     });
@@ -79,8 +72,6 @@
         cargarResultados(window.location.href, false);
     });
 
-    // Borrado inline: delegado en un contenedor estable porque la tabla
-    // se reemplaza cada vez que se filtra.
     resultados.addEventListener("click", function (e) {
         var link = e.target.closest(".js-borrar-prestamo");
         if (!link) return;

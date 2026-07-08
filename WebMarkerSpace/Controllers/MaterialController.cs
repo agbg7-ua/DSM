@@ -1,4 +1,3 @@
-// "Copyright (c) YOUR_COMPANY. All rights reserved."
 
 using ApplicationCore.Domain.CEN;
 using ApplicationCore.Domain.EN;
@@ -32,8 +31,6 @@ namespace WebMarkerSpace.Controllers {
             _localizer = localizer;
         }
 
-        // GET: MaterialController
-        // Búsqueda con filtro por nombre, estado y categoría.
         [AllowAnonymous]
         public ActionResult Index(string? nombre, EstadoMaterial? estado, CategoriaMaterial? categoria) {
             IEnumerable<Material> materiales = _materialCEN.ObtenerTodos();
@@ -50,16 +47,12 @@ namespace WebMarkerSpace.Controllers {
 
             IEnumerable<MaterialViewModel> listMats = new MaterialAssembler().ConvertirListaENToViewModel(materiales.ToList());
 
-            // Peticiones AJAX (filtro dinámico) solo necesitan la tabla, no la página completa.
             if (EsPeticionAjax()) {
                 return PartialView("_MaterialListPartial", listMats);
             }
 
             ViewBag.FiltroNombre = nombre;
-            // Los <option> del filtro deben mostrar el nombre TRADUCIDO del enum
-            // (Enum.EstadoMaterial.*, Enum.CategoriaMaterial.* en SharedResource),
-            // no el ToString() en crudo; por eso se construye el SelectList a
-            // mano con SelectListItem en lugar de pasarle el enum directamente.
+
             ViewBag.FiltroEstado = new SelectList(
                 Enum.GetValues(typeof(EstadoMaterial)).Cast<EstadoMaterial>()
                     .Select(e => new SelectListItem(_localizer.Localize(e), e.ToString(), e.Equals(estado))),
@@ -71,7 +64,6 @@ namespace WebMarkerSpace.Controllers {
             return View(listMats);
         }
 
-        // GET: MaterialController/Details/5
         [AllowAnonymous]
         public ActionResult Details(int id) {
             var materialEN = _materialCEN.ObtenerPorId(id);
@@ -82,14 +74,12 @@ namespace WebMarkerSpace.Controllers {
             return View(model);
         }
 
-        // GET: MaterialController/Create
         [Authorize(Roles = "Administrador")]
         public ActionResult Create() {
             ViewBag.Categoria = new SelectList(Enum.GetValues(typeof(CategoriaMaterial)));
             return View();
         }
 
-        // POST: MaterialController/Create
         [HttpPost]
         [Authorize(Roles = "Administrador")]
         [ValidateAntiForgeryToken]
@@ -121,7 +111,6 @@ namespace WebMarkerSpace.Controllers {
             }
         }
 
-        // GET: MaterialController/Edit/5
         [Authorize(Roles = "Administrador")]
         public ActionResult Edit(int id) {
             var materialEN = _materialCEN.ObtenerPorId(id);
@@ -133,7 +122,6 @@ namespace WebMarkerSpace.Controllers {
             return View(model);
         }
 
-        // POST: MaterialController/Edit/5
         [HttpPost]
         [Authorize(Roles = "Administrador")]
         [ValidateAntiForgeryToken]
@@ -153,9 +141,7 @@ namespace WebMarkerSpace.Controllers {
 
             using var tx = _session.BeginTransaction();
             try {
-                // El admin puede cambiar libremente Estado/Categoría, pero no
-                // tocamos aquí quién lo tiene prestado (UsuarioId): eso solo lo
-                // gestiona el flujo de préstamos/devoluciones.
+
                 var actual = _materialCEN.ObtenerPorId(id);
                 long? usuarioAsignadoId = actual?.UsuarioAsignado?.Id;
 
@@ -171,7 +157,6 @@ namespace WebMarkerSpace.Controllers {
             }
         }
 
-        // GET: MaterialController/Delete/5
         [Authorize(Roles = "Administrador")]
         public ActionResult Delete(int id) {
             var materialEN = _materialCEN.ObtenerPorId(id);
@@ -182,7 +167,6 @@ namespace WebMarkerSpace.Controllers {
             return View(model);
         }
 
-        // POST: MaterialController/Delete/5
         [HttpPost]
         [Authorize(Roles = "Administrador")]
         [ValidateAntiForgeryToken]
@@ -208,9 +192,6 @@ namespace WebMarkerSpace.Controllers {
             }
         }
 
-        // Indica si la petición viene de una llamada AJAX (fetch/$.ajax) en vez
-        // de una navegación normal del navegador, para poder responder solo con
-        // el fragmento de datos necesario (partial/JSON) en vez de la vista completa.
         private bool EsPeticionAjax() {
             return Request.Headers["X-Requested-With"] == "XMLHttpRequest";
         }

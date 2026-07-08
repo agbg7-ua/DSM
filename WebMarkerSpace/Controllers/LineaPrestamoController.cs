@@ -1,4 +1,3 @@
-// "Copyright (c) YOUR_COMPANY. All rights reserved."
 
 using ApplicationCore.Domain.CEN;
 using ApplicationCore.Domain.Enums;
@@ -26,7 +25,6 @@ namespace WebMarkerSpace.Controllers {
             _session = session;
         }
 
-        // Un usuario normal solo puede tocar las líneas de SUS PROPIOS préstamos.
         private bool PuedeGestionar(long prestamoId) {
             if (User.IsInRole("Administrador")) return true;
 
@@ -38,12 +36,11 @@ namespace WebMarkerSpace.Controllers {
         }
 
         private SelectList MaterialesDisponibles(long? seleccionado = null) {
-            // Solo se puede añadir a un préstamo un material que esté libre ahora mismo.
+
             var disponibles = _materialCEN.ObtenerTodos().Where(m => m.Estado == EstadoMaterial.Disponible);
             return new SelectList(disponibles, "Id", "Nombre", seleccionado);
         }
 
-        // GET: LineaPrestamoController/Create
         public ActionResult Create(long prestamoId) {
             if (!PuedeGestionar(prestamoId)) {
                 return Forbid();
@@ -55,7 +52,6 @@ namespace WebMarkerSpace.Controllers {
             return View(model);
         }
 
-        // POST: LineaPrestamoController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(LineaPrestamoViewModel model) {
@@ -78,7 +74,7 @@ namespace WebMarkerSpace.Controllers {
             using var tx = _session.BeginTransaction();
             try {
                 _lineaPrestamoCEN.Crear(model.PrestamoId, model.MaterialId, model.DiasEstimados);
-                // El material pasa a Prestado y queda asignado al dueño del préstamo.
+
                 _materialCEN.Modificar(material.Id, material.Nombre, material.Descripcion, EstadoMaterial.Prestado, material.Categoria, material.Imagen, prestamo.Usuario.Id);
                 tx.Commit();
                 return RedirectToAction("Details", "Prestamo", new { id = model.PrestamoId });
@@ -91,7 +87,6 @@ namespace WebMarkerSpace.Controllers {
             }
         }
 
-        // POST: LineaPrestamoController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Delete(int id, long prestamoId) {
@@ -106,8 +101,6 @@ namespace WebMarkerSpace.Controllers {
             try {
                 _lineaPrestamoCEN.Eliminar(id);
 
-                // Al quitar la línea, el material vuelve a estar libre (salvo que
-                // ya estuviera Roto/En Mantenimiento, que no lo tocamos).
                 if (linea != null && linea.Material.Estado == EstadoMaterial.Prestado) {
                     var material = linea.Material;
                     _materialCEN.Modificar(material.Id, material.Nombre, material.Descripcion, EstadoMaterial.Disponible, material.Categoria, material.Imagen, null);

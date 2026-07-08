@@ -1,9 +1,6 @@
 @model IEnumerable<WebMarkerSpace.Models.UsuarioViewModel>
 @using ApplicationCore.Domain.Enums
 
-@* SharedResource ya está inyectado globalmente como "Localizer" (ver _ViewImports.cshtml). *@
-@* No re-inyectes IStringLocalizer<WebMarkerSpace.Resources.SharedResource>: ese namespace no existe/no tiene .resx. *@
-
 @{
     ViewData["Title"] = Localizer["Usuario.Index.Title"];
 }
@@ -67,6 +64,3 @@
 {
     <script src="~/js/usuario-index.js" asp-append-version="true"></script>
 }
-
-@* Usa el "Localizer" ya inyectado globalmente (_ViewImports.cshtml), p. ej. @Localizer["Clave"]. *@
-@* No re-inyectes IStringLocalizer<WebMarkerSpace.Resources.SharedResource>: ese namespace no existe/no tiene .resx. *@

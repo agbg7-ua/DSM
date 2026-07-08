@@ -124,7 +124,7 @@ static void RecreateLocalDbIfNeeded(string connectionString, ILogger logger) {
                 var ldfPath = mdfPath.Replace(".mdf", "_log.ldf", StringComparison.OrdinalIgnoreCase);
                 if (File.Exists(ldfPath)) {
                     File.Delete(ldfPath);
-                }  
+                }
             }
             catch (Exception ex) {
                 logger.LogWarning("No se pudieron eliminar los archivos físicos .mdf/.ldf: {Message}", ex.Message);
@@ -149,7 +149,7 @@ static void InsertarDatosPrueba(ServiceProvider services, ILogger logger) {
     var Prestado = ApplicationCore.Domain.Enums.EstadoMaterial.Prestado;
 
     try {
-        //Usuarios
+
         long adminId = usuarioCEN.Crear("Juan García", "juan@makerspace.com", "1234", ApplicationCore.Domain.Enums.RolUsuario.Administrador);
         usuarioCEN.Crear("Lucía Fernández", "lucia@makerspace.com", "1234", ApplicationCore.Domain.Enums.RolUsuario.Administrador);
         long mariaId = usuarioCEN.Crear("María López", "maria@makerspace.com", "1234", ApplicationCore.Domain.Enums.RolUsuario.Usuario);
@@ -157,7 +157,6 @@ static void InsertarDatosPrueba(ServiceProvider services, ILogger logger) {
         long carlosId = usuarioCEN.Crear("Carlos Ruiz", "carlos@makerspace.com", "1234", ApplicationCore.Domain.Enums.RolUsuario.Usuario);
         long pabloId = usuarioCEN.Crear("Pablo Díaz", "pablo@makerspace.com", "1234", ApplicationCore.Domain.Enums.RolUsuario.Usuario);
 
-        //Materiales: bastantes por cada categoría, para poder probar bien el filtro.
         var C = ApplicationCore.Domain.Enums.CategoriaMaterial.Herramientas;
         long taladroId = materialCEN.Crear("Taladro eléctrico", "Taladro percutor 800W, incluye maletín y brocas variadas.", Estado, C, "/Images/taladro.jpg");
         long sierraId = materialCEN.Crear("Sierra circular", "Sierra circular 1200W con guía de corte y disco de repuesto.", Estado, C, "/Images/sierra.jpg");
@@ -204,8 +203,6 @@ static void InsertarDatosPrueba(ServiceProvider services, ILogger logger) {
         long altavozId = materialCEN.Crear("Altavoz portátil", "Altavoz Bluetooth portátil con batería de larga duración.", Estado, C, "/Images/04_8431543121839.webp");
         long kitManoId = materialCEN.Crear("Kit de herramientas de mano", "Maletín con destornilladores, alicates y llaves variadas.", Estado, C, "/Images/Kit de herramientas de mano.jpg");
 
-        //Préstamos: variados en estado y usuario, para poder probar filtros y
-        //la restricción de "solo veo los míos".
         long prestamo1Id = prestamoCEN.Crear(mariaId, DateTime.Now.AddDays(-5), ApplicationCore.Domain.Enums.EstadoPrestamo.Activo, 7);
         lineaPrestamoCEN.Crear(prestamo1Id, taladroId, 3);
         lineaPrestamoCEN.Crear(prestamo1Id, impresora3dId, 5);

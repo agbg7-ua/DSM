@@ -6,9 +6,7 @@
 
 @{
     ViewData["Title"] = Localizer["EditarPrestamo"];
-    // Igual que en MaterialController: el desplegable debe mostrar el nombre
-    // TRADUCIDO del enum (Enum.EstadoPrestamo.* en SharedResource), no el
-    // ToString() en crudo que da Html.GetEnumSelectList por defecto.
+
     var estadoItems = new SelectList(
         Enum.GetValues(typeof(EstadoPrestamo)).Cast<EstadoPrestamo>()
             .Select(e => new SelectListItem(Localizer.Localize(e), e.ToString())),

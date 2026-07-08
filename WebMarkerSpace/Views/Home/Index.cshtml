@@ -5,7 +5,6 @@
     ViewData["Title"] = "Inicio";
 }
 
-<!-- HERO -->
 <div class="text-white text-center py-5 mb-5 rounded-3" style="background-color:#2C3E50;">
     <div class="py-2 px-3">
         <h1 class="display-4 fw-bold mb-3">WebMarkerSpace</h1>
@@ -32,7 +31,6 @@
     </div>
 </div>
 
-<!-- CÓMO FUNCIONA -->
 <div class="mb-5">
     <h2 class="text-center mb-4">@Localizer["Home.HowItWorks"]</h2>
     <div class="row g-4 text-center">
@@ -62,7 +60,6 @@
 
 <hr class="mb-5" />
 
-<!-- NOVEDADES -->
 @if (Model.Any())
 {
     <div class="mb-5">
@@ -76,7 +73,7 @@
             @foreach (var item in Model)
             {
                 <div class="col">
-                    <div class="card h-100">
+                    <div class="card h-100" style="cursor:pointer;">
                         <div style="height:160px; overflow:hidden; background:#f8f9fa; border-radius:0.375rem 0.375rem 0 0;"
                              class="d-flex align-items-center justify-content-center p-2">
                             @if (!string.IsNullOrEmpty(item.Imagen))
@@ -111,7 +108,7 @@
                         </div>
                         <div class="card-footer bg-transparent">
                             <a asp-controller="Material" asp-action="Details" asp-route-id="@item.Id"
-                               class="btn btn-sm btn-outline-primary">@Localizer["Home.ViewDetails"]</a>
+                               class="btn btn-sm btn-outline-primary stretched-link">@Localizer["Home.ViewDetails"]</a>
                         </div>
                     </div>
                 </div>

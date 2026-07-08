@@ -1,13 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Infrastructure;
 using Infrastructure.NHibernate;
-using NHibernate; // Mantener para otros usos
+using NHibernate;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-// Alias para NHibernate.ISession
 using NHibernateSession = NHibernate.ISession;
 
 namespace WebMarkerSpace.Controllers
@@ -43,7 +42,6 @@ namespace WebMarkerSpace.Controllers
     }
 }
 
-
 namespace Infrastructure.NHibernate
 {
     public class SessionCPNHibernate
@@ -56,8 +54,3 @@ namespace Infrastructure.NHibernate
         }
     }
 }
-
-
-
-
-

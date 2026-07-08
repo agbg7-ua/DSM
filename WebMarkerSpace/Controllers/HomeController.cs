@@ -15,9 +15,7 @@ namespace WebMarkerSpace.Controllers {
         }
 
         public IActionResult Index() {
-            // La portada solo muestra un adelanto (los últimos materiales
-            // dados de alta); el catálogo completo con filtros vive en
-            // /Material, así no duplicamos la misma tabla en dos sitios.
+
             IList<Material> ultimosMateriales = _materialCEN.ObtenerTodos()
                 .OrderByDescending(m => m.Id)
                 .Take(3)

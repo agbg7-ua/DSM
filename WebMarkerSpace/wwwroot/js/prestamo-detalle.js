@@ -1,10 +1,4 @@
-// Interacciones AJAX en el detalle de un Préstamo:
-// - "Marcar como devuelto" y "Eliminar" (de cada línea/material) se envían
-//   por fetch; el servidor devuelve el fragmento de detalle actualizado
-//   (estado, botones disponibles, tabla de materiales) y lo sustituimos
-//   entero, así todo queda siempre consistente entre sí.
-// Si JS falla o está desactivado, los formularios siguen funcionando como
-// una navegación normal (progressive enhancement).
+
 (function () {
     "use strict";
 
@@ -35,8 +29,6 @@
         });
     }
 
-    // Delegado en el contenedor porque cada acción reemplaza su contenido
-    // entero (incluidos los propios formularios).
     contenedor.addEventListener("submit", function (e) {
         var form = e.target;
         var esDevolver = form.classList.contains("js-form-devolver");

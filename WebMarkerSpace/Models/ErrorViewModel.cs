@@ -1,4 +1,3 @@
-// "Copyright (c) YOUR_COMPANY. All rights reserved."
 
 namespace WebMarkerSpace.Models {
     public class ErrorViewModel {

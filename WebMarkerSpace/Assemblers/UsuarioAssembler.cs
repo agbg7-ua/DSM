@@ -1,4 +1,3 @@
-// "Copyright (c) YOUR_COMPANY. All rights reserved."
 
 using ApplicationCore.Domain.EN;
 using System;
@@ -16,7 +15,7 @@ namespace WebMarkerSpace.Assemblers {
             model.Id = en.Id;
             model.Nombre = en.Nombre;
             model.Email = en.Email;
-            model.Contrasenia = en.Contrasenia; 
+            model.Contrasenia = en.Contrasenia;
             model.Rol = en.Rol;
 
             return model;

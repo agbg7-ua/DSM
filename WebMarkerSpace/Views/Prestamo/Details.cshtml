@@ -11,7 +11,6 @@
     @await Html.PartialAsync("_PrestamoDetallesPartial", Model)
 </div>
 
-@* Token reutilizado por prestamo-detalle.js para las peticiones AJAX *@
 <form id="af-token-form" class="d-none">@Html.AntiForgeryToken()</form>
 
 @section Scripts {

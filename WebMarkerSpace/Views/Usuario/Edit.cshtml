@@ -5,9 +5,7 @@
 
 @{
     ViewData["Title"] = Localizer["Editar"];
-    // Igual que en MaterialController/PrestamoController: el desplegable debe
-    // mostrar el nombre TRADUCIDO del rol (Enum.RolUsuario.* en
-    // SharedResource), no el ToString() en crudo que da GetEnumSelectList.
+
     var rolItems = new SelectList(
         Enum.GetValues(typeof(RolUsuario)).Cast<RolUsuario>()
             .Select(r => new SelectListItem(Localizer.Localize(r), r.ToString())),

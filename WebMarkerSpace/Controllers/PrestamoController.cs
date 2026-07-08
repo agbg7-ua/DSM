@@ -1,4 +1,3 @@
-// "Copyright (c) YOUR_COMPANY. All rights reserved."
 
 using ApplicationCore.Domain.CEN;
 using ApplicationCore.Domain.CP;
@@ -17,24 +16,16 @@ using WebMarkerSpace.Extensions;
 using WebMarkerSpace.Models;
 
 namespace WebMarkerSpace.Controllers {
-    // Cualquier usuario logueado (Administrador o Usuario) puede ver y pedir
-    // préstamos. Editar/eliminar préstamos ya existentes queda restringido a
-    // Administrador (ver atributos concretos más abajo).
+
     [Authorize]
     public class PrestamoController : Controller {
         private readonly PrestamoCEN _prestamoCEN;
-        private readonly UsuarioCEN _usuarioCEN; // Lo necesitamos para los desplegables de usuarios
+        private readonly UsuarioCEN _usuarioCEN;
         private readonly LineaPrestamoCEN _lineaPrestamoCEN;
         private readonly MaterialCEN _materialCEN;
         private readonly NHibernate.ISession _session;
         private readonly IStringLocalizer<SharedResource> _localizer;
 
-        // OJO: CasosProceso (y su IUnitOfWork) NO se inyectan aquí por
-        // constructor a propósito: IUnitOfWork abre una transacción en cuanto
-        // se construye, y si estuviera en el constructor se abriría en TODAS
-        // las acciones de este controlador, chocando con nuestras propias
-        // transacciones manuales de Create/Edit/Delete. Por eso en Devolver()
-        // se pide como parámetro de acción ([FromServices]), solo cuando hace falta.
         public PrestamoController(PrestamoCEN prestamoCEN, UsuarioCEN usuarioCEN, LineaPrestamoCEN lineaPrestamoCEN, MaterialCEN materialCEN, NHibernate.ISession session, IStringLocalizer<SharedResource> localizer) {
             _prestamoCEN = prestamoCEN;
             _usuarioCEN = usuarioCEN;
@@ -49,9 +40,6 @@ namespace WebMarkerSpace.Controllers {
             return claim != null ? long.Parse(claim.Value) : 0;
         }
 
-        // GET: Prestamo
-        // Un usuario normal solo ve SUS préstamos; un Administrador los ve todos
-        // y además puede filtrar por usuario. Ambos pueden filtrar por estado.
         public ActionResult Index(EstadoPrestamo? estado, long? usuarioId) {
             bool esAdmin = User.IsInRole("Administrador");
             IEnumerable<Prestamo> prestamos = _prestamoCEN.ObtenerTodos();
@@ -70,9 +58,7 @@ namespace WebMarkerSpace.Controllers {
             IEnumerable<PrestamoViewModel> modelList = new PrestamoAssembler().ConvertirListaENToViewModel(prestamos.ToList());
 
             ViewBag.EsAdmin = esAdmin;
-            // Igual que en MaterialController.Index: el <option> debe mostrar
-            // el nombre TRADUCIDO del estado (Enum.EstadoPrestamo.* en
-            // SharedResource), no Enum.GetValues(...).ToString() en crudo.
+
             ViewBag.FiltroEstado = new SelectList(
                 Enum.GetValues(typeof(EstadoPrestamo)).Cast<EstadoPrestamo>()
                     .Select(e => new SelectListItem(_localizer.Localize(e), e.ToString(), e.Equals(estado))),
@@ -81,7 +67,6 @@ namespace WebMarkerSpace.Controllers {
                 ViewBag.FiltroUsuarioId = new SelectList(_usuarioCEN.ObtenerTodos(), "Id", "Nombre", usuarioId);
             }
 
-            // Peticiones AJAX (filtro dinámico) solo necesitan la tabla.
             if (EsPeticionAjax()) {
                 return PartialView("_PrestamoListPartial", modelList);
             }
@@ -89,8 +74,6 @@ namespace WebMarkerSpace.Controllers {
             return View(modelList);
         }
 
-        // GET: PrestamoController/Details/5
-        // Un usuario normal solo puede ver el detalle de sus propios préstamos.
         public ActionResult Details(int id) {
             Prestamo prestamoEN = _prestamoCEN.ObtenerPorId(id);
             if (prestamoEN == null) {
@@ -107,9 +90,6 @@ namespace WebMarkerSpace.Controllers {
             return View(model);
         }
 
-        // GET: PrestamoController/Create
-        // materialId es opcional: si venimos del botón "Solicitar préstamo" de un
-        // material concreto, lo añadimos automáticamente como primera línea del préstamo.
         public ActionResult Create(long? materialId) {
             bool esAdmin = User.IsInRole("Administrador");
 
@@ -122,7 +102,7 @@ namespace WebMarkerSpace.Controllers {
             if (esAdmin) {
                 ViewBag.UsuarioId = new SelectList(_usuarioCEN.ObtenerTodos(), "Id", "Nombre");
             } else {
-                // Un usuario normal solo puede pedir préstamos para sí mismo.
+
                 model.UsuarioId = ObtenerIdUsuarioActual();
             }
 
@@ -131,20 +111,16 @@ namespace WebMarkerSpace.Controllers {
             return View(model);
         }
 
-        // POST: PrestamoController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(PrestamoViewModel model, long? materialId) {
             bool esAdmin = User.IsInRole("Administrador");
             if (!esAdmin) {
-                // No nos fiamos de lo que llegue del formulario: un usuario normal
-                // siempre pide el préstamo para sí mismo y siempre empieza Pendiente.
+
                 model.UsuarioId = ObtenerIdUsuarioActual();
                 model.Estado = EstadoPrestamo.Pendiente;
             }
 
-            // Un material solo se puede prestar si está Disponible (no si ya
-            // está Prestado, En Mantenimiento o Roto).
             Material? material = null;
             if (materialId.HasValue) {
                 material = _materialCEN.ObtenerPorId(materialId.Value);
@@ -168,7 +144,7 @@ namespace WebMarkerSpace.Controllers {
 
                 if (material != null) {
                     _lineaPrestamoCEN.Crear(nuevoPrestamoId, material.Id, model.TotalDias);
-                    // El material pasa a estar Prestado y queda asignado a quien lo pide.
+
                     _materialCEN.Modificar(material.Id, material.Nombre, material.Descripcion, EstadoMaterial.Prestado, material.Categoria, material.Imagen, model.UsuarioId);
                 }
 
@@ -189,10 +165,6 @@ namespace WebMarkerSpace.Controllers {
             }
         }
 
-        // POST: PrestamoController/Devolver/5
-        // Marca el préstamo como Devuelto y libera todos sus materiales (vuelven
-        // a Disponible y se les quita el usuario asignado). Lo puede hacer un
-        // Administrador o el propio dueño del préstamo.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Devolver(long id, [FromServices] CasosProceso casosProceso) {
@@ -228,9 +200,6 @@ namespace WebMarkerSpace.Controllers {
             return RedirectToAction(nameof(Details), new { id });
         }
 
-        // GET: PrestamoController/Edit/5
-        // Editar el estado/datos de un préstamo ya existente es una tarea de
-        // administración (marcar como Activo/Devuelto/Retrasado, corregir días, etc.).
         [Authorize(Roles = "Administrador")]
         public ActionResult Edit(int id) {
             var prestamoEN = _prestamoCEN.ObtenerPorId(id);
@@ -242,7 +211,6 @@ namespace WebMarkerSpace.Controllers {
             return View(model);
         }
 
-        // POST: PrestamoController/Edit/5
         [HttpPost]
         [Authorize(Roles = "Administrador")]
         [ValidateAntiForgeryToken]
@@ -261,7 +229,6 @@ namespace WebMarkerSpace.Controllers {
             }
         }
 
-        // GET: PrestamoController/Delete/5
         [Authorize(Roles = "Administrador")]
         public ActionResult Delete(int id) {
             var prestamoEN = _prestamoCEN.ObtenerPorId(id);
@@ -272,7 +239,6 @@ namespace WebMarkerSpace.Controllers {
             return View(model);
         }
 
-        // POST: PrestamoController/Delete/5
         [HttpPost]
         [Authorize(Roles = "Administrador")]
         [ValidateAntiForgeryToken]
@@ -298,8 +264,6 @@ namespace WebMarkerSpace.Controllers {
             }
         }
 
-        // Indica si la petición viene de una llamada AJAX (fetch/$.ajax) en vez
-        // de una navegación normal del navegador.
         private bool EsPeticionAjax() {
             return Request.Headers["X-Requested-With"] == "XMLHttpRequest";
         }

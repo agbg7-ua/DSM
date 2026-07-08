@@ -14,7 +14,6 @@
     };
 }
 
-<!-- Breadcrumb -->
 <nav aria-label="@Localizer["Common.BreadcrumbLabel"]" class="mb-3">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-controller="Material" asp-action="Index">@Localizer["Material.Index.Title"]</a></li>
@@ -24,7 +23,6 @@
 
 <div class="row g-4 align-items-start">
 
-    <!-- Columna imagen -->
     <div class="col-md-5">
         <div class="card border-0 shadow-sm">
             <div style="height:320px; background:#f8f9fa; border-radius:0.375rem;"
@@ -45,7 +43,6 @@
         </div>
     </div>
 
-    <!-- Columna datos -->
     <div class="col-md-7">
         <h1 class="mb-2">@Model.Nombre</h1>
 
@@ -65,7 +62,6 @@
 
         <hr />
 
-        <!-- Acciones -->
         <div class="d-flex gap-2 flex-wrap mt-3">
             @if (User.Identity != null && User.Identity.IsAuthenticated && disponible)
             {

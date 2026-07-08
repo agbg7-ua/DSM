@@ -1,4 +1,3 @@
-// "Copyright (c) YOUR_COMPANY. All rights reserved."
 
 using System.ComponentModel.DataAnnotations;
 using ApplicationCore.Domain.Enums;
