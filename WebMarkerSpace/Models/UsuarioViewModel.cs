@@ -19,7 +19,7 @@ namespace WebMarkerSpace.Models {
 
         [Display(Name = "Common.Field.Password")]
         [DataType(DataType.Password)]
-        public string Contrasenia { get; set; }
+        public string? Contrasenia { get; set; }
         [Required(ErrorMessage = "Common.Field.Role.Required")]
         public RolUsuario Rol { get; set; }
     }
