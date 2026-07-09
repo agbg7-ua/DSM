@@ -8,10 +8,14 @@ namespace ApplicationCore.Domain.CEN;
 public class UsuarioCEN
 {
     private readonly IUsuarioRepository _repository;
+    private readonly IPrestamoRepository _prestamoRepository;
+    private readonly IMaterialRepository _materialRepository;
 
-    public UsuarioCEN(IUsuarioRepository repository)
+    public UsuarioCEN(IUsuarioRepository repository, IPrestamoRepository prestamoRepository, IMaterialRepository materialRepository)
     {
         _repository = repository;
+        _prestamoRepository = prestamoRepository;
+        _materialRepository = materialRepository;
     }
 
     public long Crear(string nombre, string email, string contrasenia, RolUsuario rol)
@@ -45,7 +49,51 @@ public class UsuarioCEN
     {
         var usuario = _repository.DamePorOID(id)
             ?? throw new InvalidOperationException($"Usuario con id {id} no encontrado.");
+
+        // Se eliminan primero los préstamos (y sus líneas) del usuario de forma explícita.
+        // Importante: se filtra por la propiedad de navegación "Usuario" (la que está mapeada
+        // por NHibernate), no por el campo "UsuarioId" de la entidad, que es una propiedad
+        // "sombra" que el ORM nunca rellena y siempre valdría 0.
+        var prestamos = _prestamoRepository.DameTodos()
+            .Where(p => p.Usuario != null && p.Usuario.Id == id)
+            .ToList();
+
+        foreach (var prestamo in prestamos)
+        {
+            _prestamoRepository.Destroy(prestamo);
+        }
+
+        // Los materiales pueden tener asignado un usuario responsable (Material.UsuarioAsignado).
+        // Esa relación no tiene cascade, así que hay que desasignarla explícitamente o la
+        // base de datos rechaza el borrado del usuario por clave foránea. Igual que arriba,
+        // se filtra por la navegación "UsuarioAsignado", no por el "UsuarioId" sin mapear.
+        var materialesAsignados = _materialRepository.DameTodos()
+            .Where(m => m.UsuarioAsignado != null && m.UsuarioAsignado.Id == id)
+            .ToList();
+
+        foreach (var material in materialesAsignados)
+        {
+            material.UsuarioAsignado = null;
+            _materialRepository.Modify(material);
+        }
+
         _repository.Destroy(usuario);
+    }
+
+    public bool VerificarContrasenia(long id, string contrasenia)
+    {
+        var usuario = _repository.DamePorOID(id);
+        if (usuario == null || string.IsNullOrWhiteSpace(contrasenia))
+        {
+            return false;
+        }
+        return PasswordHasher.Verify(contrasenia, usuario.Contrasenia);
+    }
+
+    public bool EsCuentaExterna(long id)
+    {
+        var usuario = _repository.DamePorOID(id);
+        return usuario != null && !string.IsNullOrWhiteSpace(usuario.ProveedorExterno);
     }
 
     public Usuario? ObtenerPorId(long id) => _repository.DamePorOID(id);

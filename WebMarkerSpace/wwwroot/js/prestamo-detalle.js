@@ -29,7 +29,7 @@
         });
     }
 
-    contenedor.addEventListener("submit", function (e) {
+    contenedor.addEventListener("submit", async function (e) {
         var form = e.target;
         var esDevolver = form.classList.contains("js-form-devolver");
         var esEliminarLinea = form.classList.contains("js-form-eliminar-linea");
@@ -40,11 +40,42 @@
 
         e.preventDefault();
 
-        var mensajeConfirmacion = esDevolver
-            ? "¿Confirmas que quieres marcar este préstamo como devuelto?"
-            : "¿Seguro que quieres quitar este material del préstamo?";
-        if (!window.confirm(mensajeConfirmacion)) {
-            return;
+        var i18n = document.getElementById("prestamo-detalle-i18n");
+
+        if (esDevolver) {
+            var resultDevolver = await Swal.fire({
+                title: i18n ? i18n.dataset.devolverTitulo : "¿Marcar como devuelto?",
+                text: i18n ? i18n.dataset.devolverTexto : "¿Confirmas que quieres marcar este préstamo como devuelto?",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: i18n ? i18n.dataset.devolverBoton : "Sí, marcar como devuelto",
+                cancelButtonText: i18n ? i18n.dataset.cancelar : "Cancelar",
+                confirmButtonColor: "#198754",
+                cancelButtonColor: "#6c757d",
+                reverseButtons: true,
+                focusCancel: true
+            });
+
+            if (!resultDevolver.isConfirmed) {
+                return;
+            }
+        } else {
+            var result = await Swal.fire({
+                title: i18n ? i18n.dataset.confirmarTitulo : "¿Quitar material?",
+                text: i18n ? i18n.dataset.confirmarTexto : "¿Seguro que quieres quitar este material del préstamo?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: i18n ? i18n.dataset.confirmarBoton : "Eliminar",
+                cancelButtonText: i18n ? i18n.dataset.cancelar : "Cancelar",
+                confirmButtonColor: "#dc3545",
+                cancelButtonColor: "#6c757d",
+                reverseButtons: true,
+                focusCancel: true
+            });
+
+            if (!result.isConfirmed) {
+                return;
+            }
         }
 
         var boton = form.querySelector("button[type='submit']");
@@ -57,7 +88,11 @@
                 contenedor.innerHTML = html;
             })
             .catch(function () {
-                window.alert("No se pudo completar la acción. Inténtalo de nuevo.");
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "No se pudo completar la acción. Inténtalo de nuevo."
+                });
                 if (boton) {
                     boton.disabled = false;
                 }

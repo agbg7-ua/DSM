@@ -21,7 +21,7 @@ else
         <tbody>
         @foreach (var item in Model)
         {
-            <tr>
+            <tr data-usuario-id="@item.Id">
                 <td>@item.Nombre</td>
                 <td>@item.Email</td>
                 <td>@Localizer.Localize(item.Rol)</td>
@@ -42,7 +42,9 @@ else
 
                     <a asp-action="Delete"
                        asp-route-id="@item.Id"
-                       class="btn btn-outline-danger btn-sm">
+                       class="btn btn-outline-danger btn-sm js-borrar-usuario"
+                       data-id="@item.Id"
+                       data-nombre="@item.Nombre">
                         @Localizer["Eliminar"]
                     </a>
 

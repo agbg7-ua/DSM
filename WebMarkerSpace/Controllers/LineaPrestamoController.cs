@@ -88,12 +88,9 @@ namespace WebMarkerSpace.Controllers {
         }
 
         [HttpPost]
+        [Authorize(Roles = "Administrador")]
         [ValidateAntiForgeryToken]
         public ActionResult Delete(int id, long prestamoId) {
-            if (!PuedeGestionar(prestamoId)) {
-                return Forbid();
-            }
-
             var linea = _lineaPrestamoCEN.ObtenerPorId(id);
             string? error = null;
 

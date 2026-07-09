@@ -70,6 +70,45 @@
     <a asp-controller="Prestamo" asp-action="Index">@Localizer["Perfil.ViewLoans"]</a>
 </div>
 
+<hr class="my-4" />
+
+<div class="card border-danger">
+    <div class="card-body">
+        <h2 class="card-title h5 text-danger">@Localizer["Perfil.Delete.SectionTitle"]</h2>
+        <p class="card-text text-muted">@Localizer["Perfil.Delete.Warning"]</p>
+
+        <button type="button"
+                id="btn-eliminar-perfil"
+                class="btn btn-outline-danger">
+            @Localizer["Perfil.Delete.Button"]
+        </button>
+    </div>
+</div>
+
+<form id="af-token-form" class="d-none">
+    @Html.AntiForgeryToken()
+</form>
+
+<div id="perfil-delete-i18n"
+     class="d-none"
+     data-es-externa="@Model.EsCuentaExterna.ToString().ToLowerInvariant()"
+     data-confirmar-titulo="@Localizer["Perfil.Delete.ConfirmTitle"]"
+     data-confirmar-texto="@Localizer["Perfil.Delete.ConfirmText"]"
+     data-confirmar-boton="@Localizer["Perfil.Delete.ConfirmButton"]"
+     data-cancelar="@Localizer["Cancelar"]"
+     data-password-label="@Localizer["Perfil.Delete.PasswordLabel"]"
+     data-password-placeholder="@Localizer["Perfil.Delete.PasswordPlaceholder"]"
+     data-password-required="@Localizer["Perfil.Delete.PasswordRequired"]"
+     data-eliminado-titulo="@Localizer["Perfil.Delete.SuccessTitle"]"
+     data-eliminado-texto="@Localizer["Perfil.Delete.SuccessText"]"
+     data-error="@Localizer["Common.Error"]"
+     data-error-borrar="@Localizer["Perfil.Delete.GenericError"]"
+     data-error-red="@Localizer["Common.NetworkError"]"
+     data-delete-url="@Url.Action("EliminarPerfil", "Usuario")"
+     data-redirect-url="@Url.Action("Login", "Usuario")">
+</div>
+
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/js/perfil.js" asp-append-version="true"></script>
 }

@@ -311,3 +311,19 @@ main p,
 .language-toggle-on-light .language-toggle__switch input[type="checkbox"]:focus-visible + .language-toggle__slider {
   outline-color: #0b3d91;
 }
+
+/* =======================================================================
+   Cards con stretched-link (catálogo de materiales)
+   -----------------------------------------------------------------------
+   El enlace "Detalles" usa .stretched-link para que toda la tarjeta sea
+   clicable, lo que genera una capa invisible (::after) que cubre todo su
+   ancestro posicionado (.card-footer). Sin esta regla, esa capa queda por
+   encima de los botones "Editar" y "Borrar" del mismo footer e intercepta
+   los clics, haciendo que siempre se navegue a Detalles. Al dar position
+   relative + z-index propio a los demás botones del footer, quedan por
+   encima de esa capa y vuelven a ser clicables.
+   ======================================================================= */
+.card-footer .btn:not(.stretched-link) {
+    position: relative;
+    z-index: 2;
+}

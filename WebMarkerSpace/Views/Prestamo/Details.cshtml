@@ -13,6 +13,17 @@
 
 <form id="af-token-form" class="d-none">@Html.AntiForgeryToken()</form>
 
+<div id="prestamo-detalle-i18n"
+     class="d-none"
+     data-confirmar-titulo="@Localizer["LineaPrestamo.Delete.ConfirmTitle"]"
+     data-confirmar-texto="@Localizer["LineaPrestamo.Delete.ConfirmText"]"
+     data-confirmar-boton="@Localizer["Eliminar"]"
+     data-cancelar="@Localizer["Cancelar"]"
+     data-devolver-titulo="@Localizer["Prestamo.Devolver.ConfirmTitle"]"
+     data-devolver-texto="@Localizer["Prestamo.Devolver.ConfirmText"]"
+     data-devolver-boton="@Localizer["Prestamo.Devolver.ConfirmButton"]">
+</div>
+
 @section Scripts {
     <script src="~/js/prestamo-detalle.js" asp-append-version="true"></script>
 }

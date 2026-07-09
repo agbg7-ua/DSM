@@ -48,7 +48,7 @@
         </dd>
     </dl>
 
-    @if (Model.Estado != EstadoPrestamo.Devuelto)
+    @if (Model.Estado != EstadoPrestamo.Devuelto && User.IsInRole("Administrador"))
     {
         <form asp-controller="Prestamo"
               asp-action="Devolver"
@@ -100,7 +100,7 @@
                 <td>@linea.DiasEstimados</td>
 
                 <td>
-                    @if (Model.Estado != EstadoPrestamo.Devuelto)
+                    @if (Model.Estado != EstadoPrestamo.Devuelto && User.IsInRole("Administrador"))
                     {
                         <form asp-controller="LineaPrestamo"
                               asp-action="Delete"

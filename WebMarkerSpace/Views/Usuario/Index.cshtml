@@ -60,6 +60,23 @@
 
 </div>
 
+<form id="af-token-form" class="d-none">
+    @Html.AntiForgeryToken()
+</form>
+
+<div id="usuarios-i18n"
+     class="d-none"
+     data-confirmar-titulo="@Localizer["Usuario.Delete.ConfirmTitle"]"
+     data-confirmar-texto="@Localizer["Usuario.Delete.ConfirmText"]"
+     data-confirmar-boton="@Localizer["Usuario.Delete.ConfirmButton"]"
+     data-cancelar="@Localizer["Cancelar"]"
+     data-eliminado-titulo="@Localizer["Usuario.Delete.SuccessTitle"]"
+     data-eliminado-texto="@Localizer["Usuario.Delete.SuccessText"]"
+     data-error="@Localizer["Common.Error"]"
+     data-error-borrar="@Localizer["Usuario.Delete.GenericError"]"
+     data-error-red="@Localizer["Common.NetworkError"]">
+</div>
+
 @section Scripts
 {
     <script src="~/js/usuario-index.js" asp-append-version="true"></script>

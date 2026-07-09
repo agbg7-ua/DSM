@@ -88,7 +88,9 @@
                 <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-secondary">
                     <i class="bi bi-pencil me-1"></i>@Localizer["Common.Edit"]
                 </a>
-                <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger">
+                <a asp-action="Delete" asp-route-id="@Model.Id"
+                   class="btn btn-outline-danger js-borrar-material-details"
+                   data-id="@Model.Id" data-nombre="@Model.Nombre">
                     <i class="bi bi-trash me-1"></i>@Localizer["Material.Details.DeleteButton"]
                 </a>
             }
@@ -102,3 +104,26 @@
     </div>
 
 </div>
+
+<form id="af-token-form" class="d-none">
+    @Html.AntiForgeryToken()
+</form>
+
+<div id="material-details-i18n"
+     class="d-none"
+     data-confirmar-titulo="@Localizer["Material.Delete.ConfirmTitle"]"
+     data-confirmar-texto="@Localizer["Material.Delete.ConfirmText"]"
+     data-confirmar-boton="@Localizer["Material.Delete.ConfirmButton"]"
+     data-cancelar="@Localizer["Material.Edit.CancelButton"]"
+     data-eliminado-titulo="@Localizer["Material.Delete.SuccessTitle"]"
+     data-eliminado-texto="@Localizer["Material.Delete.SuccessText"]"
+     data-error="@Localizer["Common.Error"]"
+     data-error-borrar="@Localizer["Material.Delete.Error"]"
+     data-error-red="@Localizer["Common.NetworkError"]"
+     data-index-url="@Url.Action("Index", "Material")">
+</div>
+
+@section Scripts
+{
+    <script src="~/js/material-details.js" asp-append-version="true"></script>
+}

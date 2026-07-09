@@ -55,6 +55,19 @@
     @Html.AntiForgeryToken()
 </form>
 
+<div id="prestamos-i18n"
+     class="d-none"
+     data-confirmar-titulo="@Localizer["Prestamo.Delete.ConfirmTitle"]"
+     data-confirmar-texto="@Localizer["Prestamo.Delete.ConfirmText"]"
+     data-confirmar-boton="@Localizer["Prestamo.Delete.ConfirmButton"]"
+     data-cancelar="@Localizer["Cancelar"]"
+     data-eliminado-titulo="@Localizer["Prestamo.Delete.SuccessTitle"]"
+     data-eliminado-texto="@Localizer["Prestamo.Delete.SuccessText"]"
+     data-error="@Localizer["Common.Error"]"
+     data-error-borrar="@Localizer["Prestamo.Delete.Error"]"
+     data-error-red="@Localizer["Common.NetworkError"]">
+</div>
+
 <div id="prestamos-resultados" aria-live="polite">
     @await Html.PartialAsync("_PrestamoListPartial", Model)
 </div>

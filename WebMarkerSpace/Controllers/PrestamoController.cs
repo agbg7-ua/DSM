@@ -175,16 +175,12 @@ namespace WebMarkerSpace.Controllers {
         }
 
         [HttpPost]
+        [Authorize(Roles = "Administrador")]
         [ValidateAntiForgeryToken]
         public ActionResult Devolver(long id, [FromServices] CasosProceso casosProceso) {
             var prestamoEN = _prestamoCEN.ObtenerPorId(id);
             if (prestamoEN == null) {
                 return NotFound();
-            }
-
-            bool esAdmin = User.IsInRole("Administrador");
-            if (!esAdmin && prestamoEN.Usuario.Id != ObtenerIdUsuarioActual()) {
-                return Forbid();
             }
 
             string? error = null;

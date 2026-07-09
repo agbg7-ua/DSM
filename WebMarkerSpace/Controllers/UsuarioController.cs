@@ -157,7 +157,8 @@ namespace WebMarkerSpace.Controllers {
                 Id = usuarioEN.Id,
                 Nombre = usuarioEN.Nombre,
                 Email = usuarioEN.Email,
-                Rol = usuarioEN.Rol
+                Rol = usuarioEN.Rol,
+                EsCuentaExterna = !string.IsNullOrWhiteSpace(usuarioEN.ProveedorExterno)
             };
             return View(model);
         }
@@ -169,6 +170,7 @@ namespace WebMarkerSpace.Controllers {
             long miId = long.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
             model.Id = miId;
+            model.EsCuentaExterna = _usuarioCEN.EsCuentaExterna(miId);
 
             if (!ModelState.IsValid) {
                 return View(model);
@@ -195,6 +197,65 @@ namespace WebMarkerSpace.Controllers {
 
             TempData["MensajeExito"] = _localizer["Perfil.UpdateSuccess"].Value;
             return RedirectToAction(nameof(Perfil));
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> EliminarPerfil(string? contrasenia) {
+            long miId = long.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            // Si la cuenta no es externa (OIDC), se exige confirmar con la contraseña actual.
+            if (!_usuarioCEN.EsCuentaExterna(miId) && !_usuarioCEN.VerificarContrasenia(miId, contrasenia ?? string.Empty)) {
+                if (EsPeticionAjax()) {
+                    return Json(new { success = false, message = _localizer["Perfil.Delete.WrongPassword"].Value });
+                }
+
+                ModelState.AddModelError("", _localizer["Perfil.Delete.WrongPassword"].Value);
+
+                var usuarioActualPwd = _usuarioCEN.ObtenerPorId(miId);
+                var modelPwd = new PerfilViewModel {
+                    Id = miId,
+                    Nombre = usuarioActualPwd?.Nombre ?? string.Empty,
+                    Email = usuarioActualPwd?.Email ?? string.Empty,
+                    Rol = usuarioActualPwd?.Rol ?? RolUsuario.Usuario,
+                    EsCuentaExterna = !string.IsNullOrWhiteSpace(usuarioActualPwd?.ProveedorExterno)
+                };
+                return View(nameof(Perfil), modelPwd);
+            }
+
+            using var tx = _session.BeginTransaction();
+            try {
+                _usuarioCEN.Eliminar(miId);
+                tx.Commit();
+            }
+            catch (Exception ex) {
+                tx.Rollback();
+
+                if (EsPeticionAjax()) {
+                    return Json(new { success = false, message = _localizer["Perfil.Delete.Error", MensajeDeError(ex)].Value });
+                }
+
+                ModelState.AddModelError("", _localizer["Perfil.Delete.Error", MensajeDeError(ex)].Value);
+
+                var usuarioActual = _usuarioCEN.ObtenerPorId(miId);
+                var model = new PerfilViewModel {
+                    Id = miId,
+                    Nombre = usuarioActual?.Nombre ?? string.Empty,
+                    Email = usuarioActual?.Email ?? string.Empty,
+                    Rol = usuarioActual?.Rol ?? RolUsuario.Usuario,
+                    EsCuentaExterna = !string.IsNullOrWhiteSpace(usuarioActual?.ProveedorExterno)
+                };
+                return View(nameof(Perfil), model);
+            }
+
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            if (EsPeticionAjax()) {
+                return Json(new { success = true });
+            }
+
+            return RedirectToAction("Login");
         }
 
         [Authorize(Roles = "Administrador")]
@@ -281,13 +342,27 @@ namespace WebMarkerSpace.Controllers {
             try {
                 _usuarioCEN.Eliminar(id);
                 tx.Commit();
+
+                if (EsPeticionAjax()) {
+                    return Json(new { success = true });
+                }
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex) {
                 tx.Rollback();
-                ModelState.AddModelError("", _localizer["Usuario.Delete.Error", ex.Message].Value);
+
+                if (EsPeticionAjax()) {
+                    return Json(new { success = false, message = _localizer["Usuario.Delete.Error", MensajeDeError(ex)].Value });
+                }
+                ModelState.AddModelError("", _localizer["Usuario.Delete.Error", MensajeDeError(ex)].Value);
                 return View(user);
             }
         }
+
+        private bool EsPeticionAjax() {
+            return Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+        }
+
+        private static string MensajeDeError(Exception ex) => ex.GetBaseException().Message;
     }
 }

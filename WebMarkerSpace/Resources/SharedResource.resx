@@ -220,6 +220,48 @@
   <data name="Perfil.ViewLoans" xml:space="preserve">
     <value>Ver mis préstamos</value>
   </data>
+  <data name="Perfil.Delete.SectionTitle" xml:space="preserve">
+    <value>Zona de peligro</value>
+  </data>
+  <data name="Perfil.Delete.Warning" xml:space="preserve">
+    <value>Eliminar tu cuenta es una acción permanente y no se puede deshacer.</value>
+  </data>
+  <data name="Perfil.Delete.Button" xml:space="preserve">
+    <value>Eliminar mi cuenta</value>
+  </data>
+  <data name="Perfil.Delete.ConfirmTitle" xml:space="preserve">
+    <value>¿Eliminar tu cuenta?</value>
+  </data>
+  <data name="Perfil.Delete.ConfirmText" xml:space="preserve">
+    <value>Esta acción es permanente y no se puede deshacer. ¿Seguro que quieres eliminar tu cuenta?</value>
+  </data>
+  <data name="Perfil.Delete.ConfirmButton" xml:space="preserve">
+    <value>Sí, eliminar mi cuenta</value>
+  </data>
+  <data name="Perfil.Delete.SuccessTitle" xml:space="preserve">
+    <value>Cuenta eliminada</value>
+  </data>
+  <data name="Perfil.Delete.SuccessText" xml:space="preserve">
+    <value>Tu cuenta ha sido eliminada. Se ha cerrado tu sesión.</value>
+  </data>
+  <data name="Perfil.Delete.Error" xml:space="preserve">
+    <value>No se pudo eliminar tu cuenta: {0}</value>
+  </data>
+  <data name="Perfil.Delete.GenericError" xml:space="preserve">
+    <value>No se pudo eliminar tu cuenta. Inténtalo de nuevo.</value>
+  </data>
+  <data name="Perfil.Delete.PasswordLabel" xml:space="preserve">
+    <value>Introduce tu contraseña para confirmar</value>
+  </data>
+  <data name="Perfil.Delete.PasswordPlaceholder" xml:space="preserve">
+    <value>Contraseña actual</value>
+  </data>
+  <data name="Perfil.Delete.PasswordRequired" xml:space="preserve">
+    <value>Debes introducir tu contraseña para poder eliminar la cuenta.</value>
+  </data>
+  <data name="Perfil.Delete.WrongPassword" xml:space="preserve">
+    <value>La contraseña introducida no es correcta.</value>
+  </data>
   <data name="Material.Index.Title" xml:space="preserve">
     <value>Materiales</value>
   </data>
@@ -673,6 +715,74 @@
 
   <data name="Material.Delete.Error" xml:space="preserve">
     <value>No se pudo borrar el material.</value>
+  </data>
+
+  <data name="Prestamo.Delete.ConfirmTitle" xml:space="preserve">
+    <value>¿Borrar préstamo?</value>
+  </data>
+
+  <data name="Prestamo.Delete.ConfirmText" xml:space="preserve">
+    <value>¿Estás seguro de que deseas borrar {0}?</value>
+  </data>
+
+  <data name="Prestamo.Delete.ConfirmButton" xml:space="preserve">
+    <value>Sí, borrar</value>
+  </data>
+
+  <data name="Prestamo.Delete.SuccessTitle" xml:space="preserve">
+    <value>Préstamo borrado</value>
+  </data>
+
+  <data name="Prestamo.Delete.SuccessText" xml:space="preserve">
+    <value>El préstamo ha sido borrado exitosamente.</value>
+  </data>
+
+  <data name="Prestamo.Delete.Error" xml:space="preserve">
+    <value>No se pudo borrar el préstamo.</value>
+  </data>
+
+  <data name="Usuario.Delete.ConfirmTitle" xml:space="preserve">
+    <value>¿Borrar usuario?</value>
+  </data>
+
+  <data name="Usuario.Delete.ConfirmText" xml:space="preserve">
+    <value>¿Estás seguro de que deseas borrar a "{0}"?</value>
+  </data>
+
+  <data name="Usuario.Delete.ConfirmButton" xml:space="preserve">
+    <value>Sí, borrar</value>
+  </data>
+
+  <data name="Usuario.Delete.SuccessTitle" xml:space="preserve">
+    <value>Usuario borrado</value>
+  </data>
+
+  <data name="Usuario.Delete.SuccessText" xml:space="preserve">
+    <value>El usuario ha sido borrado exitosamente.</value>
+  </data>
+
+  <data name="Usuario.Delete.GenericError" xml:space="preserve">
+    <value>No se pudo borrar el usuario.</value>
+  </data>
+
+  <data name="LineaPrestamo.Delete.ConfirmTitle" xml:space="preserve">
+    <value>¿Quitar material?</value>
+  </data>
+
+  <data name="LineaPrestamo.Delete.ConfirmText" xml:space="preserve">
+    <value>¿Seguro que quieres quitar este material del préstamo?</value>
+  </data>
+
+  <data name="Prestamo.Devolver.ConfirmTitle" xml:space="preserve">
+    <value>¿Marcar como devuelto?</value>
+  </data>
+
+  <data name="Prestamo.Devolver.ConfirmText" xml:space="preserve">
+    <value>¿Confirmas que quieres marcar este préstamo como devuelto?</value>
+  </data>
+
+  <data name="Prestamo.Devolver.ConfirmButton" xml:space="preserve">
+    <value>Sí, marcar como devuelto</value>
   </data>
 
   <data name="Common.Error" xml:space="preserve">

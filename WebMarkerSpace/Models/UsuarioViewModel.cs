@@ -81,5 +81,7 @@ namespace WebMarkerSpace.Models {
         [DataType(DataType.Password)]
         [Compare(nameof(NuevaContrasenia), ErrorMessage = "Common.Field.ConfirmPassword.Mismatch")]
         public string? ConfirmarNuevaContrasenia { get; set; }
+
+        public bool EsCuentaExterna { get; set; }
     }
 }
