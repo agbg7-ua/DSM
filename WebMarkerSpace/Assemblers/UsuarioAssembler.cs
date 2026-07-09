@@ -15,7 +15,7 @@ namespace WebMarkerSpace.Assemblers {
             model.Id = en.Id;
             model.Nombre = en.Nombre;
             model.Email = en.Email;
-            model.Contrasenia = en.Contrasenia;
+            model.Contrasenia = string.Empty;
             model.Rol = en.Rol;
 
             return model;

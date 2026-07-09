@@ -18,11 +18,8 @@ namespace WebMarkerSpace.Models {
         public string Email { get; set; }
 
         [Display(Name = "Common.Field.Password")]
-        [Required(ErrorMessage = "Common.Field.Password.Required")]
         [DataType(DataType.Password)]
         public string Contrasenia { get; set; }
-
-        [Display(Name = "Common.Field.Role")]
         [Required(ErrorMessage = "Common.Field.Role.Required")]
         public RolUsuario Rol { get; set; }
     }

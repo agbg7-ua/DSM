@@ -179,14 +179,10 @@ namespace WebMarkerSpace.Controllers {
                 return NotFound();
             }
 
-            string contraseniaFinal = string.IsNullOrWhiteSpace(model.NuevaContrasenia)
-                ? usuarioActual.Contrasenia
-                : model.NuevaContrasenia;
-
             using var tx = _session.BeginTransaction();
             try {
 
-                _usuarioCEN.Modificar(miId, model.Nombre, model.Email, contraseniaFinal, usuarioActual.Rol);
+                _usuarioCEN.Modificar(miId, model.Nombre, model.Email, model.NuevaContrasenia, usuarioActual.Rol);
                 tx.Commit();
             }
             catch (Exception ex) {

@@ -1,6 +1,7 @@
 using ApplicationCore.Domain.EN;
 using ApplicationCore.Domain.Enums;
 using ApplicationCore.Domain.Repositories;
+using ApplicationCore.Domain.Security;
 
 namespace ApplicationCore.Domain.CEN;
 
@@ -19,20 +20,23 @@ public class UsuarioCEN
         {
             Nombre = nombre,
             Email = email,
-            Contrasenia = contrasenia,
+            Contrasenia = PasswordHasher.Hash(contrasenia),
             Rol = rol
         };
         return _repository.New(usuario);
     }
 
-    public void Modificar(long id, string nombre, string email, string contrasenia, RolUsuario rol)
+    public void Modificar(long id, string nombre, string email, string? nuevaContrasenia, RolUsuario rol)
     {
         var usuario = _repository.DamePorOID(id)
             ?? throw new InvalidOperationException($"Usuario con id {id} no encontrado.");
 
         usuario.Nombre = nombre;
         usuario.Email = email;
-        usuario.Contrasenia = contrasenia;
+        if (!string.IsNullOrWhiteSpace(nuevaContrasenia))
+        {
+            usuario.Contrasenia = PasswordHasher.Hash(nuevaContrasenia);
+        }
         usuario.Rol = rol;
         _repository.Modify(usuario);
     }
@@ -50,8 +54,8 @@ public class UsuarioCEN
 
     public bool Login(string email, string contrasenia)
     {
-        return _repository.DameTodos()
-            .Any(u => u.Email == email && u.Contrasenia == contrasenia);
+        var usuario = _repository.DameTodos().FirstOrDefault(u => u.Email == email);
+        return usuario != null && PasswordHasher.Verify(contrasenia, usuario.Contrasenia);
     }
 
     public Usuario? ObtenerPorIdExterno(string proveedor, string idExterno) =>
