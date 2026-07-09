@@ -55,6 +55,8 @@ public class MaterialCEN
 
     public Material? ObtenerPorId(long id) => _repository.DamePorOID(id);
 
+    public Material? ObtenerPorIdConBloqueo(long id) => _repository.DamePorOIDConBloqueo(id);
+
     public IList<Material> ObtenerTodos() => _repository.DameTodos();
 
     public IList<Material> ObtenerPorEstado(EstadoMaterial estado) => _repository.DameFilterPorEstado(estado);

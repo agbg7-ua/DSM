@@ -6,4 +6,5 @@ namespace ApplicationCore.Domain.Repositories;
 public interface IMaterialRepository : IRepository<Material, long>
 {
     IList<Material> DameFilterPorEstado(EstadoMaterial estado);
+    Material? DamePorOIDConBloqueo(long id);
 }

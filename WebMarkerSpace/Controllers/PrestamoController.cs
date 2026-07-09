@@ -121,14 +121,6 @@ namespace WebMarkerSpace.Controllers {
                 model.Estado = EstadoPrestamo.Pendiente;
             }
 
-            Material? material = null;
-            if (materialId.HasValue) {
-                material = _materialCEN.ObtenerPorId(materialId.Value);
-                if (material == null || material.Estado != EstadoMaterial.Disponible) {
-                    ModelState.AddModelError("", "El material seleccionado ya no está disponible.");
-                }
-            }
-
             if (!ModelState.IsValid) {
                 if (esAdmin) {
                     ViewBag.UsuarioId = new SelectList(_usuarioCEN.ObtenerTodos(), "Id", "Nombre", model.UsuarioId);
@@ -140,6 +132,23 @@ namespace WebMarkerSpace.Controllers {
 
             using var tx = _session.BeginTransaction();
             try {
+                Material? material = null;
+                if (materialId.HasValue) {
+
+                    material = _materialCEN.ObtenerPorIdConBloqueo(materialId.Value);
+                    if (material == null || material.Estado != EstadoMaterial.Disponible) {
+                        tx.Rollback();
+
+                        ModelState.AddModelError("", "El material seleccionado ya no está disponible.");
+                        if (esAdmin) {
+                            ViewBag.UsuarioId = new SelectList(_usuarioCEN.ObtenerTodos(), "Id", "Nombre", model.UsuarioId);
+                        }
+                        ViewBag.EsAdmin = esAdmin;
+                        ViewBag.MaterialId = materialId;
+                        return View(model);
+                    }
+                }
+
                 long nuevoPrestamoId = _prestamoCEN.Crear(model.UsuarioId, model.FechaCreacion, model.Estado, model.TotalDias);
 
                 if (material != null) {

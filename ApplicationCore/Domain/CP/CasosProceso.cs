@@ -38,7 +38,7 @@ public class CasosProceso
         var materiales = new List<(Material Material, int DiasEstimados)>();
         foreach (var materialId in materialIds)
         {
-            var material = _materialCEN.ObtenerPorId(materialId)
+            var material = _materialCEN.ObtenerPorIdConBloqueo(materialId)
                 ?? throw new InvalidOperationException($"Material con id {materialId} no encontrado.");
 
             if (material.Estado != EstadoMaterial.Disponible)

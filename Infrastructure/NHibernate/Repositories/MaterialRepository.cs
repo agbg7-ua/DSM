@@ -15,4 +15,7 @@ public class MaterialRepository : RepositoryBase<Material, long>, IMaterialRepos
         Session.Query<Material>()
             .Where(m => m.Estado == estado)
             .ToList();
+
+    public Material? DamePorOIDConBloqueo(long id) =>
+        Session.Get<Material>(id, LockMode.Upgrade);
 }
