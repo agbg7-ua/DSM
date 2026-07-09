@@ -50,10 +50,6 @@ public class UsuarioCEN
         var usuario = _repository.DamePorOID(id)
             ?? throw new InvalidOperationException($"Usuario con id {id} no encontrado.");
 
-        // Se eliminan primero los préstamos (y sus líneas) del usuario de forma explícita.
-        // Importante: se filtra por la propiedad de navegación "Usuario" (la que está mapeada
-        // por NHibernate), no por el campo "UsuarioId" de la entidad, que es una propiedad
-        // "sombra" que el ORM nunca rellena y siempre valdría 0.
         var prestamos = _prestamoRepository.DameTodos()
             .Where(p => p.Usuario != null && p.Usuario.Id == id)
             .ToList();
@@ -63,10 +59,6 @@ public class UsuarioCEN
             _prestamoRepository.Destroy(prestamo);
         }
 
-        // Los materiales pueden tener asignado un usuario responsable (Material.UsuarioAsignado).
-        // Esa relación no tiene cascade, así que hay que desasignarla explícitamente o la
-        // base de datos rechaza el borrado del usuario por clave foránea. Igual que arriba,
-        // se filtra por la navegación "UsuarioAsignado", no por el "UsuarioId" sin mapear.
         var materialesAsignados = _materialRepository.DameTodos()
             .Where(m => m.UsuarioAsignado != null && m.UsuarioAsignado.Id == id)
             .ToList();

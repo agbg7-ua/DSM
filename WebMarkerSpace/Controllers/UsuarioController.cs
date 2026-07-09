@@ -205,7 +205,6 @@ namespace WebMarkerSpace.Controllers {
         public async Task<ActionResult> EliminarPerfil(string? contrasenia) {
             long miId = long.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
-            // Si la cuenta no es externa (OIDC), se exige confirmar con la contraseña actual.
             if (!_usuarioCEN.EsCuentaExterna(miId) && !_usuarioCEN.VerificarContrasenia(miId, contrasenia ?? string.Empty)) {
                 if (EsPeticionAjax()) {
                     return Json(new { success = false, message = _localizer["Perfil.Delete.WrongPassword"].Value });

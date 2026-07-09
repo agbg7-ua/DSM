@@ -8,12 +8,6 @@
 
 <h1>@(esAdmin? Localizer["Prestamos"] : Localizer["MisPrestamos"])</h1>
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">
-        @Localizer["NuevoPrestamo"]
-    </a>
-</p>
-
 <form asp-action="Index" method="get" class="row g-2 align-items-end mb-3" id="form-filtro-prestamos">
 
     <div class="col-auto">
